@@ -1,0 +1,13 @@
+# Local credentials and environment configuration
+.env
+.env.*
+!.env.example
+
+# Local Azure CLI state
+.azure/
+
+# Terraform local state and plans
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan

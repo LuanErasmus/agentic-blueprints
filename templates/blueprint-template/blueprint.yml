@@ -1,0 +1,9 @@
+name: Example Blueprint
+description: One-sentence summary of the engineering problem and workflow
+difficulty: beginner
+category: github
+patterns:
+  - human-in-the-loop
+autonomy: recommend
+requires:
+  - github

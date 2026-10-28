@@ -1,0 +1,37 @@
+name: Bug Report
+description: Report a problem with an existing blueprint
+title: "[Bug]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Remove secrets and sensitive data from logs before sharing them.
+  - type: input
+    id: blueprint
+    attributes:
+      label: Blueprint
+      description: Which blueprint is affected?
+      placeholder: GitHub Issue Triage
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What did you do?
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected and actual result
+      description: What did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant error output
+      description: Include redacted logs or error messages, if applicable.
+    validations:
+      required: false

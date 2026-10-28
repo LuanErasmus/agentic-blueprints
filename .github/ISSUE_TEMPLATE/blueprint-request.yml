@@ -1,0 +1,25 @@
+name: Blueprint Request
+description: Suggest a reusable agentic workflow blueprint
+title: "[Blueprint Request]: "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Who encounters this problem, and what makes it useful to solve?
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Possible workflow
+      description: What information, decisions, or steps might be involved?
+    validations:
+      required: true
+  - type: textarea
+    id: guardrails
+    attributes:
+      label: Safety and permissions
+      description: What should the workflow be allowed and not allowed to do?
+    validations:
+      required: true

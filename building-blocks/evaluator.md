@@ -22,4 +22,4 @@ Retries can repeat side effects. Retry only operations known to be safe to repea
 
 ## Demonstrated by
 
-The Azure Deployment Investigator asks the model to distinguish evidence from hypotheses and recommend further diagnostics. A maintainer evaluates that analysis before taking action.
+The Azure Deployment Investigator evaluates a selected read-only diagnostic result. Issue Triage validates source IDs and label names. PR Confidence calculates a deterministic weighted score and withholds it when evidence is insufficient. Model-based evaluation can still be wrong; a maintainer validates the final analysis before taking action.

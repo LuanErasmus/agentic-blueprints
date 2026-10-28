@@ -1,0 +1,7 @@
+{
+  "trigger_labels": ["review-preparation"],
+  "guidance_paths": ["CONTRIBUTING.md"],
+  "max_items": 20,
+  "test_paths": [],
+  "test_report_paths": []
+}

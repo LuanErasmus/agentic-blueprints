@@ -1,0 +1,5 @@
+{
+  "trigger_labels": ["release-readiness"],
+  "guidance_paths": ["CONTRIBUTING.md"],
+  "max_items": 20
+}

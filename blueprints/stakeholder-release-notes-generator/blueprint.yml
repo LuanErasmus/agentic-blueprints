@@ -1,0 +1,11 @@
+name: Stakeholder Release Notes Generator
+description: Draft audience-aware release notes from an explicit source range while distinguishing shipped evidence from uncertainty
+difficulty: intermediate
+category: github
+patterns:
+  - human-in-the-loop
+autonomy: recommend
+requires:
+  - github
+  - github-actions
+  - github-models

@@ -1,0 +1,35 @@
+name: Stakeholder Release Notes Generator
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      number:
+        description: Release tracking issue number (required for live mode)
+        type: string
+      sample:
+        description: Use synthetic evidence (still uses GitHub Models)
+        type: boolean
+        default: true
+      base_ref:
+        description: Previous release ref (overrides issue From field)
+        type: string
+      head_ref:
+        description: Candidate ref (overrides issue To field)
+        type: string
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  checks: read
+  statuses: read
+  models: read
+jobs:
+  draft:
+    uses: ./.github/workflows/blueprint-runner.yml
+    with:
+      blueprint: stakeholder-release-notes-generator
+      number: ${{ inputs.number || '' }}
+      sample: ${{ inputs.sample || false }}
+      base_ref: ${{ inputs.base_ref || '' }}
+      head_ref: ${{ inputs.head_ref || '' }}

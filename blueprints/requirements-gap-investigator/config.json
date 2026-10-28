@@ -1,0 +1,5 @@
+{
+  "trigger_labels": ["requirements-review"],
+  "guidance_paths": ["CONTRIBUTING.md"],
+  "max_items": 20
+}

@@ -10,4 +10,4 @@ requires:
   - azure
   - github-actions
   - github-oidc
-  - github-copilot-cli
+  - github-models

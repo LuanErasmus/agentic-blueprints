@@ -1,0 +1,11 @@
+name: Requirements Gap Investigator
+description: Investigate an issue for ambiguous requirements and missing acceptance evidence before implementation
+difficulty: beginner
+category: github
+patterns:
+  - human-in-the-loop
+autonomy: recommend
+requires:
+  - github
+  - github-actions
+  - github-models

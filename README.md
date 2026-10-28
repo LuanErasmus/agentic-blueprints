@@ -17,8 +17,14 @@ New to agentic workflows? Begin with [GitHub Issue Triage](blueprints/github-iss
 | 🟢 Beginner | [GitHub Issue Triage](blueprints/github-issue-triage/) | Classify issues, check for missing information, and recommend next steps |
 | 🟠 Intermediate | [GitHub PR Review](blueprints/github-pr-review/) | Assess pull request changes and repository standards for a human reviewer |
 | 🔴 Advanced | [Azure Deployment Investigator](blueprints/azure-deployment-investigator/) | Investigate deployment evidence and recommend read-only diagnostics |
+| 🟠 Intermediate | [Requirements Gap Investigator](blueprints/requirements-gap-investigator/) | Clarify business rules, contradictions, and acceptance criteria |
+| 🟠 Intermediate | [Test Scenario Planner](blueprints/test-scenario-planner/) | Map issue or PR behaviour to test evidence and suggest scenarios |
+| 🟠 Intermediate | [Delivery Risk Investigator](blueprints/delivery-risk-investigator/) | Investigate delivery blockers and explicit dependencies |
+| 🔴 Advanced | [Release Readiness Helper](blueprints/release-readiness-helper/) | Assess candidate-specific company readiness evidence |
+| 🔴 Advanced | [PR Confidence Calculator](blueprints/pr-confidence-calculator/) | Explain a policy-based confidence score and missing evidence |
+| 🟠 Intermediate | [Stakeholder Release Notes Generator](blueprints/stakeholder-release-notes-generator/) | Translate verified changes into plain-language draft updates |
 
-Each blueprint includes a `blueprint.yml` metadata file, runnable workflow, setup instructions, and explicit guardrails.
+Each blueprint includes metadata, a runnable workflow, setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
 
 ## Patterns
 
@@ -36,9 +42,11 @@ Choose a blueprint, clone this repository, configure its required access, and ru
 
 ## Roadmap
 
-**Available:** GitHub Issue Triage, GitHub PR Review, Azure Deployment Investigator.
+**Implemented:** the nine blueprints above, including synthetic-data execution and an offline validation suite. Live use requires configured GitHub Models and, for Azure, a scoped Azure identity.
 
-**Planned:** Dependency Upgrade Agent, Documentation Agent, Security Investigation Agent, Azure Cost Investigation Agent, Repository Health Agent. These are future ideas, not implemented blueprints.
+**Future:** read-only evidence adapters, additional report formats, and more company-focused examples. No automatic dependency-upgrade agent is planned to duplicate Dependabot.
+
+See [workflow usage](docs/running-workflows.md) for copy/setup instructions and [the fictional company walkthrough](docs/company-walkthrough.md) for optional handoffs.
 
 ## Contributing
 

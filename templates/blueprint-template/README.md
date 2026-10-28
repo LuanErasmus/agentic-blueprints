@@ -2,8 +2,6 @@
 
 **Difficulty:** [beginner / intermediate / advanced]
 
-## Blueprint Metadata
-
 Create a `blueprint.yml` alongside this README. Start from the metadata example in [`blueprint.yml`](blueprint.yml) and update every value to match your implementation.
 
 ## Problem
@@ -39,11 +37,11 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 
 ## Run It
 
-[Give exact steps to trigger the blueprint and inspect its result.]
+[Give exact steps for sample and live mode, trigger events, labels, and rerunning after edits. Include filled-in examples/input.md and illustrative examples/output.md. Distinguish required user input from automatically collected evidence. Explain how companies can turn the example into a template.]
 
 ## How It Works
 
-[Explain the important implementation decisions, data flow, and limitations.]
+[Explain the decision/evaluation loop, permitted follow-ups, company configuration, source provenance, freshness checks, bounds, and limitations. Do not duplicate existing platform features.]
 
 ## Guardrails
 

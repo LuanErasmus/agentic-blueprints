@@ -4,65 +4,55 @@
 
 ## Problem
 
-Reviewers need to understand a pull request's intent, inspect its changes, and decide where to focus. A concise risk-oriented summary can help, but should not replace a human review.
+Reviewers need to connect a change with company-specific expectations and identify where a human should focus. Native Copilot review and GitHub checks remain the existing review tools.
 
 ## What the Agent Does
 
-When a same-repository pull request is opened, updated, or marked ready for review, the workflow gathers its title, description, available text patches, and the base revision's `CONTRIBUTING.md` guidance. Copilot CLI drafts a risk-focused analysis, then a separate evaluator checks its claims against the evidence and repository guidance. The workflow writes the evaluated review aid to the Actions run summary for a human reviewer to consider.
+Prepares an evidence-linked review brief against configured repository guidance. Selects a bounded test-source or check lookup, then evaluates concerns against the evidence. It does not duplicate native review by posting an automated GitHub review.
 
 ## Architecture
 
 ```text
-Pull request opened or updated
-        ↓
-Workflow reads pull request metadata and file patches
-        ↓
-Copilot CLI assesses changes, risks, and repository guidance
-        ↓
-Evaluator checks findings against the supplied evidence
-        ↓
-Evaluated recommendation appears in the Actions run summary
-        ↓
-Human reviewer inspects the diff and submits a review
+PR / manual selection → collect diff and base-revision guidance → choose test/check lookup
+→ collect evidence without executing code → evaluate concerns → human review
 ```
 
 ## Prerequisites
 
-- A GitHub repository with Actions enabled.
-- A GitHub Copilot entitlement that permits Copilot CLI use.
-- A token authorised for Copilot CLI, stored as the repository secret `COPILOT_PAT`.
-- Pull request read access for the workflow token.
+Actions, GitHub Models access, workflow read permissions, and an eligible PR. Node.js 24 for local offline examples.
 
 ## Setup
 
-1. Add `.github/workflows/pr-review.yml` to your repository (or adapt this repository's workflow).
-2. Add an Actions secret named `COPILOT_PAT` containing a token authorised for Copilot CLI.
-3. Confirm the repository and token are permitted to use Copilot CLI.
-4. Review the prompt, model, and data-processing policy before enabling the workflow.
-
-The workflow does not check out or execute pull request code. It reads pull request metadata and patches through the GitHub API.
+1. Follow [shared setup](../../docs/running-workflows.md). Copy `.github/workflows/pr-review.yml`, the reusable runner workflow, `scripts/blueprints/`, and this directory to the trusted default branch.
+2. Configure `config.json` guidance paths and optional exact `test_paths` / `test_report_paths`.
+3. Use your actual review expectations in the configured guidance. Defaults reference `CONTRIBUTING.md`.
+4. Approve model processing of the intended source data under your company's policy.
 
 ## Run It
 
-Open or update a same-repository pull request, or mark it ready for review. Open the corresponding Actions run and read its summary. The model sees at most the first 50 changed files, up to 24,000 characters of text patches, up to 5,000 characters each of the PR description and `CONTRIBUTING.md`; binary files and files without a patch are not included.
+Use **Actions → GitHub PR Review → Run workflow** with `sample` enabled first. For live mode, clear `sample` and enter a PR number.
+
+Automatic runs occur for opened, reopened, updated, ready-for-review, and configured-label events. Draft/fork PR events are skipped; a maintainer may manually analyse a fork PR without checking out its code.
+
+Start from [the PR format](examples/input.md); [example output](examples/output.md) shows a review aid rather than an approval. Read the run summary or download the report artifact.
 
 ## How It Works
 
-The workflow fetches changed-file patches and the base revision's `CONTRIBUTING.md` using the GitHub API, caps the context to limit prompt size, and sends the evidence to an analysis call. A second inference call evaluates the draft findings against the same evidence, removes unsupported claims, and checks whether repository guidance was considered. If no contribution guidance exists, the workflow says none was provided. The evaluated recommendation is written to the run summary. The workflow does not submit a GitHub review or post a comment, so the reviewer remains responsible for validating findings and taking action.
+The GitHub API supplies a bounded set of file patches and discussion. Guidance comes from the PR base revision, not proposed edits. The planner chooses one allowed evidence lookup; the evaluator checks findings against the combined evidence. No PR code is checked out or executed. Missing/binary/truncated patches limit the result. Test-source inspection covers changed test-like files and configured exact paths only. See [supported evidence formats](../../docs/running-workflows.md).
 
 ## Guardrails
 
-- **Access:** pull request metadata and the GitHub API's available text patches; Copilot CLI inference.
-- **Actions:** write an analysis to the Actions run summary only.
-- **Approval:** all review decisions and approvals remain with a human reviewer.
-- **Never automatic:** approving, requesting changes, merging, pushing commits, or creating comments.
-- **Credentials:** uses a read-only `GITHUB_TOKEN` for pull request data and the `COPILOT_PAT` Actions secret for Copilot CLI.
-- Pull request content is untrusted input and is sent to GitHub Copilot for inference. The workflow skips pull requests from forks because repository secrets are not available to them. Do not use this workflow for confidential code or data unless that processing is approved for your organisation.
+- **Access:** PR metadata, bounded patches, guidance, discussion, and selected test/check evidence.
+- **Actions:** summary and report artifact only.
+- **Approval:** a human inspects the full change and makes review/merge decisions.
+- **Never automatic:** approval, change requests, commits, merge, or execution of PR code.
+- **Permissions:** declared GitHub reads and `models: read`; model tools are not enabled.
+- **Data handling:** selected code goes to GitHub Models. A second model opinion and valid citations do not guarantee correctness.
 
 ## Customise It
 
-Adapt the prompt to your team's review checklist and risk categories. Keep context limits visible and explain when patches are missing or truncated. For forks, the workflow intentionally avoids write permissions and does not execute contributor code.
+Point `guidance_paths` at your review checklist; do not assume one branch strategy or language. For detailed behaviour-to-test mapping use [Test Scenario Planner](../test-scenario-planner/) rather than expanding this blueprint into a second coverage tool.
 
 ## Challenge
 
-Add one repository-specific review criterion to the prompt, then compare the recommendation against a human review on a sample pull request.
+Add a company-specific compatibility rule and evaluate whether the brief correctly identifies its applicability without inventing a violation.

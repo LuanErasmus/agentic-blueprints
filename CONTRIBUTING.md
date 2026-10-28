@@ -40,3 +40,6 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 - [ ] No secrets are committed.
 - [ ] A small challenge helps readers experiment.
 - [ ] `blueprint.yml` uses the documented metadata fields.
+- [ ] Filled-in trigger/input and illustrative output examples are included.
+- [ ] Offline validation passes: `node --test scripts/blueprints/blueprints.test.mjs`.
+- [ ] Recommendations complement native platform features and do not imply human approval.

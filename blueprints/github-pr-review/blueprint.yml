@@ -8,4 +8,4 @@ autonomy: recommend
 requires:
   - github
   - github-actions
-  - github-copilot-cli
+  - github-models

@@ -11,3 +11,6 @@
 *.tfstate
 *.tfstate.*
 *.tfplan
+
+# Local blueprint execution output
+.blueprint-output/

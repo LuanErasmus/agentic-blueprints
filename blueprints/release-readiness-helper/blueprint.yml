@@ -1,0 +1,11 @@
+name: Release Readiness Helper
+description: Compare supplied release evidence with repository-specific expectations and identify unresolved readiness questions
+difficulty: intermediate
+category: github
+patterns:
+  - human-in-the-loop
+autonomy: recommend
+requires:
+  - github
+  - github-actions
+  - github-models

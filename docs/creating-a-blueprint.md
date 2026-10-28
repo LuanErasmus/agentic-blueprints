@@ -14,6 +14,7 @@ Create a directory under `blueprints/` containing:
 
 - `README.md` following the [blueprint template](../templates/blueprint-template/README.md).
 - `blueprint.yml` with the small metadata schema below.
+- Filled-in trigger/input and illustrative output examples, company configuration, and offline decision/evaluation tests. See [running workflows](running-workflows.md) for the existing reference implementation and supported evidence formats.
 - Only the workflow, prompt, configuration, and example files needed to run it; avoid empty directories.
 
 The README must explain the problem, agent responsibilities, architecture, prerequisites, setup, how to run it, implementation decisions, guardrails, customisation, and a small challenge.

@@ -1,0 +1,27 @@
+name: Requirements Gap Investigator
+on:
+  issues:
+    types: [labeled]
+  workflow_dispatch:
+    inputs:
+      number:
+        description: Issue number (required for live mode)
+        type: string
+      sample:
+        description: Use synthetic evidence (still uses GitHub Models)
+        type: boolean
+        default: true
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+  checks: read
+  statuses: read
+  models: read
+jobs:
+  investigate:
+    uses: ./.github/workflows/blueprint-runner.yml
+    with:
+      blueprint: requirements-gap-investigator
+      number: ${{ inputs.number || '' }}
+      sample: ${{ inputs.sample || false }}

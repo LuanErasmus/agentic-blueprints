@@ -1,0 +1,5 @@
+{
+  "trigger_labels": ["stakeholder-notes"],
+  "guidance_paths": ["CONTRIBUTING.md"],
+  "max_items": 20
+}

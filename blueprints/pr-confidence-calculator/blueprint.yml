@@ -1,0 +1,11 @@
+name: PR Confidence Calculator
+description: Calculate a deterministic evidence-based PR confidence index while withholding scores for insufficient evidence
+difficulty: intermediate
+category: github
+patterns:
+  - human-in-the-loop
+autonomy: recommend
+requires:
+  - github
+  - github-actions
+  - github-models

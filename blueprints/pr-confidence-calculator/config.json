@@ -1,0 +1,12 @@
+{
+  "trigger_labels": ["confidence-review"],
+  "guidance_paths": ["CONTRIBUTING.md"],
+  "max_items": 20,
+  "weights": {
+    "scope": 20,
+    "execution": 30,
+    "scenarios": 30,
+    "review": 20
+  },
+  "minimum_evidence_dimensions": 3
+}

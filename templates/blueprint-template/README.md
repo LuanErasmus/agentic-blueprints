@@ -15,15 +15,15 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 ## Architecture
 
 ```text
-[Trigger or goal]
+[GitHub event or manual dispatch]
         ↓
-[Observe and gather context]
+[Trusted bounded evidence preparation]
         ↓
-[Reason and choose a bounded step]
+[Sandboxed Copilot analysis with declared read tools]
         ↓
-[Act or recommend]
+[Deterministic report validation + restricted artifact]
         ↓
-[Evaluate result / human decision]
+[Human decision]
 ```
 
 ## Prerequisites
@@ -32,8 +32,9 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 
 ## Setup
 
-1. [Explain configuration and credentials using safe storage.]
-2. [Explain any required permissions and how to scope them.]
+1. Copy the native workflow Markdown source, shared runtime/contract files, required scripts, and this blueprint's config into the adopter repository.
+2. Install gh-aw and run `gh aw compile <id>` there. Review and commit the generated lock next to its source; do not add generated lock files to this blueprint repository.
+3. Configure Copilot authentication as described in the [official gh-aw guide](https://github.github.com/gh-aw/reference/auth/). Put `copilot-requests: write` explicitly in the main workflow's frontmatter for organisation-backed billing. For the documented PAT fallback, remove that permission from the main workflow, set `COPILOT_GITHUB_TOKEN` with a fine-grained token granting Copilot Requests: Read, and recompile.
 
 ## Run It
 
@@ -41,7 +42,7 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 
 ## How It Works
 
-[Explain the decision/evaluation loop, permitted follow-ups, company configuration, source provenance, freshness checks, bounds, and limitations. Do not duplicate existing platform features.]
+[Explain deterministic evidence preparation, what the sandboxed Copilot agent may read, the deterministic report helper, source provenance, freshness checks, bounds, and limitations. Explain that sample dispatch still invokes inference and offline tests do not. Do not imply the agent can execute PR code or that supplied snapshots are independently attested.]
 
 ## Guardrails
 
@@ -51,7 +52,7 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 - **Approval:** [What requires human approval?]
 - **Never automatic:** [What must it never do automatically?]
 - **Credentials:** [What credentials or permissions are required, and how are they stored?]
-- **Data handling:** [What information is sent to a model or stored in logs?]
+- **Data handling:** [What information is sent to Copilot or retained in run logs/artifacts? State artifact restrictions and retention.]
 
 ## Customise It
 

@@ -1,12 +1,12 @@
 # Getting Started
 
-Agentic Blueprints are runnable, documented examples of workflows that use an AI agent to solve a specific engineering problem. Start with one example, follow its guardrails, and adapt it only after you understand its permissions and data flow.
+Agentic Blueprints are native GitHub Agentic Workflows (`gh-aw`) examples that use a sandboxed Copilot agent to help with a specific engineering or business process. Start with one example, follow its guardrails, and adapt it only after you understand its permissions and data flow.
 
 ## Choose a blueprint
 
 - [GitHub Issue Triage](../blueprints/github-issue-triage/) is the beginner starting point. It analyses an issue and recommends a response.
 - [GitHub PR Review](../blueprints/github-pr-review/) analyses pull request changes and repository guidance for a human reviewer.
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) collects read-only deployment evidence and recommends diagnostics.
+- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) collects bounded read-only deployment diagnostics before inference and recommends next steps.
 - [Requirements Gap Investigator](../blueprints/requirements-gap-investigator/) checks business requests for ambiguity and missing criteria.
 - [Test Scenario Planner](../blueprints/test-scenario-planner/) investigates requirements or PR behaviour against available test evidence.
 - [Delivery Risk Investigator](../blueprints/delivery-risk-investigator/) investigates blockers and dependencies without rescheduling work.
@@ -27,13 +27,13 @@ You can also fork the repository and clone your fork if you plan to customise or
 
 ## Configure a blueprint
 
-Follow the blueprint's **Setup** steps and [workflow usage guide](running-workflows.md). The examples use GitHub Models through Actions with `models: read`; no Copilot PAT is required. The Azure investigator additionally requires Azure OIDC federation and a read-only Reader identity for live mode. All workflows offer synthetic sample mode; model inference still needs GitHub Models access. The offline test suite requires only Node.js 24.
+Follow the blueprint's **Setup** steps and [workflow usage guide](running-workflows.md). Copy the native workflow Markdown source, shared workflow files, required scripts, and blueprint config into your repository, then install gh-aw and compile the workflow there. This repository intentionally does not include generated lock files. Copilot inference uses gh-aw's native authentication; follow the [official authentication guide](https://github.github.com/gh-aw/reference/auth/). Azure live mode additionally requires OIDC federation and a read-only Reader identity. Synthetic dispatch still invokes Copilot inference; the offline Node.js 24 test suite is credential-free.
 
 Before enabling a workflow, review its permissions, triggers, prompt, and the data sent to the model. Use a test repository or non-sensitive example first.
 
 ## Run it
 
-Use the **Run It** section of the selected blueprint. GitHub Issue Triage runs when an issue is opened or reopened; GitHub PR Review runs for eligible same-repository pull requests; the Azure investigator is manually triggered from the Actions tab. Inspect the result and independently verify recommendations. These examples do not grant the agent authority to approve a review or modify Azure resources.
+Use the **Run It** section of the selected blueprint. Automatic triggers are label-gated, and manual dispatch supports synthetic samples or live evidence. The gh-aw sandbox blocks automatic fork runs; draft PRs are skipped where applicable. Inspect the uploaded report artifact and independently verify recommendations. The native run summary is not the full report. These examples do not grant the agent authority to approve a review, change GitHub content, or modify Azure resources.
 
 ## Where to go next
 

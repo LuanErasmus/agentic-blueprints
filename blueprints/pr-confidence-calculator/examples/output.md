@@ -17,4 +17,4 @@ A successful check does not establish scenario execution or complete coverage. U
 ## Next steps
 Provide a candidate-matching JSON test report through configured `test_report_paths`, scenario-level evidence, and review context, then rerun. A maintainer still decides whether to merge.
 
-This fictional example intentionally contains no aggregate number. The runner, not the model or this Markdown file, calculates eligible live results.
+This fictional example intentionally contains no aggregate number. The deterministic report helper, not the Copilot agent or this Markdown file, calculates eligible live results.

@@ -20,14 +20,6 @@ export function validateConfig(config) {
   return config;
 }
 
-export function validatePlan(slug, plan) {
-  if (!plan || !getTask(slug).actions.includes(plan.action) ||
-      typeof plan.reason !== 'string' || !plan.reason.trim()) {
-    throw new Error('Plan must contain one allowlisted action and a non-empty reason.');
-  }
-  return { action: plan.action, reason: plan.reason };
-}
-
 export function issueNumbers(text, maxItems) {
   return [...new Set([...text.matchAll(/(?:^|[\s(])#([1-9]\d*)\b/g)].map(x => Number(x[1])))].slice(0, maxItems);
 }
@@ -69,6 +61,7 @@ export function validateReport(slug, result, evidence) {
   }
   if (slug === 'pr-confidence-calculator') {
     if (!result.dimensions || typeof result.dimensions !== 'object') throw new Error('Missing confidence dimensions.');
+    if (Object.keys(result.dimensions).length !== 4) throw new Error('Expected exactly four confidence dimensions.');
     for (const name of ['scope', 'execution', 'scenarios', 'review']) {
       const dimension = result.dimensions[name];
       if (dimension !== null && (!dimension || !Number.isFinite(dimension.score) ||
@@ -85,10 +78,13 @@ export function validateReport(slug, result, evidence) {
     const citedExecution = executionSources.filter(source => result.dimensions.execution?.sources.includes(source.id));
     if (!citedExecution.length) {
       result.dimensions.execution = null;
-    } else if (citedExecution.some(source => source.data.conclusion === 'failure' ||
+    } else if (executionSources.some(source => source.data.conclusion === 'failure' ||
         source.data.scenarios.some(scenario => scenario.result === 'failed'))) {
       result.dimensions.execution.score = 0;
-      result.dimensions.execution.reason = 'Current cited scenario evidence contains failures; execution assurance is zero.';
+      result.dimensions.execution.sources = [...new Set([...result.dimensions.execution.sources,
+        ...executionSources.filter(source => source.data.conclusion === 'failure' ||
+          source.data.scenarios.some(scenario => scenario.result === 'failed')).map(source => source.id)])];
+      result.dimensions.execution.reason = 'Current supplied scenario evidence contains failures; execution assurance is zero.';
     }
     if (!evidence.sources.some(source => source.kind === 'test-source' &&
         result.dimensions.scenarios?.sources.includes(source.id))) result.dimensions.scenarios = null;

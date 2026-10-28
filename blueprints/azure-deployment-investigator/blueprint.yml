@@ -1,5 +1,5 @@
 name: Azure Deployment Investigator
-description: Investigate deployment evidence with read-only diagnostics and recommend next steps to an operator
+description: Analyse deployment and fixed read-only diagnostic evidence and recommend next steps to an operator
 difficulty: advanced
 category: azure
 patterns:
@@ -10,4 +10,4 @@ requires:
   - azure
   - github-actions
   - github-oidc
-  - github-models
+  - github-agentic-workflows

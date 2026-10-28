@@ -24,7 +24,7 @@ New to agentic workflows? Begin with [GitHub Issue Triage](blueprints/github-iss
 | 🔴 Advanced | [PR Confidence Calculator](blueprints/pr-confidence-calculator/) | Explain a policy-based confidence score and missing evidence |
 | 🟠 Intermediate | [Stakeholder Release Notes Generator](blueprints/stakeholder-release-notes-generator/) | Translate verified changes into plain-language draft updates |
 
-Each blueprint includes metadata, a runnable workflow, setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
+Each blueprint includes metadata, a native gh-aw Markdown workflow, setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Copy and compile a selected workflow in your own repository; generated lock files are intentionally not included here. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
 
 ## Patterns
 
@@ -42,11 +42,11 @@ Choose a blueprint, clone this repository, configure its required access, and ru
 
 ## Roadmap
 
-**Implemented:** the nine blueprints above, including synthetic-data execution and an offline validation suite. Live use requires configured GitHub Models and, for Azure, a scoped Azure identity.
+**Implemented:** the nine gh-aw blueprint sources above, synthetic sample dispatch, deterministic evidence/report helpers, and an offline validation suite. Live use requires gh-aw's native Copilot inference authentication and, for Azure, a scoped OIDC identity. Synthetic dispatch also requires inference authentication; offline tests do not.
 
 **Future:** read-only evidence adapters, additional report formats, and more company-focused examples. No automatic dependency-upgrade agent is planned to duplicate Dependabot.
 
-See [workflow usage](docs/running-workflows.md) for copy/setup instructions and [the fictional company walkthrough](docs/company-walkthrough.md) for optional handoffs.
+See [workflow usage](docs/running-workflows.md) for copy/setup/compile instructions and [the fictional company walkthrough](docs/company-walkthrough.md) for optional handoffs.
 
 ## Contributing
 

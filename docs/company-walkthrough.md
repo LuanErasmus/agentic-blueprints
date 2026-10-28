@@ -8,9 +8,9 @@ This walkthrough uses a fictional order-cancellation feature. Each blueprint run
 4. **GitHub PR Review** prepares a company-guidance brief, complementing native review. **PR Confidence Calculator** explains what evidence strengthens or limits confidence; neither approves the PR.
 5. A release owner creates a tracking issue with an exact candidate SHA and their checklist. **Release Readiness Helper** reports satisfied, unsatisfied, and unknown items. The owner uses existing company/GitHub approval processes for the release decision.
 6. **Stakeholder Release Notes Generator** compares a defined release range and drafts an accessible update. A person verifies availability, confidential details, and wording before sending it.
-7. If an Azure deployment fails, **Azure Deployment Investigator** selects one scoped read-only diagnostic. An operator evaluates recommendations before any remediation.
+7. If an Azure deployment fails, **Azure Deployment Investigator** reviews deployment evidence and fixed read-only diagnostics collected before agent inference. An operator evaluates recommendations before any remediation.
 8. A later bug report enters **GitHub Issue Triage**, which recommends a category and next step rather than changing the issue automatically.
 
 An agent's report is not an approved requirement, passing test, human sign-off, or proof of deployment. Always hand off original source evidence and the human decision separately from the recommendation.
 
-For runnable input examples, use each blueprint's `examples/input.md`. For synthetic evidence, start the workflow in sample mode or run the offline suite documented in [workflow usage](running-workflows.md).
+For runnable input examples, use each blueprint's `examples/input.md`. For synthetic evidence, start the gh-aw workflow in sample mode; this still invokes Copilot inference. The credential-free offline helper suite is documented in [workflow usage](running-workflows.md).

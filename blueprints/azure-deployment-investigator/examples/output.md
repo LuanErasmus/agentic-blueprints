@@ -6,6 +6,6 @@ Not a live result.
 
 **Hypothesis:** Creation might not have completed. The lookup alone cannot establish the underlying cause.
 
-**Limitation:** At most 20 deployment operations and one follow-up diagnostic were inspected.
+**Limitation:** At most 20 deployment operations and the collector's fixed, bounded diagnostics were inspected before inference.
 
 **Next step:** The operator verifies the operation error and resource scope before considering remediation. No Azure resource was modified.

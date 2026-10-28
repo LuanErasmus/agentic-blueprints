@@ -6,7 +6,7 @@ PR #106: Account invoice CSV export
 Export one account's invoices for account administrators; no bulk export.
 
 ## Execution evidence
-A supplied successful unit-check record refers to the current head, but no candidate-matching JSON test report is supplied. The runner must therefore force execution to unknown.
+A supplied successful unit-check record refers to the current head, but no candidate-matching JSON test report is supplied. The trusted report helper must therefore force execution to unknown.
 
 ## Scenario evidence
 Not supplied; the check name does not establish which behaviours were tested.

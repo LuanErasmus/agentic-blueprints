@@ -1,12 +1,4 @@
 import { execFileSync } from 'node:child_process';
-import { readFile, writeFile, mkdir, appendFile } from 'node:fs/promises';
-import { resolve, join } from 'node:path';
-import { pathToFileURL } from 'node:url';
-import { instructions } from './tasks.mjs';
-import { parseJson, validatePlan, validateReport, renderReport } from './core.mjs';
-
-const slug = 'azure-deployment-investigator';
-const json = async path => JSON.parse(await readFile(path, 'utf8'));
 
 export function diagnosticArguments(action, { resourceGroup, resourceId }) {
   if (action === 'inspect_failed_resource') {
@@ -37,75 +29,57 @@ export function azureRead(args, execute = execFileSync) {
   }
 }
 
-export async function runAzure(args = process.argv.slice(2), env = process.env) {
-  const [stage] = args;
-  const folder = resolve(env.BLUEPRINT_OUTPUT || '.blueprint-output', slug);
-  const path = name => join(folder, name);
-  await mkdir(folder, { recursive: true });
-  if (stage === 'prepare') {
-    const sample = env.SAMPLE === 'true' || args.includes('--sample');
-    let deployment, operations;
-    if (sample) {
-      deployment = { name: 'sample-deployment', provisioningState: 'Failed', error: 'Resource creation failed; inspect operation evidence.' };
-      operations = [{ provisioningState: 'Failed', targetResource: { id: '/subscriptions/sample/resourceGroups/demo/providers/Microsoft.Storage/storageAccounts/example' }, statusMessage: 'Resource unavailable' }];
-    } else {
-      if (!/^[\w.()-]+$/.test(env.RESOURCE_GROUP || '') || !/^[\w.()-]+$/.test(env.DEPLOYMENT_NAME || '')) {
-        throw new Error('Live mode requires valid resource_group and deployment_name values.');
+export async function collectAzureEvidence(env = process.env, read = azureRead) {
+  const sample = env.SAMPLE === 'true';
+  let deployment, operations;
+  if (sample) {
+    deployment = { name: 'sample-deployment', provisioningState: 'Failed', error: 'Resource creation failed; inspect operation evidence.' };
+    operations = [{ provisioningState: 'Failed', targetResource: { id: '/subscriptions/sample/resourceGroups/demo/providers/Microsoft.Storage/storageAccounts/example' }, statusMessage: 'Resource unavailable' }];
+  } else {
+    if (!/^[\w.()-]+$/.test(env.RESOURCE_GROUP || '') || !/^[\w.()-]+$/.test(env.DEPLOYMENT_NAME || '')) {
+      throw new Error('Live mode requires valid resource_group and deployment_name values.');
+    }
+    const common = ['--resource-group', env.RESOURCE_GROUP, '--name', env.DEPLOYMENT_NAME];
+    deployment = read(['deployment', 'group', 'show', ...common, '--query',
+      '{name:name,provisioningState:properties.provisioningState,timestamp:properties.timestamp,error:properties.error.message}', '-o', 'json']);
+    operations = read(['deployment', 'operation', 'group', 'list', ...common, '--query',
+      '[0:20].{provisioningState:properties.provisioningState,targetResource:properties.targetResource,statusMessage:properties.statusMessage}', '-o', 'json']);
+  }
+  const bounded = operations.map(operation => ({
+    ...operation, statusMessage: JSON.stringify(operation.statusMessage ?? null).slice(0, 1000),
+  }));
+  const evidence = {
+    sample, blueprint: 'azure-deployment-investigator', observed_at: new Date().toISOString(),
+    resourceGroup: sample ? 'demo' : env.RESOURCE_GROUP,
+    resourceId: operations.find(operation => operation.provisioningState === 'Failed')?.targetResource?.id,
+    sources: [{ id: 'deployment', kind: 'deployment', data: {
+      ...deployment, error: typeof deployment.error === 'string' ? deployment.error.slice(0, 4000) : deployment.error,
+    } }, { id: 'operations', kind: 'operations', data: bounded }],
+    limitations: ['At most 20 operations inspected; diagnostic messages capped at 1,000 characters.', ...(sample ? ['SYNTHETIC sample, not a live investigation.'] : [])],
+  };
+  for (const action of ['inspect_failed_resource', 'inspect_recent_activity']) {
+    if (action === 'inspect_failed_resource') {
+      if (!evidence.resourceId) {
+        evidence.limitations.push('No failed-resource ID was collected; resource inspection omitted.');
+        continue;
       }
-      const common = ['--resource-group', env.RESOURCE_GROUP, '--name', env.DEPLOYMENT_NAME];
-      deployment = azureRead(['deployment', 'group', 'show', ...common, '--query',
-        '{name:name,provisioningState:properties.provisioningState,timestamp:properties.timestamp,error:properties.error.message}', '-o', 'json']);
-      operations = azureRead(['deployment', 'operation', 'group', 'list', ...common, '--query',
-        '[0:20].{provisioningState:properties.provisioningState,targetResource:properties.targetResource,statusMessage:properties.statusMessage}', '-o', 'json']);
+      const parts = evidence.resourceId.split('/');
+      if (parts[4]?.toLowerCase() !== evidence.resourceGroup.toLowerCase() ||
+          (!sample && parts[2]?.toLowerCase() !== env.AZURE_SUBSCRIPTION_ID?.toLowerCase())) {
+        evidence.limitations.push('Failed resource lies outside the configured subscription/resource group; inspection omitted.');
+        continue;
+      }
     }
-    const bounded = operations.map(operation => ({
-      ...operation, statusMessage: JSON.stringify(operation.statusMessage ?? null).slice(0, 1000),
-    }));
-    const evidence = {
-      sample, blueprint: slug, observed_at: new Date().toISOString(),
-      resourceGroup: sample ? 'demo' : env.RESOURCE_GROUP,
-      resourceId: operations.find(operation => operation.provisioningState === 'Failed')?.targetResource?.id,
-      sources: [{ id: 'deployment', kind: 'deployment', data: {
-        ...deployment, error: typeof deployment.error === 'string' ? deployment.error.slice(0, 4000) : deployment.error,
-      } }, { id: 'operations', kind: 'operations', data: bounded }],
-      limitations: ['At most 20 operations inspected; diagnostic messages capped at 1,000 characters.', ...(sample ? ['SYNTHETIC sample, not a live investigation.'] : [])],
-    };
-    await writeFile(path('evidence.json'), JSON.stringify(evidence, null, 2));
-    await writeFile(path('system.txt'), `${instructions(slug, 'plan')}\nSelect inspect_failed_resource only if resourceId is present.`);
-    await writeFile(path('prompt.txt'), JSON.stringify(evidence));
-    if (env.GITHUB_OUTPUT) await appendFile(env.GITHUB_OUTPUT, `folder=${folder}\n`);
-    return;
+    const command = diagnosticArguments(action, evidence);
+    const result = sample
+      ? action === 'inspect_failed_resource'
+        ? { found: false, code: 'ResourceNotFound', resourceId: evidence.resourceId }
+        : [{ operation: 'Microsoft.Resources/deployments/write', status: 'Failed', resourceId: evidence.resourceId }]
+      : read(command);
+    const text = JSON.stringify(result);
+    evidence.sources.push({ id: action, kind: 'diagnostic',
+      data: text.length > 6000 ? { truncated: true, excerpt: text.slice(0, 6000) } : result });
+    if (text.length > 6000) evidence.limitations.push(`${action}: truncated to 6,000 characters.`);
   }
-  const evidence = await json(path('evidence.json'));
-  if (stage === 'followup') {
-    const plan = validatePlan(slug, parseJson(await readFile(env.MODEL_RESPONSE_FILE, 'utf8')));
-    const command = diagnosticArguments(plan.action, evidence);
-    let result = { stopped: true, reason: plan.reason };
-    if (command) {
-      result = evidence.sample
-        ? plan.action === 'inspect_failed_resource'
-          ? { found: false, code: 'ResourceNotFound', resourceId: evidence.resourceId }
-          : [{ operation: 'Microsoft.Resources/deployments/write', status: 'Failed', resourceId: evidence.resourceId }]
-        : azureRead(command);
-    }
-    evidence.plan = plan;
-    evidence.sources.push({ id: 'diagnostic-result', kind: 'diagnostic', data: result });
-    await writeFile(path('evidence.json'), JSON.stringify(evidence, null, 2));
-    await writeFile(path('system.txt'), instructions(slug, 'evaluate'));
-    await writeFile(path('prompt.txt'), JSON.stringify(evidence));
-    return;
-  }
-  if (stage === 'report') {
-    const result = validateReport(slug, parseJson(await readFile(env.MODEL_RESPONSE_FILE, 'utf8')), evidence);
-    await writeFile(path('report.json'), JSON.stringify(result, null, 2));
-    const markdown = renderReport(slug, result, evidence, {});
-    await writeFile(path('report.md'), markdown);
-    if (env.GITHUB_STEP_SUMMARY) await appendFile(env.GITHUB_STEP_SUMMARY, markdown);
-    return;
-  }
-  throw new Error('Expected prepare, followup, or report.');
-}
-
-if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
-  runAzure().catch(error => { console.error(error.message); process.exitCode = 1; });
+  return evidence;
 }

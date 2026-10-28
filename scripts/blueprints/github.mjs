@@ -197,4 +197,14 @@ export class GitHubEvidence {
     if (checks.total_count > checks.check_runs.length || statuses.total_count > statuses.statuses.length) this.evidence.limitations.push('Check/status results truncated by max_items.');
     this.evidence.limitations.push('CI status does not establish scenario coverage or human approval. Company-required check names must be stated in the request or guidance.');
   }
+
+  async reviews() {
+    const reviews = await this.request(`/pulls/${this.evidence.pr}/reviews?per_page=${this.config.max_items}`);
+    this.add('reviews', 'reviews', reviews.map(review => ({
+      state: review.state, body: review.body, commit_id: review.commit_id,
+      submitted_at: review.submitted_at, url: review.html_url,
+    })));
+    if (reviews.length === this.config.max_items) this.evidence.limitations.push('Review history reached max_items; later decisions may be omitted.');
+    this.evidence.limitations.push('Review records are observations, not proof of resolved threads or bug-free code. Compare review commit_id to the candidate.');
+  }
 }

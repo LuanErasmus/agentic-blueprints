@@ -13,32 +13,31 @@ Reads an issue and bounded supporting context, separates stated requirements fro
 ## Architecture
 
 ```text
-Issue labeled / workflow_dispatch
-  → trusted default-branch workflow + shared runner collect bounded evidence
-  → evidence + prompt → GitHub Models inference
-  → shared runner validates response → Actions summary + report artifact
+Issue trigger or manual dispatch
+  → trusted default-branch helper gathers bounded evidence
+  → sandboxed Copilot agent analysis with read-only GitHub tools
+  → deterministic report validation → restricted report artifact
   → product owner reviews recommendations
 ```
 
 ## Prerequisites
 
-- GitHub Actions and GitHub Models access for the repository and organisation.
-- Node.js 24 for the shared runner and offline fixture checks.
-- A workflow `GITHUB_TOKEN` with `models: read` and the read permissions needed for repository content and issue context. No Copilot CLI or `COPILOT_PAT` is required.
+- GitHub Actions, gh-aw, and Copilot inference access. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/).
+- Node.js 24 for offline helper tests; those tests need no credentials.
 - An issue describing the proposed change; repository guidance such as `CONTRIBUTING.md` should describe your team's expectations.
 
 ## Setup
 
-1. Copy [the root workflow](../../.github/workflows/requirements-gap-investigator.yml) to `.github/workflows/requirements-gap-investigator.yml` in your repository.
-2. Also copy the reusable `.github/workflows/blueprint-runner.yml`, the complete shared `scripts/blueprints/` directory (including `run.mjs` and centralized `samples.mjs`), and this entire `blueprints/requirements-gap-investigator/` directory with `config.json`. Install all of them on the destination's trusted default branch; copying only the entry workflow is insufficient.
-3. Keep the workflow and runner on your trusted default branch. The workflow uses `actions/ai-inference@v1` with GitHub Models (`openai/gpt-4o`), `GITHUB_TOKEN`, and `models: read`; review access and the `max-tokens` setting before enabling it.
-4. Create `requirements-review`, or change `trigger_labels` in `config.json`. Workflows receive labeled events; the runner gates the exact configured label. Keep `guidance_paths` repository-relative and tune `max_items` for bounded context.
+1. Copy `.github/workflows/requirements-gap-investigator.md`, both `.github/workflows/shared/` Markdown files, the complete `scripts/blueprints/` directory, and this entire blueprint directory with `config.json` into your repository.
+2. Install gh-aw and run `gh aw compile requirements-gap-investigator`; review and commit the generated lock beside its source in your repository. This blueprint repository does not ship lock files.
+3. Keep all source files on the trusted default branch and configure Copilot authentication as described in [shared setup](../../docs/running-workflows.md). Compiler permissions belong in this main workflow's frontmatter; the PAT fallback removes `copilot-requests: write` before recompiling.
+4. Create `requirements-review`, or keep it aligned with `trigger_labels` and workflow frontmatter. Configure repository-relative `guidance_paths` and tune `max_items`.
 
 ## Run It
 
-Use **Actions → Requirements Gap Investigator → Run workflow** with `sample: true` (the default) to use the centralized illustrative data in `scripts/blueprints/samples.mjs`; `number` is optional in sample mode. Sample inference still calls GitHub Models and requires access.
+Use **Actions → Requirements Gap Investigator → Run workflow** with `sample: true` (the default) to use synthetic evidence; `number` is optional in sample mode. Synthetic dispatch still invokes Copilot and requires inference authentication.
 
-For live evidence, choose `sample: false` and provide an issue `number`, or apply the configured label to an issue. Use this filled-in issue body, adapted to your product:
+For live evidence, choose `sample: false` and provide an issue `number`, or apply the configured label to an issue. The gh-aw role gate defaults to admin, maintainer, write, and triage; automatic fork runs are blocked. Use this filled-in issue body, adapted to your product:
 
 ```markdown
 ## Goal
@@ -56,25 +55,25 @@ What happens when an account has more than 10,000 invoices?
 The current invoice screen supports account-scoped filtering.
 ```
 
-Read the Actions summary and download the report artifact. No issue comment is created.
+Download the report artifact for the full result; the native run summary may be brief. No issue comment is created.
 
 ## How It Works
 
-The entry workflow calls reusable `.github/workflows/blueprint-runner.yml`. The shared [`scripts/blueprints/run.mjs`](../../scripts/blueprints/run.mjs) uses `prepare`, `followup`, and `report` stages: it prepares initial evidence, validates a bounded planning call and collects permitted follow-up context, then validates the final evaluation containing `summary`, `findings`, `limitations`, and `next_steps` before rendering the report. Inference has no model tool grants; the runner controls collection rather than allowing unrestricted model browsing.
+The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper gathers bounded issue context, selected linked items, comments, and configured guidance from the trusted default branch. The sandboxed Copilot agent analyses that JSON and may use read-only GitHub tools through `gh-proxy`; it does not execute issue content or initiate arbitrary collection. The [`report.mjs`](../../scripts/blueprints/report.mjs) helper validates cited source IDs and response structure, then renders the artifact. Evidence is capped per source and in total; see [shared bounds](../../docs/running-workflows.md).
 
-Supply the intended user, scope, measurable outcomes, constraints, and excerpts explaining dependencies. Collection supports same-repository `#number` references, issue comments, and configured `guidance_paths` at the default/base ref; it does not fetch arbitrary URLs. Only sources actually present in evidence support findings. Source IDs support traceability, not proof of truth. Missing guidance, unavailable sources, item caps, and truncation limit conclusions. If context is missing, add a concise approved excerpt to the issue and rerun manually with `sample: false` and its number. Offline fixture tests validate centralized samples and response handling without calling a model; they do not prove model quality or GitHub Models access.
+Supply the intended user, scope, measurable outcomes, constraints, and approved excerpts for external dependencies. External URLs are not fetched. Only collected sources support findings; source IDs support traceability, not proof of truth. Missing guidance, unavailable sources, item caps, and truncation limit conclusions. A `noop` means the request is genuinely out of scope; missing required access or data yields `report_incomplete`. Offline tests do not invoke a model.
 
 ## Guardrails
 
 - Read-only source collection; no automatic comments, labels, assignments, issue edits, code changes, or approvals.
 - Treat issue text, guidance, and source excerpts as untrusted data, never instructions to execute.
-- Send only organisation-approved content to GitHub Models. Evidence, generated prompts, summaries, and artifacts may retain sensitive context under your Actions retention and access settings.
+- Send only organisation-approved content to Copilot. The report artifact has seven-day retention; consult native run logs and summary under your repository's retention/access settings.
 - Missing evidence is a question, not a confirmed requirement or a blocker established by company policy.
 - A product owner or delegated reviewer approves requirements and any follow-up changes.
 
 ## Customise It
 
-Configure labels, guidance paths, and item limits in `config.json`. Put team-specific readiness expectations in a configured guidance file: for example, accessibility requirements for customer-facing exports or a documented data-retention rule. Do not silently turn local preferences into universal requirements. Changes to the response schema or collection policy must stay aligned with the shared runner and workflow.
+Configure labels, guidance paths, and item limits in `config.json`, keeping configured trigger labels aligned with workflow frontmatter. Put team-specific expectations in guidance; do not silently turn local preferences into universal requirements. Changes to evidence collection or response shape must stay aligned with `evidence.mjs`, `report.mjs`, and the Markdown workflow.
 
 ## Challenge
 

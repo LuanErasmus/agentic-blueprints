@@ -15,3 +15,11 @@ jobs:
         with:
           node-version: '24'
       - run: node --test scripts/blueprints/blueprints.test.mjs
+      - name: Install the source-validation compiler
+        run: gh extension install github/gh-aw --pin v1.0.1
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Validate gh-aw sources without generating lock files
+        run: gh aw compile --no-emit --strict --validate --no-check-update
+        env:
+          GH_TOKEN: ${{ github.token }}

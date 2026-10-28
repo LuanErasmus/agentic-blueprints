@@ -30,7 +30,7 @@ An agentic workflow combines model reasoning with bounded tools and decision poi
 Observe → Reason → Decide → Act or recommend → Evaluate → Continue or stop
 ```
 
-For example, an investigation agent might inspect deployment evidence, select an allowed read-only diagnostic query, evaluate its result, and recommend a next step. A workflow can also be agentic while stopping at a recommendation and handing the decision to a person.
+For example, an investigation agent might review bounded deployment evidence and fixed read-only diagnostic results, evaluate them, and recommend a next step. A workflow can also be agentic while stopping at a recommendation and handing the decision to a person.
 
 ## Keep the loop bounded
 
@@ -40,4 +40,4 @@ An agent does not need broad autonomy to be useful. Define its goal, permitted t
 
 - [GitHub Issue Triage](../blueprints/github-issue-triage/) uses issue context to classify, check for missing information, and recommend a human next step.
 - [GitHub PR Review](../blueprints/github-pr-review/) considers changes and repository guidance and leaves the review decision to a person.
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) collects read-only evidence and recommends diagnostic actions and remediation for an operator to evaluate.
+- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) collects fixed read-only evidence before inference and recommends next steps for an operator to evaluate.

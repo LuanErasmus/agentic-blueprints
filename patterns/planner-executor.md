@@ -36,5 +36,5 @@ Use this pattern when a task has multiple diagnostic or operational steps, and t
 
 ## Demonstrated by
 
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) selects a diagnostic ID, executes only its mapped read command, then evaluates the result.
-- [Delivery Risk Investigator](../blueprints/delivery-risk-investigator/) selects a bounded linked-item lookup or stops before evaluating delivery evidence.
+- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) demonstrates a bounded evidence workflow with fixed read-only collection before inference; the agent does not execute selected diagnostics.
+- [Delivery Risk Investigator](../blueprints/delivery-risk-investigator/) analyses bounded, pre-collected issue evidence and reports risks for a human to evaluate.

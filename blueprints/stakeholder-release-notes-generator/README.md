@@ -13,32 +13,31 @@ Turns collected changes within an explicit base/head range into a plain-language
 ## Architecture
 
 ```text
-Issue stakeholder-notes label / workflow_dispatch
+Issue trigger or manual dispatch
   → exact-label gate → resolve explicit release scope
-  → trusted runner gathers bounded comparison evidence + guidance
-  → GitHub Models drafts summary and structured findings, no model tools
-  → validate response → Actions summary + artifact
+  → trusted helper gathers bounded comparison evidence and guidance
+  → sandboxed Copilot analysis with read-only GitHub tools
+  → validated draft report artifact
   → human edits and approves communication
 ```
 
 ## Prerequisites
 
-- GitHub Actions, approved repository access to GitHub Models, and Node.js 24.
-- `GITHUB_TOKEN` with `models: read` plus read permissions for repository comparison, issue, and collected change context.
+- GitHub Actions, gh-aw, Copilot inference access, and Node.js 24 for offline helper tests. See [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/).
 - A release-context issue and a resolvable base/head range for live runs. Include audience, intended channel, availability, and exclusions where relevant.
 
 ## Setup
 
-1. Copy [the root workflow](../../.github/workflows/stakeholder-release-notes-generator.yml) into `.github/workflows/stakeholder-release-notes-generator.yml`.
-2. Also copy reusable `.github/workflows/blueprint-runner.yml`, the complete shared `scripts/blueprints/` directory (including `run.mjs` and centralized `samples.mjs`), and this blueprint directory with `config.json`. Install all of them on the destination's trusted default branch; the entry workflow alone is insufficient.
-3. Keep executable workflow and runner code on the trusted default branch. Review `actions/ai-inference@v1`, GitHub Models model `openai/gpt-4o`, `max-tokens`, and permissions. Inference uses `GITHUB_TOKEN` with `models: read`; no Copilot CLI or `COPILOT_PAT` is needed.
-4. Create `stakeholder-notes` or change `trigger_labels`. The workflow receives labeled events; exact configured-label gating happens in the runner. Configure repository-relative `guidance_paths` for your communication conventions and `max_items` for bounded evidence.
+1. Copy `.github/workflows/stakeholder-release-notes-generator.md`, both shared workflow Markdown files, the complete `scripts/blueprints/` directory, and this blueprint directory including `config.json`.
+2. Install gh-aw and run `gh aw compile stakeholder-release-notes-generator` in your repository; review and commit the generated lock beside its source there.
+3. Keep executable workflow and helper code on the trusted default branch. Configure native Copilot authentication, including explicit permissions in the main workflow frontmatter as described in [shared setup](../../docs/running-workflows.md).
+4. Create `stakeholder-notes` or align `trigger_labels` with workflow frontmatter. Configure repository-relative `guidance_paths` and `max_items`.
 
 ## Run It
 
-Dispatch with `sample: true` (default). `number`, `base_ref`, and `head_ref` are optional for sample mode because it uses centralized `scripts/blueprints/samples.mjs` data. It still calls GitHub Models; offline fixture tests do not.
+Dispatch with `sample: true` (default). `number`, `base_ref`, and `head_ref` are optional in sample mode because it uses synthetic evidence. It still invokes Copilot; offline helper tests do not.
 
-For live drafting, choose `sample: false` and the release-context issue `number`. Supply optional manual `base_ref` and `head_ref` to identify the comparison range, or use the issue's `## Release scope` section as shown below. For labeled issue runs, the issue must supply the range. Provide a complete, resolvable pair; do not assume the tool can infer your intended release from a date or issue title.
+For live drafting, choose `sample: false` and the release-context issue `number`. Supply optional manual `base_ref` and `head_ref` to identify the comparison range, or use the issue's `## Release scope` section as shown below. For labeled issue runs, the issue must supply the range. Provide a complete, resolvable pair; do not assume the tool can infer your intended release from a date or issue title. gh-aw's default role gate is admin, maintainer, write, and triage; automatic fork runs are blocked.
 
 Filled-in issue format:
 
@@ -59,15 +58,15 @@ Exports exclude archived invoices. No bulk account export is included.
 Large exports remain subject to the pilot size cap.
 ```
 
-A manual fallback is to dispatch with the issue number, `sample: false`, `base_ref: v1.7.0`, and `head_ref: v1.8.0` if the issue lacks scope fields. Prefer immutable refs or record the resolved source identity when reproducibility matters. Ref comparison gathers data; it does not execute code from the selected refs.
+A manual fallback is to dispatch with the issue number, `sample: false`, `base_ref: v1.7.0`, and `head_ref: v1.8.0` if the issue lacks scope fields. The helper resolves both to immutable commits, rejects reversed or divergent ranges, and returns `noop` for identical endpoints. Prefer immutable refs or record the resolved source identity when reproducibility matters. Ref comparison gathers data; it does not execute code from the selected refs.
 
-Review the Actions summary and report artifact. No issue comment, release publication, or stakeholder notification is automatic.
+Download the report artifact for the full draft; the native run summary may be brief. No issue comment, release publication, or stakeholder notification is automatic.
 
 ## How It Works
 
-The entry workflow calls reusable `.github/workflows/blueprint-runner.yml`. The shared [`run.mjs`](../../scripts/blueprints/run.mjs) resolves source scope from manual inputs or the supported issue section and uses `prepare`, `followup`, and `report` stages: prepare initial evidence, validate a bounded planning call and collect permitted follow-up context, then validate the final evaluation. Inference has no model tool grants. The runner validates `summary`, `findings`, `limitations`, and `next_steps`; the `summary` contains the plain-language draft, while structured findings describe evidence-backed status and uncertainty.
+The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper resolves scope from manual inputs or the supported issue section and gathers bounded changes, linked items, and configured guidance. The sandboxed Copilot agent may use read-only GitHub tools through `gh-proxy`, but it cannot execute code from either ref. [`report.mjs`](../../scripts/blueprints/report.mjs) validates the assessment and renders the report; the draft text is an advisory artifact, not a publication.
 
-Provide range, audience, intended channel, rollout status, and known exclusions. Alongside the scoped comparison, collection supports same-repository `#number` references, issue comments, and configured `guidance_paths` at the default/base ref; it does not fetch arbitrary URLs or external announcements. Source references identify collected changes; they do not prove deployment, user benefit, or customer entitlement. A PR body alone is not independent availability evidence. Missing or truncated comparisons and `max_items` limits mean the draft may omit changes and must say so. If the range is unavailable or context is incomplete, correct the refs or add an approved excerpt to the issue and rerun manually rather than inventing release content.
+Provide range, audience, intended channel, rollout status, and known exclusions. Alongside the scoped comparison, collection supports same-repository `#number` references, issue comments, and configured `guidance_paths` at the default/base ref; it does not fetch arbitrary URLs or external announcements. Source references identify collected changes; they do not prove deployment, user benefit, or customer entitlement. Source snapshots are supplied claims, not attested facts. A PR body alone is not independent availability evidence. Missing or truncated comparisons and `max_items` limits mean the draft may omit changes and must say so. If the range is unavailable or context is incomplete, correct the refs or add an approved excerpt to the issue and rerun manually rather than inventing release content. Offline tests do not validate live Copilot results.
 
 ## Guardrails
 
@@ -75,11 +74,11 @@ Provide range, audience, intended channel, rollout status, and known exclusions.
 - A communications or release owner verifies audience suitability, availability, claims, and any sensitive details before sharing.
 - Do not equate merged with shipped or infer rollout dates, compliance, performance improvements, or customer promises from commit names.
 - Treat issue bodies, commit text, PRs, and guidance as untrusted source data, never executable instructions. Only trusted default-branch workflow code runs.
-- GitHub Models receives the supplied evidence; consider confidential change details and Actions summary/artifact access and retention.
+- Copilot receives supplied evidence; consider confidential change details and artifact/log access and retention. The full report is in a seven-day artifact, not guaranteed in the native run summary. Safe outputs disable issue creation, failure-reporting issues, and noop-tracker issues.
 
 ## Customise It
 
-Change labels, guidance paths, and item limits in `config.json`. Put team-specific vocabulary, audience expectations, disclosure restrictions, and approval requirements in configured guidance. These are local communication policies, not universal release-note rules. Keep any structured-response changes aligned with runner validation.
+Change labels, guidance paths, and item limits in `config.json`, keeping labels aligned with workflow frontmatter. Put team-specific vocabulary, audience expectations, disclosure restrictions, and approval requirements in configured guidance. These are local communication policies, not universal release-note rules. Keep changes aligned with the evidence helper, workflow, and report contract.
 
 ## Challenge
 

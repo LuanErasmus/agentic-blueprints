@@ -23,12 +23,14 @@ Issue trigger or manual dispatch
 
 ## Prerequisites
 
+**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
 - GitHub Actions, gh-aw, Copilot inference access, and Node.js 24 for offline helper tests. See [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/).
 - A release-context issue and a resolvable base/head range for live runs. Include audience, intended channel, availability, and exclusions where relevant.
 
 ## Setup
 
-1. Copy `.github/workflows/stakeholder-release-notes-generator.md`, both shared workflow Markdown files, the complete `scripts/blueprints/` directory, and this blueprint directory including `config.json`.
+1. Copy [stakeholder-release-notes-generator.md](stakeholder-release-notes-generator.md) from this folder to `.github/workflows/stakeholder-release-notes-generator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/stakeholder-release-notes-generator/`.
 2. Install gh-aw and run `gh aw compile stakeholder-release-notes-generator` in your repository; review and commit the generated lock beside its source there.
 3. Keep executable workflow and helper code on the trusted default branch. Configure native Copilot authentication, including explicit permissions in the main workflow frontmatter as described in [shared setup](../../docs/running-workflows.md).
 4. Create `stakeholder-notes` or align `trigger_labels` with workflow frontmatter. Configure repository-relative `guidance_paths` and `max_items`.

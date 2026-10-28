@@ -26,6 +26,10 @@ New to agentic workflows? Begin with [GitHub Issue Triage](blueprints/github-iss
 
 Each blueprint includes metadata, a native gh-aw Markdown workflow, setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Copy and compile a selected workflow in your own repository; generated lock files are intentionally not included here. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
 
+Workflow Markdown sources live in each blueprint's own folder; shared imports live in `blueprints/shared/`. Copy them into your own repository's `.github/workflows/` layout and compile there.
+
+**Copilot licence required to run:** these blueprints use `permissions: copilot-requests: write` and the built-in Actions token for organisation billing. Use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and have an administrator enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Personal Copilot plans alone do not enable this method in a personal repository; no PAT fallback is configured. See [full eligibility, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises. Offline tests and source compilation do not require a Copilot licence.
+
 ## Patterns
 
 - [Human-in-the-Loop](patterns/human-in-the-loop.md)

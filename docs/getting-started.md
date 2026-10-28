@@ -27,7 +27,11 @@ You can also fork the repository and clone your fork if you plan to customise or
 
 ## Configure a blueprint
 
-Follow the blueprint's **Setup** steps and [workflow usage guide](running-workflows.md). Copy the native workflow Markdown source, shared workflow files, required scripts, and blueprint config into your repository, then install gh-aw and compile the workflow there. This repository intentionally does not include generated lock files. Copilot inference uses gh-aw's native authentication; follow the [official authentication guide](https://github.github.com/gh-aw/reference/auth/). Azure live mode additionally requires OIDC federation and a read-only Reader identity. Synthetic dispatch still invokes Copilot inference; the offline Node.js 24 test suite is credential-free.
+Follow the blueprint's **Setup** steps and [workflow usage guide](running-workflows.md). Copy the Markdown source from its `blueprints/<slug>/` folder into your repository's `.github/workflows/`, and copy `blueprints/shared/` to `.github/workflows/shared/`. Copy required scripts and blueprint config, then install gh-aw and compile the installed workflow there. This repository intentionally does not include generated lock files.
+
+**Copilot licence required for workflow execution:** use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, with **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** enabled by an administrator. These blueprints use `permissions: copilot-requests: write` and the built-in Actions token only, not a PAT. A personal Copilot plan alone does not enable this organisation-billed method in a personal repository. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
+Azure live mode additionally requires OIDC federation and a read-only Reader identity. Synthetic dispatch still invokes Copilot and needs the same licence/policies; compiling sources and the offline Node.js 24 test suite do not.
 
 Before enabling a workflow, review its permissions, triggers, prompt, and the data sent to the model. Use a test repository or non-sensitive example first.
 

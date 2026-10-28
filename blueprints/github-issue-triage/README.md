@@ -20,14 +20,16 @@ Issue trigger or manual dispatch → trusted evidence preparation on the default
 
 ## Prerequisites
 
+**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
 GitHub Actions, gh-aw, and Copilot inference access for the repository. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/). Offline helper tests need Node.js 24 and no credentials.
 
 ## Setup
 
-1. Follow [shared setup](../../docs/running-workflows.md). Copy `.github/workflows/issue-triage.md`, both shared workflow Markdown files, the complete `scripts/blueprints/` directory, and this blueprint directory (including `config.json`) into your repository.
+1. Follow [shared setup](../../docs/running-workflows.md). Copy [issue-triage.md](issue-triage.md) from this folder to `.github/workflows/issue-triage.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory (including `config.json`) to `blueprints/github-issue-triage/`.
 2. Install gh-aw and run `gh aw compile issue-triage` in that repository. Review and commit the generated lock beside its source there; this blueprint repository does not include lock files.
 3. Keep the source, shared files, scripts, and config on the trusted default branch. Align `config.json`'s `trigger_labels` with the workflow frontmatter and create the label in the repository.
-4. Configure native Copilot authentication as described in [shared setup](../../docs/running-workflows.md): compiler permissions belong in this main workflow's frontmatter, and the PAT fallback removes `copilot-requests: write` before recompiling. Review data sent to Copilot, then test with a synthetic dispatch before using private issue content.
+4. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed. Review data sent to Copilot, then test with a synthetic dispatch before using private issue content.
 
 ## Run It
 

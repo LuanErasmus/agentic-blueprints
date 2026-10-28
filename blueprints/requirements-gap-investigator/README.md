@@ -22,15 +22,17 @@ Issue trigger or manual dispatch
 
 ## Prerequisites
 
+**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
 - GitHub Actions, gh-aw, and Copilot inference access. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/).
 - Node.js 24 for offline helper tests; those tests need no credentials.
 - An issue describing the proposed change; repository guidance such as `CONTRIBUTING.md` should describe your team's expectations.
 
 ## Setup
 
-1. Copy `.github/workflows/requirements-gap-investigator.md`, both `.github/workflows/shared/` Markdown files, the complete `scripts/blueprints/` directory, and this entire blueprint directory with `config.json` into your repository.
+1. Copy [requirements-gap-investigator.md](requirements-gap-investigator.md) from this folder to `.github/workflows/requirements-gap-investigator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/requirements-gap-investigator/`.
 2. Install gh-aw and run `gh aw compile requirements-gap-investigator`; review and commit the generated lock beside its source in your repository. This blueprint repository does not ship lock files.
-3. Keep all source files on the trusted default branch and configure Copilot authentication as described in [shared setup](../../docs/running-workflows.md). Compiler permissions belong in this main workflow's frontmatter; the PAT fallback removes `copilot-requests: write` before recompiling.
+3. Keep all source files on the trusted default branch. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
 4. Create `requirements-review`, or keep it aligned with `trigger_labels` and workflow frontmatter. Configure repository-relative `guidance_paths` and tune `max_items`.
 
 ## Run It

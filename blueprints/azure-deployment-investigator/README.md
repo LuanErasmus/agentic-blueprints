@@ -20,13 +20,15 @@ Manual request → trusted OIDC collector reads deployment and fixed diagnostics
 
 ## Prerequisites
 
+**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
 GitHub Actions, gh-aw, and Copilot inference access. Live mode additionally requires an existing Azure resource-group deployment, OIDC federation, and a dedicated identity with only the Azure Reader role at the resource group scope. Offline helper tests need Node.js 24, not credentials.
 
 ## Setup
 
-1. Copy `.github/workflows/azure-deployment-investigator.md`, `.github/workflows/shared/blueprint-runtime.md`, `.github/workflows/shared/report-contract.md`, the complete `scripts/blueprints/` directory, and this blueprint directory to your trusted default branch. See [shared setup](../../docs/running-workflows.md).
+1. Copy [azure-deployment-investigator.md](azure-deployment-investigator.md) from this folder to `.github/workflows/azure-deployment-investigator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory to `blueprints/azure-deployment-investigator/`. Keep these on your trusted default branch. See [shared setup](../../docs/running-workflows.md).
 2. Install gh-aw and run `gh aw compile azure-deployment-investigator` in your repository; review and commit the generated lock there. The compiler may warn that a safe update introduces `azure/login`; inspect the action version and OIDC trust configuration, verify the identity is limited to Reader at the target resource group, and review the change before approving it. The example uses no new secret. Do not blindly bypass safe-update warnings.
-3. Configure Copilot inference authentication using the [official gh-aw guide](https://github.github.com/gh-aw/reference/auth/).
+3. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
 4. Run with `sample: true` first: no Azure login occurs, but Copilot inference is still required.
 5. For live use, configure an Azure application or managed identity with a GitHub OIDC federated credential restricted to this repository and approved branch. Do not use a client secret.
 6. Set repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`.

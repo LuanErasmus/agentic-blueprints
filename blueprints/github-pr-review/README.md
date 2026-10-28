@@ -20,14 +20,16 @@ PR event or manual dispatch → trusted default-branch evidence preparation
 
 ## Prerequisites
 
+**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+
 GitHub Actions, gh-aw, Copilot inference access, read permissions for evidence, and an eligible PR. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/). Node.js 24 is needed for offline helper tests.
 
 ## Setup
 
-1. Follow [shared setup](../../docs/running-workflows.md). Copy `.github/workflows/pr-review.md`, both shared workflow Markdown files, the complete `scripts/blueprints/` directory, and this blueprint directory with `config.json`.
+1. Follow [shared setup](../../docs/running-workflows.md). Copy [pr-review.md](pr-review.md) from this folder to `.github/workflows/pr-review.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/github-pr-review/`.
 2. Install gh-aw and run `gh aw compile pr-review` in your repository; review and commit the generated lock there.
 3. Configure `guidance_paths` and any supported test evidence paths. Keep the workflow on the trusted default branch; it reads the PR base for guidance and never checks out or executes PR code.
-4. Configure native Copilot authentication as described in [shared setup](../../docs/running-workflows.md): compiler permissions belong in this main workflow's frontmatter, and the PAT fallback removes `copilot-requests: write` before recompiling. Review data processing policy and align the `review-preparation` label in config and workflow frontmatter.
+4. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed. Review data processing policy and align the `review-preparation` label in config and workflow frontmatter.
 
 ## Run It
 

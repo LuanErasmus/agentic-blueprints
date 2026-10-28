@@ -11,6 +11,7 @@ import { prepareEvidence, enabledForEvent } from './evidence.mjs';
 import { publishReport } from './report.mjs';
 import { azureRead, diagnosticArguments, collectAzureEvidence } from './azure.mjs';
 import { GitHubEvidence } from './github.mjs';
+import { stageWorkflowSources } from './validate.mjs';
 
 const config = { trigger_labels: ['review'], guidance_paths: [], max_items: 20,
   weights: { scope: 20, execution: 30, scenarios: 30, review: 20 }, minimum_evidence_dimensions: 3 };
@@ -28,6 +29,13 @@ test('all nine blueprints contain usage sections and filled-in input/output exam
     const root = join('blueprints', slug);
     const readme = await readFile(join(root, 'README.md'), 'utf8');
     for (const section of sections) assert.ok(readme.includes(`## ${section}`), `${slug}: missing ${section}`);
+    const prerequisites = readme.split('## Prerequisites')[1].split('## Setup')[0];
+    assert.match(prerequisites, /Copilot Business/);
+    assert.match(prerequisites, /Copilot Enterprise/);
+    assert.match(prerequisites, /organisation-owned repository/);
+    assert.match(prerequisites, /copilot-requests: write/);
+    assert.ok(readme.includes('running-workflows.md#copilot-licence-and-authentication-requirements'));
+    assert.doesNotMatch(readme, /COPILOT_GITHUB_TOKEN|remove `copilot-requests: write`/);
     for (const filename of ['input.md', 'output.md']) {
       assert.ok((await readFile(join(root, 'examples', filename), 'utf8')).length > 100, `${slug}: empty ${filename}`);
     }
@@ -357,11 +365,12 @@ test('irrelevant labels and fork PR events do not invoke collection', async () =
 test('native sources align trigger labels, imports, and source-only distribution', async () => {
   const directory = join('.github', 'workflows');
   const files = await readdir(directory);
-  assert.equal(files.filter(file => file.endsWith('.md')).length, 9);
+  assert.equal(files.filter(file => file.endsWith('.md')).length, 0);
   assert.equal(files.filter(file => file.endsWith('.lock.yml')).length, 0);
+  await assert.rejects(() => access(join(directory, 'shared')));
   for (const slug of Object.keys(tasks)) {
     const id = slug.replace(/^github-/, '');
-    const source = await readFile(join(directory, `${id}.md`), 'utf8');
+    const source = await readFile(join('blueprints', slug, `${id}.md`), 'utf8');
     assert.match(source, /shared\/blueprint-runtime\.md/);
     assert.match(source, /shared\/report-contract\.md/);
     assert.match(source, /strict: true/);
@@ -375,7 +384,7 @@ test('native sources align trigger labels, imports, and source-only distribution
     }
     await assert.rejects(() => access(join(directory, `${id}.yml`)));
   }
-  const runtime = await readFile(join(directory, 'shared', 'blueprint-runtime.md'), 'utf8');
+  const runtime = await readFile(join('blueprints', 'shared', 'blueprint-runtime.md'), 'utf8');
   assert.match(runtime, /engine: copilot/);
   assert.match(runtime, /mode: gh-proxy/);
   assert.match(runtime, /pull-request: false/);
@@ -383,6 +392,24 @@ test('native sources align trigger labels, imports, and source-only distribution
   assert.match(runtime, /allowed: \[\]/);
   assert.match(runtime, /upload-artifact:/);
   assert.match(runtime, /create-issue: false/);
+});
+
+test('validation stages the same source layout adopters install, without generated locks', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'blueprint-stage-test-'));
+  try {
+    await stageWorkflowSources(folder);
+    const files = await readdir(folder);
+    assert.equal(files.filter(file => file.endsWith('.md')).length, 9);
+    assert.equal(files.filter(file => file.endsWith('.lock.yml')).length, 0);
+    for (const slug of Object.keys(tasks)) {
+      const id = slug.replace(/^github-/, '');
+      const source = await readFile(join(folder, `${id}.md`), 'utf8');
+      assert.equal(source, await readFile(join('blueprints', slug, `${id}.md`), 'utf8'));
+      for (const match of source.matchAll(/^\s+- (shared\/[^\s]+\.md)$/gm)) {
+        await access(join(folder, match[1]));
+      }
+    }
+  } finally { await rm(folder, { recursive: true, force: true }); }
 });
 
 test('draft, closed, wrong-kind, and unrequested issue events are out of scope', () => {

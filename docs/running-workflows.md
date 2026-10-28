@@ -1,10 +1,23 @@
 # Running and adapting the workflows
 
-These nine examples are native [GitHub Agentic Workflows (`gh-aw`)](https://github.github.com/gh-aw/) source files. Each workflow is authored as Markdown in `.github/workflows/<id>.md`; the gh-aw compiler in the adopting repository generates the corresponding `.lock.yml`. This blueprint repository intentionally does not include generated lock files. Review and commit the compiled lock beside its source in your own repository.
+These nine examples are native [GitHub Agentic Workflows (`gh-aw`)](https://github.github.com/gh-aw/) source files. Each workflow is distributed beside its guide as `blueprints/<slug>/<id>.md`, with common imports in `blueprints/shared/`. The adopting repository installs it into `.github/workflows/` and compiles the corresponding `.lock.yml`. This blueprint repository intentionally does not include generated lock files or executable blueprint workflows under `.github/workflows/`; that directory only contains this collection's validation CI.
+
+## Copilot licence and authentication requirements
+
+These blueprints use **only `permissions: copilot-requests: write`** for Copilot inference, with GitHub Actions' built-in `GITHUB_TOKEN`. No personal access token or model API key is required. This is the **organisation-billed** authentication method, not personal-seat authentication.
+
+- Use an **organisation-owned repository** whose organisation has an active **GitHub Copilot Business or GitHub Copilot Enterprise** subscription. **Copilot Business is the minimum standard organisation plan; Copilot Enterprise is not required.** Eligible enterprises using GitHub's separate **Copilot access** offering should confirm their organisation's inference entitlement and billing with their administrator.
+- A personal Copilot Free, Student, Pro, Pro+, or Max plan alone does **not** enable this organisation-billed method in a personal repository. A personal fork of this collection therefore cannot run these blueprints unchanged. Copy them into an eligible organisation repository.
+- An administrator must enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** under **Organisation settings → Copilot → Policies**. Enterprise policies, permitted models, available AI credits, and spending limits must also allow the run. A licence alone is not sufficient if these controls block inference.
+- Keep `copilot-requests: write` in each installed workflow's main frontmatter. It permits inference requests, not repository writes. Inference is billed to the organisation's Copilot tenant; GitHub Actions compute is billed separately. Do not assume a subscription means unlimited or free workflow runs.
+
+Both live runs and `sample: true` dispatch require this Copilot entitlement and policy setup. Reading/copying the blueprints, compiling them, and running the offline helper tests do not invoke Copilot and do not require a Copilot licence. These examples do not document or configure a PAT fallback.
+
+Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/how-tos/github-agentic-workflows/creating-github-agentic-workflows#using-the-built-in-github_token), [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/#copilot-requests-write-permission), [gh-aw billing](https://github.github.com/gh-aw/reference/billing/), and [Copilot plans](https://docs.github.com/en/copilot/get-started/plans). Check current eligibility and policies before enabling runs.
 
 ## Install one blueprint
 
-1. Copy your chosen `.github/workflows/<id>.md`, `.github/workflows/shared/blueprint-runtime.md`, `.github/workflows/shared/report-contract.md`, the complete `scripts/blueprints/` directory, and the selected `blueprints/<slug>/config.json` directory into your repository. Azure Deployment Investigator has no blueprint `config.json`. Keep the workflow source, shared files, scripts, and config together on your trusted default branch.
+1. Copy your chosen `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in the destination repository. Copy both files from `blueprints/shared/` to `.github/workflows/shared/` so the source's `shared/...` imports resolve. Also copy the complete `scripts/blueprints/` directory and the selected blueprint directory with `config.json` to the same repository-relative locations. Azure Deployment Investigator has no blueprint `config.json`. Keep the installed source, imports, scripts, and config on your trusted default branch. The Markdown source stored beside this README is a distribution template; compile the installed copy, not the file in `blueprints/`.
 2. Install the GitHub CLI and gh-aw extension in the destination repository:
 
    ```shell
@@ -13,7 +26,7 @@ These nine examples are native [GitHub Agentic Workflows (`gh-aw`)](https://gith
    ```
 
    Review the generated `.github/workflows/<id>.lock.yml` and commit it together with its Markdown source in your repository. Recompile there whenever you change the workflow source. This repository does not ship or compile lock files.
-3. Configure Copilot inference authentication using the [official gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/). The workflow uses the native Copilot engine and the compiler's default model; change the native model only if your Copilot subscription and organisation policy support it. Compiler permissions must be explicit in each main workflow's `.github/workflows/<id>.md` frontmatter: for organisation-backed billing, put `copilot-requests: write` there, not in the shared runtime. For a personal repository or unsupported organisation billing, remove `copilot-requests: write` from the chosen main workflow's frontmatter, configure `COPILOT_GITHUB_TOKEN` with a fine-grained PAT that has **Copilot Requests: Read**, and use an account with an active Copilot licence. Do not put credentials in workflow files or examples. Recompile the chosen workflow after changing permissions or authentication.
+3. Confirm the [Copilot licence and authentication requirements](#copilot-licence-and-authentication-requirements) above. Each main workflow already declares `copilot-requests: write`; retain it and enable organisation billing. Do not add a PAT secret. The native Copilot engine uses the compiler's default model; change it only if the organisation's subscription and model policies permit it. Compile only after reviewing the chosen configuration.
 4. Review the chosen blueprint's event filters, role gate, label configuration, evidence scope, and data handling. When changing a trigger label, keep `config.json`'s `trigger_labels` aligned with frontmatter `on.labels`.
 5. In **Actions**, select the compiled workflow and use **Run workflow**. Start with `sample: true` to run a synthetic example; this still uses native Copilot inference and requires its authentication. For live GitHub evidence, use `sample: false` and provide the requested issue or PR number. Azure live mode additionally needs the Azure identity setup described in its blueprint.
 
@@ -63,7 +76,7 @@ node --test scripts/blueprints/blueprints.test.mjs
 
 These tests require no GitHub, Copilot, or Azure credentials and make no live model calls. Synthetic dispatch through gh-aw is different: it still invokes the native Copilot agent and therefore needs valid inference authentication.
 
-This repository's source validation command is `gh aw compile --no-emit --strict --validate --no-check-update`. It validates workflow Markdown without emitting lock files and does not approve safe-update changes. In an adopting repository, use `gh aw compile <id>` to generate the lock you will review and commit there. If the compiler proposes safe updates, inspect each change rather than blindly bypassing or accepting it.
+This repository's source validation command is `node scripts/blueprints/validate.mjs`. It stages the nine sources and their imports in a temporary directory under `.blueprint-output/`, runs `gh aw compile --dir <staging-directory> --no-emit --strict --validate --no-check-update`, and removes the staged files afterwards. It does not emit lock files, invoke Copilot, or approve safe-update changes. In an adopting repository, use `gh aw compile <id>` on the installed `.github/workflows/<id>.md` to generate the lock you will review and commit there. If the compiler proposes safe updates, inspect each change rather than blindly bypassing or accepting it.
 
 ## Permissions, output, and limitations
 

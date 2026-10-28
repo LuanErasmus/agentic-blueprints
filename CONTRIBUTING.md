@@ -20,8 +20,8 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 2. Copy `templates/blueprint-template/README.md` and `templates/blueprint-template/blueprint.yml` into a new directory under `blueprints/`.
 3. Fill in every section and keep metadata consistent with the README and implementation.
 4. Add only files and directories needed for a working example; do not create empty directories to match a suggested layout.
-5. Author runnable workflows as native gh-aw Markdown sources, use its sandbox and declared read tools, and keep evidence preparation/report validation deterministic where practical. Prefer recommendations and read-only access. Require explicit human approval before impactful changes.
-6. Validate workflow sources without emitting locks using `gh aw compile --no-emit --strict --validate --no-check-update`, and run `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files to this blueprint repository; explain what could not be verified.
+5. Author native gh-aw Markdown sources in each `blueprints/<slug>/` folder, not this collection's `.github/workflows/`. Use `copilot-requests: write` with organisation billing and document the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Use the sandbox and declared read tools, and keep evidence preparation/report validation deterministic where practical. Prefer recommendations and read-only access. Require explicit human approval before impactful changes.
+6. Validate the staged installation layout without emitting locks using `node scripts/blueprints/validate.mjs`, and run `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files to this blueprint repository; explain what could not be verified.
 7. Open a pull request. For a substantial new blueprint, start with the **Blueprint Proposal** issue form.
 
 ## Pull requests
@@ -41,6 +41,7 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 - [ ] A small challenge helps readers experiment.
 - [ ] `blueprint.yml` uses the documented metadata fields.
 - [ ] Filled-in trigger/input and illustrative output examples are included.
-- [ ] Native Markdown workflow source validates with `gh aw compile --no-emit --strict --validate --no-check-update`; no generated lock file is added here.
+- [ ] Native Markdown workflow source lives beside its blueprint guide and validates with `node scripts/blueprints/validate.mjs`; no generated lock file is added here.
+- [ ] Copilot authentication uses `copilot-requests: write`; prerequisites explain the organisation's Copilot entitlement and billing policies.
 - [ ] Offline validation passes: `node --test scripts/blueprints/blueprints.test.mjs`.
 - [ ] Recommendations complement native platform features and do not imply human approval.

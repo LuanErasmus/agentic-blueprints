@@ -28,13 +28,14 @@ Create a `blueprint.yml` alongside this README. Start from the metadata example 
 
 ## Prerequisites
 
+- An organisation-owned repository with Copilot Business (minimum standard organisation plan) or Copilot Enterprise, and organisation-billed Copilot CLI enabled. See [licence and policy requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises. A personal Copilot plan alone is not sufficient for this authentication method.
 - [List accounts, permissions, tools, and services needed.]
 
 ## Setup
 
-1. Copy the native workflow Markdown source, shared runtime/contract files, required scripts, and this blueprint's config into the adopter repository.
+1. Distribute the native workflow source beside this README. Adopters copy it to `.github/workflows/<id>.md`, files from `blueprints/shared/` to `.github/workflows/shared/`, and required scripts/config to their documented repository-relative paths.
 2. Install gh-aw and run `gh aw compile <id>` there. Review and commit the generated lock next to its source; do not add generated lock files to this blueprint repository.
-3. Configure Copilot authentication as described in the [official gh-aw guide](https://github.github.com/gh-aw/reference/auth/). Put `copilot-requests: write` explicitly in the main workflow's frontmatter for organisation-backed billing. For the documented PAT fallback, remove that permission from the main workflow, set `COPILOT_GITHUB_TOKEN` with a fine-grained token granting Copilot Requests: Read, and recompile.
+3. Retain `copilot-requests: write` in the main workflow's frontmatter and have the organisation administrator enable Copilot CLI and organisation billing. Authentication uses the built-in Actions token; do not configure a PAT. Follow the [shared authentication requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements). Both live and synthetic dispatch require Copilot access; source compilation and offline tests do not.
 
 ## Run It
 

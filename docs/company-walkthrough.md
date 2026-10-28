@@ -13,4 +13,4 @@ This walkthrough uses a fictional order-cancellation feature. Each blueprint run
 
 An agent's report is not an approved requirement, passing test, human sign-off, or proof of deployment. Always hand off original source evidence and the human decision separately from the recommendation.
 
-For runnable input examples, use each blueprint's `examples/input.md`. For synthetic evidence, start the gh-aw workflow in sample mode; this still invokes Copilot inference. The credential-free offline helper suite is documented in [workflow usage](running-workflows.md).
+Read each blueprint's filled-in `examples/input.md` and illustrative `examples/output.md`, then adapt the input into your own issue, PR, or deployment request. They are templates, not executable synthetic dispatches; there is no sample flag. Copy one workflow file, customise it, compile it, and run it with the required real inputs. The collection's credential-free source tests are contributor tooling, not adopter dependencies or live integration verification. See [workflow usage](running-workflows.md).

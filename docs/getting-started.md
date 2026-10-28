@@ -16,28 +16,27 @@ Agentic Blueprints are native GitHub Agentic Workflows (`gh-aw`) examples that u
 
 Each blueprint lists its difficulty, prerequisites, required credentials, and data handling. Read its **Guardrails** section before setting it up.
 
-## Clone the repository
+## One-time prerequisites
 
-```shell
-git clone https://github.com/LuanErasmus/agentic-blueprints.git
-cd agentic-blueprints
-```
-
-You can also fork the repository and clone your fork if you plan to customise or contribute.
-
-## Configure a blueprint
-
-Follow the blueprint's **Setup** steps and [workflow usage guide](running-workflows.md). Copy the Markdown source from its `blueprints/<slug>/` folder into your repository's `.github/workflows/`, and copy `blueprints/shared/` to `.github/workflows/shared/`. Copy required scripts and blueprint config, then install gh-aw and compile the installed workflow there. This repository intentionally does not include generated lock files.
+Install the [GitHub CLI](https://cli.github.com/) and gh-aw with `gh extension install github/gh-aw`. Cloning this collection is optional; you only need one workflow file to adopt a blueprint.
 
 **Copilot licence required for workflow execution:** use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, with **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** enabled by an administrator. These blueprints use `permissions: copilot-requests: write` and the built-in Actions token only, not a PAT. A personal Copilot plan alone does not enable this organisation-billed method in a personal repository. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
 
-Azure live mode additionally requires OIDC federation and a read-only Reader identity. Synthetic dispatch still invokes Copilot and needs the same licence/policies; compiling sources and the offline Node.js 24 test suite do not.
+Azure additionally requires OIDC federation and Reader access scoped to the target resource group. Compiling sources does not call Copilot. Node.js 24 and this collection's validation scripts are for contributors/CI only, not adopters.
 
-Before enabling a workflow, review its permissions, triggers, prompt, and the data sent to the model. Use a test repository or non-sensitive example first.
+## Setup in three steps
+
+1. Copy your chosen `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in your repository. No shared files, runtime scripts, JSON configuration, or report schemas are needed.
+2. Customise the labels and company instructions directly in the Markdown, create the required labels, and run `gh aw compile <id>`.
+3. Review and commit the source and generated `.lock.yml` in your repository's trusted default branch. Recompile whenever you edit the source. This collection does not distribute locks.
+
+Before enabling it, review permissions, triggers, instructions, and data sent to Copilot. See [workflow usage](running-workflows.md) for optional details.
 
 ## Run it
 
-Use the **Run It** section of the selected blueprint. Automatic triggers are label-gated, and manual dispatch supports synthetic samples or live evidence. The gh-aw sandbox blocks automatic fork runs; draft PRs are skipped where applicable. Inspect the uploaded report artifact and independently verify recommendations. The native run summary is not the full report. These examples do not grant the agent authority to approve a review, change GitHub content, or modify Azure resources.
+Use **Actions → Run workflow** on the default branch and supply the required issue/PR `number` (Azure requires `resource_group` and `deployment_name`). Automatic triggers are label-gated; automatic fork events are blocked and draft PRs are skipped. There is no sample flag: read the filled-in input/output examples as illustrative templates, then adapt a non-sensitive issue or PR in your repository.
+
+Read-only native GitHub tools inspect evidence without checking out or executing code. The agent uploads one advisory Markdown report, retained for seven days, not machine-validated JSON. Inspect the artifact and independently verify recommendations; the native run summary is not the full report. These workflows cannot approve reviews, change GitHub content, publish releases, or modify Azure resources.
 
 ## Where to go next
 

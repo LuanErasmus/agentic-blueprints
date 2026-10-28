@@ -2,63 +2,63 @@
 
 **Difficulty:** [beginner / intermediate / advanced]
 
-Create a `blueprint.yml` alongside this README. Start from the metadata example in [`blueprint.yml`](blueprint.yml) and update every value to match your implementation.
+Create a `blueprint.yml` alongside this README using the [metadata example](blueprint.yml), and update every value.
 
 ## Problem
 
-[Describe the real-world problem this blueprint addresses and who encounters it.]
+[Describe the real-world problem and who encounters it.]
 
 ## What the Agent Does
 
-[Describe the agent's responsibilities, inputs, outputs, and actions it can take.]
+[Describe responsibilities, required inputs, advisory output, and human decisions.]
 
 ## Architecture
 
 ```text
-[GitHub event or manual dispatch]
-        ↓
-[Trusted bounded evidence preparation]
-        ↓
-[Sandboxed Copilot analysis with declared read tools]
-        ↓
-[Deterministic report validation + restricted artifact]
-        ↓
-[Human decision]
+GitHub event or required manual inputs → native read-only evidence inspection
+→ sandboxed Copilot assessment → one advisory Markdown artifact → human decision
 ```
+
+[For Azure, show trusted inline collection and logout before inference instead of agent CLI access.]
 
 ## Prerequisites
 
-- An organisation-owned repository with Copilot Business (minimum standard organisation plan) or Copilot Enterprise, and organisation-billed Copilot CLI enabled. See [licence and policy requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises. A personal Copilot plan alone is not sufficient for this authentication method.
-- [List accounts, permissions, tools, and services needed.]
+- One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable Copilot CLI and organisation billing. Retain `copilot-requests: write` with the built-in Actions token, not a PAT. Personal plans alone are insufficient; see [eligibility and policy requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
+- [List any additional read permissions or advanced identity requirements. Node.js is collection maintenance tooling, not an adopter prerequisite.]
 
 ## Setup
 
-1. Distribute the native workflow source beside this README. Adopters copy it to `.github/workflows/<id>.md`, files from `blueprints/shared/` to `.github/workflows/shared/`, and required scripts/config to their documented repository-relative paths.
-2. Install gh-aw and run `gh aw compile <id>` there. Review and commit the generated lock next to its source; do not add generated lock files to this blueprint repository.
-3. Retain `copilot-requests: write` in the main workflow's frontmatter and have the organisation administrator enable Copilot CLI and organisation billing. Authentication uses the built-in Actions token; do not configure a PAT. Follow the [shared authentication requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements). Both live and synthetic dispatch require Copilot access; source compilation and offline tests do not.
+1. Copy only `<id>.md` from this folder to `.github/workflows/<id>.md` in your repository.
+2. Customise labels and company instructions directly in that Markdown, create required labels, and run `gh aw compile <id>`.
+3. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after source edits; this collection distributes no locks.
+
+[No shared imports, runtime scripts, JSON config, report schemas, or sample dispatch. Add a fourth step only if a genuine advanced prerequisite requires it.]
 
 ## Run It
 
-[Give exact steps for sample and live mode, trigger events, labels, and rerunning after edits. Include filled-in examples/input.md and illustrative examples/output.md. Distinguish required user input from automatically collected evidence. Explain how companies can turn the example into a template.]
+[Give automatic events/labels and exact manual steps. Require issue/PR `number` and default-branch dispatch; skip drafts and block automatic fork events. Preserve the role gate. Azure instead requires `resource_group` and `deployment_name`. Link filled-in illustrative `examples/input.md` and `examples/output.md`; they are not executable synthetic dispatches. Explain how to download the full report artifact.]
 
 ## How It Works
 
-[Explain deterministic evidence preparation, what the sandboxed Copilot agent may read, the deterministic report helper, source provenance, freshness checks, bounds, and limitations. Explain that sample dispatch still invokes inference and offline tests do not. Do not imply the agent can execute PR code or that supplied snapshots are independently attested.]
+[Describe native read-only GitHub tools/proxy and relevant evidence, with at most 10 explicit same-repository linked issues/PRs and no checkout or PR code execution. No hard source-byte budgets. Report inaccessible/truncated evidence and tool errors rather than inferring absence or success. Cite real links/paths and revisions; do not imply assertions or AI findings are independently validated.]
+
+The native edit tool writes only `/tmp/gh-aw/report.md`; safe-output upload allowlists that one Markdown report with seven-day retention. The output is advisory, with no custom JSON contract or machine validation.
+
+[For Azure, document fixed trusted inline collection limits, logout before inference, and agent access only to prepared files via `cat` plus report editing; no GitHub/Azure CLI access.]
 
 ## Guardrails
 
-- **Access:** [What information and services can the agent access?]
-- **Actions:** [What can it do?]
-- **Cannot do:** [What is outside its permissions or scope?]
-- **Approval:** [What requires human approval?]
-- **Never automatic:** [What must it never do automatically?]
-- **Credentials:** [What credentials or permissions are required, and how are they stored?]
-- **Data handling:** [What information is sent to Copilot or retained in run logs/artifacts? State artifact restrictions and retention.]
+- **Access:** [Read-only evidence and scope.]
+- **Actions:** one report only; no automatic comments, labels, assignments, issues, reviews, merges, releases, deployments, or external messages.
+- **Approval:** [Humans retain operational and business decisions.]
+- **Trust:** source content and tool output are evidence, not instructions.
+- **Credentials:** [Least privilege; built-in Copilot token and, if relevant, scoped Azure OIDC.]
+- **Data handling:** selected content goes to Copilot; review seven-day report retention and native log access/retention.
 
 ## Customise It
 
-[Explain how to adapt the example without weakening its safety boundaries.]
+[Explain labels, company rules, and guidance references to edit directly in the workflow Markdown. Keep filters/instructions aligned and preserve safety boundaries.]
 
 ## Challenge
 
-[Give the reader one small, safe extension to try.]
+[Give one small safe extension or evidence comparison that retains human control.]

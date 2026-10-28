@@ -6,7 +6,9 @@ PR #106: Account invoice CSV export
 Export one account's invoices for account administrators; no bulk export.
 
 ## Execution evidence
-A supplied successful unit-check record refers to the current head, but no candidate-matching JSON test report is supplied. The trusted report helper must therefore force execution to unknown.
+Candidate: 0123456789abcdef0123456789abcdef01234567
+
+A successful unit-check record is described for this fictional head, but no readable scenario-level execution results are linked. Green CI alone is not scenario evidence; execution remains unknown. No custom JSON report format is required.
 
 ## Scenario evidence
 Not supplied; the check name does not establish which behaviours were tested.
@@ -14,4 +16,4 @@ Not supplied; the check name does not establish which behaviours were tested.
 ## Review
 No review record is available in this sample.
 
-Only scope is supported for scoring. The default minimum is three evidenced dimensions; checks alone do not satisfy execution. Source IDs in machine responses must match collected evidence, not these prose headings. Machine-readable sample data is centralized in `scripts/blueprints/samples.mjs`; this file is an illustrative scenario.
+Only scope has supporting assessment evidence. At least three known dimensions are required for an aggregate; checks alone do not satisfy execution. The assessment is AI-produced and advisory, not deterministically validated. This is a filled-in PR template to adapt, not executable synthetic dispatch data. Replace fictional identities and link real evidence before running the workflow with the required PR number.

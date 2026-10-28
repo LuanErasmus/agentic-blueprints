@@ -14,14 +14,14 @@ Create a directory under `blueprints/` containing:
 
 - `README.md` following the [blueprint template](../templates/blueprint-template/README.md).
 - `blueprint.yml` with the small metadata schema below.
-- Filled-in trigger/input and illustrative output examples, company configuration, and offline decision/evaluation tests. See [running workflows](running-workflows.md) for the reference gh-aw architecture and evidence boundaries.
-- Only the workflow, prompt, configuration, and example files needed to run it; avoid empty directories.
+- One self-contained native workflow Markdown file and filled-in illustrative input/output examples. Put company customisation in the workflow itself. See [running workflows](running-workflows.md) for evidence boundaries.
+- Only the documentation, metadata, workflow, and examples needed to explain it; avoid empty directories and runtime dependencies.
 
-Distribute the native workflow source in `blueprints/<slug>/<id>.md`, beside its README and examples, with shared runtime/contract files in `blueprints/shared/`. Keep `shared/...` imports relative to the installed layout: adopters copy the main source to `.github/workflows/<id>.md` and imports to `.github/workflows/shared/`, compile with `gh aw compile <id>`, and commit the generated lock next to the installed source in their repository. This blueprint repository does not contain generated lock files. Validate the distribution with `node scripts/blueprints/validate.mjs`, which stages that installation layout and runs the compiler without emitting locks.
+Distribute one native workflow source in `blueprints/<slug>/<id>.md`, beside its README and examples. Adopters copy only that source to `.github/workflows/<id>.md`, customise labels/instructions directly, compile with `gh aw compile <id>`, and review and commit source plus generated lock in their repository. Do not require shared imports, JavaScript runtime helpers, JSON configuration, custom report schemas, or sample dispatch. This collection distributes no locks. Contributors use Node.js 24 with `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`; validation stages standalone sources and runs the compiler without emitting locks. These scripts stay in the collection, not the adopting repository.
 
 Use the native Copilot engine with `permissions: copilot-requests: write` in the main workflow. Document the required organisation-owned repository, Copilot Business or Enterprise entitlement, and organisation billing policies in every blueprint's prerequisites; link the [shared licence/authentication requirements](running-workflows.md#copilot-licence-and-authentication-requirements). Do not introduce PAT setup instructions or suggest a personal Copilot plan alone enables this method.
 
-The README must explain the problem, agent responsibilities, architecture, prerequisites, setup, how to run it, implementation decisions, guardrails, customisation, and a small challenge. Distinguish deterministic trusted evidence preparation from the sandboxed Copilot agent's analysis; describe the exact tools and safe outputs, and do not imply uncollected data was validated.
+Keep the template's ten README section headings and make Setup three or four short steps after one-time prerequisites. Explain native read-only evidence inspection, advisory Markdown reporting, and human decisions. Azure's trusted inline collection happens before inference; distinguish it from the agent's interpretation. Never imply uncollected evidence, citations, or AI output were machine-validated.
 
 ## Metadata
 
@@ -43,7 +43,9 @@ requires:
 
 ## Guardrails
 
-Document what the agent can access and do, what it cannot do, which actions require approval, and the permissions and credentials needed. Scope permissions narrowly, prefer read-only access, set bounds on data and steps, and state what information is sent to the Copilot service or retained in run logs/artifacts. Native workflows should use the gh-aw sandbox, declared read tools, and safe outputs rather than broad shell or write access. Never imply that sample mode is offline: it still invokes the native agent. The deterministic unit suite should remain runnable without credentials.
+Document access, forbidden actions, human authority, permissions, and data handling. GitHub evidence tools use the native read-only proxy, with no checkout or PR code execution; linked-item exploration is limited to 10 explicit same-repository issues/PRs. Report inaccessible/truncated evidence and tooling errors rather than treating failed reads as absence or success. Do not impose hard source-byte budgets. The native edit tool writes only `/tmp/gh-aw/report.md`; safe-output upload allowlists that one report for seven days. No automatic comments, labels, merges, releases, or other GitHub changes are allowed.
+
+Require manual `number` input and default-branch dispatch; skip drafts and block automatic fork events. Preserve the role gate. Use illustrative examples rather than synthetic dispatch. Keep maintenance tests credential-free and distinguish static checks from live integration verification. Any confidence index must be described as AI-assessed and advisory, not deterministic or calibrated; follow the [confidence policy](running-workflows.md#pr-confidence-is-an-advisory-index).
 
 Treat user-controlled content and tool output as untrusted input. Never commit tokens, passwords, connection strings, private keys, or other credentials. Use repository secrets or an appropriate identity federation mechanism.
 

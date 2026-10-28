@@ -5,7 +5,7 @@ Rollout and rollback are described. The supplied team-specific support acknowled
 
 ## Findings
 - **Documented:** pilot scope and flag-based rollback. Source: release issue #95.
-- **Reported, not independently verified:** unit suites and staging smoke test passed for candidate `0123456789abcdef0123456789abcdef01234567`. Source: issue validation section. No supplied candidate-matching JSON report establishes scenario execution.
+- **Reported, not independently verified:** unit suites and staging smoke test passed for candidate `0123456789abcdef0123456789abcdef01234567`. Source: issue validation section. No linked readable candidate-matching scenario results establish execution; no custom JSON format is required.
 - **Unresolved against supplied guidance:** support acknowledgement is pending. Sources: issue outstanding decisions and supplied team guidance.
 
 ## Limitations

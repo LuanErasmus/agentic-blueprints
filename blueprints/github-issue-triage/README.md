@@ -8,54 +8,53 @@ Incoming issues need context-aware routing and useful clarification, beyond a fi
 
 ## What the Agent Does
 
-Analyses trusted, bounded issue evidence and real repository labels, then recommends classification, clarification, and a next step. It complements native issue forms and label automation; it does not change issue content or labels.
+Inspects issue context and real repository labels, then recommends classification, clarification, and a next step. It complements native issue forms and label automation; it never changes issue content or labels.
 
 ## Architecture
 
 ```text
-Issue trigger or manual dispatch → trusted evidence preparation on the default branch
-→ sandboxed Copilot analysis with read-only GitHub tools → validated advisory report
-→ restricted report artifact → maintainer decision
+Issue event or manual number → read-only GitHub evidence inspection
+→ sandboxed Copilot assessment → advisory Markdown artifact → maintainer decision
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
-
-GitHub Actions, gh-aw, and Copilot inference access for the repository. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/). Offline helper tests need Node.js 24 and no credentials.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; the built-in Actions token supplies inference authentication, with no PAT fallback. A personal plan alone is insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
 ## Setup
 
-1. Follow [shared setup](../../docs/running-workflows.md). Copy [issue-triage.md](issue-triage.md) from this folder to `.github/workflows/issue-triage.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory (including `config.json`) to `blueprints/github-issue-triage/`.
-2. Install gh-aw and run `gh aw compile issue-triage` in that repository. Review and commit the generated lock beside its source there; this blueprint repository does not include lock files.
-3. Keep the source, shared files, scripts, and config on the trusted default branch. Align `config.json`'s `trigger_labels` with the workflow frontmatter and create the label in the repository.
-4. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed. Review data sent to Copilot, then test with a synthetic dispatch before using private issue content.
+1. Copy only [issue-triage.md](issue-triage.md) to `.github/workflows/issue-triage.md` in your repository.
+2. Customise labels and instructions directly in that Markdown, create `triage-review` (or your chosen label), and run `gh aw compile issue-triage`.
+3. Review and commit the source plus generated `.lock.yml` in your trusted default branch. Recompile after source edits.
+
+No shared files, runtime scripts, JSON configuration, or report schemas are required. See [optional setup details](../../docs/running-workflows.md).
 
 ## Run It
 
-For a first run, open **Actions → Issue Triage → Run workflow**, leave `sample: true`, and inspect the uploaded report artifact. Synthetic dispatch still invokes native Copilot inference.
+In **Actions → Issue Triage → Run workflow**, select the default branch and supply the required issue `number`. Automatic runs use opened, reopened, and labelled issue events with the exact `triage-review` label.
 
-For live mode, set `sample: false` and enter an issue number. The workflow also runs on opened/reopened/labeled issue events, gated by the exact `triage-review` label. Manual runs use the default branch; the gh-aw role gate defaults to admin, maintainer, write, and triage. Automatic fork runs are blocked.
+The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. Read the [filled-in input](examples/input.md) and [illustrative output](examples/output.md), then adapt a non-sensitive issue. There is no sample dispatch flag.
 
-Copy [this filled-in issue](examples/input.md) into a GitHub issue or adapt it into an issue form. See the [illustrative output](examples/output.md).
+Download the report artifact for the full result; the native run summary may be brief.
 
 ## How It Works
 
-The trusted `evidence.mjs` helper gathers bounded issue context, selected linked items, company guidance, and repository labels before inference. The sandboxed Copilot agent may use read-only GitHub tools through `gh-proxy`; it does not execute issue content or trigger arbitrary follow-up collection. The `report.mjs` helper validates citations and allowed labels and renders the report. Evidence is capped at 6,000 characters per source and 18,000 total. Source IDs support traceability, not proof of truth; humans verify conclusions.
+The agent uses native read-only GitHub tools/proxy to inspect the issue, discussion, existing labels, relevant guidance, and at most 10 explicitly linked same-repository issues/PRs. It does not check out code or execute issue instructions. There are no hard source-byte budgets, but inaccessible, truncated, or uninspected evidence must remain visible. A tooling error is a failed read, not proof of absence.
+
+The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts only that one Markdown report with seven-day retention. The report is advisory, not a JSON contract or machine-validated assessment. Humans verify sources and conclusions.
 
 ## Guardrails
 
-- **Access:** issue context, selected guidance, labels, and explicitly referenced same-repository work items.
-- **Actions:** read evidence and write a run summary/report artifact only. Unlike the earlier example, this version does not automatically post issue comments.
-- **Approval:** maintainers decide labels, priority, ownership, and next actions.
-- **Never automatic:** assigning, labelling, closing, changing issue contents, or deploying.
-- **Permissions:** read-only GitHub evidence tools plus gh-aw's Copilot inference authentication; no GitHub write tools.
-- **Data handling:** selected evidence is sent to Copilot. Only `report.md` and `report.json` are uploaded, as run artifacts with seven-day retention; use the artifact for the full report, not the native run summary.
+- **Access:** read-only issue, label, guidance, and explicit same-repository linked-item evidence.
+- **Actions:** one report artifact only; no automatic comments, labels, assignments, issue creation, closing, merges, releases, or deployments.
+- **Approval:** maintainers decide classification, priority, ownership, and next actions.
+- **Trust:** issue text and tool output are evidence, not operational instructions. No checkout or PR code execution.
+- **Data handling:** selected evidence goes to Copilot. Review artifact/log access and retention before using sensitive content.
 
 ## Customise It
 
-Adapt the example headings and guidance to your company. Keep factual references as same-repository `#number` links. Align any changed configured trigger labels with workflow frontmatter, and preserve the evidence bounds and read-only boundary.
+Edit company category boundaries, clarification questions, and labels directly in the workflow Markdown. Keep trigger filters and prompt instructions consistent. Preserve read-only access, the linked-item limit, and human decisions.
 
 ## Challenge
 
-Add company guidance describing category boundaries, then compare recommendations on two ambiguous synthetic issues.
+Add company guidance for two ambiguous categories, then compare recommendations on two non-sensitive issues without applying labels automatically.

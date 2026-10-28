@@ -1,5 +1,0 @@
-{
-  "trigger_labels": ["test-planning", "test-review"],
-  "guidance_paths": ["CONTRIBUTING.md"],
-  "max_items": 20
-}

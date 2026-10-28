@@ -1,19 +1,10 @@
 # Manual request example
 
-Start in sample mode:
+For an authorised manual run on the default branch, both fields are required:
 
 ```text
-sample: true
-resource_group: (empty)
-deployment_name: (empty)
-```
-
-For an authorised live run:
-
-```text
-sample: false
 resource_group: example-test-rg
 deployment_name: example-deployment
 ```
 
-Use your own existing resource group/deployment; these are illustrative names, not provisioned resources. The subscription and federated identity come from configured repository variables.
+Use your own existing resource group/deployment; these are illustrative names, not provisioned resources or synthetic dispatch inputs. There is no sample flag. The subscription and federated identity come from repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`, with OIDC Reader access scoped to that resource group.

@@ -1,5 +1,5 @@
 name: PR Confidence Calculator
-description: Calculate a deterministic evidence-based PR confidence index while withholding scores for insufficient evidence
+description: Assess an advisory AI confidence index for a PR while withholding the total when evidence is insufficient
 difficulty: intermediate
 category: github
 patterns:

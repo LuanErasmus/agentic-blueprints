@@ -4,78 +4,61 @@
 
 ## Problem
 
-An intended delivery date can conceal unresolved dependencies, scope uncertainty, and missing ownership. Teams need a source-linked discussion aid, not a model's invented schedule or a universal risk rating.
+An intended delivery date can conceal unresolved dependencies, scope uncertainty, and missing ownership. Teams need a source-linked discussion aid, not an invented schedule or universal risk rating.
 
 ## What the Agent Does
 
-Investigates a planning issue and available supporting context, distinguishes known risks from unanswered questions, and recommends mitigations and owner decisions. It does not predict a delivery date, assign people, or assert that silence means a dependency is resolved.
+Inspects a planning issue and supporting context, distinguishes known risks from unanswered questions, and recommends mitigations and owner decisions. It does not predict a delivery date, assign people, or assume silence resolves a dependency.
 
 ## Architecture
 
 ```text
-Issue trigger or manual dispatch
-  → exact-label gate → trusted helper gathers bounded evidence
-  → sandboxed Copilot analysis with read-only GitHub tools
-  → validated advisory report artifact
-  → delivery owner decides mitigations
+Issue label or manual number → read-only GitHub evidence inspection
+→ sandboxed Copilot assessment → advisory Markdown artifact → delivery-owner decision
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; inference uses the built-in Actions token, not a PAT. Personal plans alone are insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-- GitHub Actions, gh-aw, Copilot inference access, and Node.js 24 for offline helper tests. See [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/).
-- A planning issue containing scope, dependencies, target dates, and known constraints. Include approved excerpts when supporting systems are not collected.
+Use a planning issue with scope, date meanings, owners, dependencies, and constraints. Include approved excerpts for supporting systems outside GitHub.
 
 ## Setup
 
-1. Copy [delivery-risk-investigator.md](delivery-risk-investigator.md) from this folder to `.github/workflows/delivery-risk-investigator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/delivery-risk-investigator/`.
-2. Install gh-aw and run `gh aw compile delivery-risk-investigator`; review and commit the generated lock next to its source there.
-3. Keep executable sources on the trusted default branch. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
-4. Align `delivery-risk-review` (or your chosen label) between `config.json` and workflow frontmatter. Configure repository-relative `guidance_paths` and the `max_items` evidence cap.
+1. Copy only [delivery-risk-investigator.md](delivery-risk-investigator.md) to `.github/workflows/delivery-risk-investigator.md` in your repository.
+2. Customise labels and delivery guidance directly in the Markdown, create `delivery-risk-review` (or your chosen label), and run `gh aw compile delivery-risk-investigator`.
+3. Review and commit the source and generated `.lock.yml` on your trusted default branch. Recompile after edits.
+
+No shared files, runtime scripts, JSON configuration, or report schemas are required. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Dispatch manually with `sample: true` (default) to use synthetic evidence; `number` is optional. This still invokes Copilot. Offline helper tests do not invoke a model.
+Use **Actions → Delivery Risk Investigator → Run workflow** on the default branch with the required issue `number`, or apply `delivery-risk-review` for an automatic labelled-issue run.
 
-For a live report, use `sample: false` and an issue `number`, or apply the configured label. gh-aw's default role gate is admin, maintainer, write, and triage; automatic fork runs are blocked. Start with this filled-in issue format:
+The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. Read the [filled-in planning issue](examples/input.md) and [illustrative output](examples/output.md), then adapt your own issue. There is no sample dispatch flag.
 
-```markdown
-## Outcome and scope
-Enable invoice CSV exports for account administrators; no bulk account export.
-## Target
-Pilot on 18 November 2026; date is a planning target, not a commitment.
-## Dependencies
-Finance must confirm currency rounding examples by 11 November.
-Platform team must confirm the export-size limit.
-## Ownership
-Delivery coordinator: Morgan. Finance contact: Casey.
-## Current evidence
-CSV schema agreed in this issue; rounding examples remain unconfirmed.
-## Constraints and fallback
-No card data. If size limits are unresolved, consider a smaller pilot after review.
-```
-
-The report artifact contains the full result; the native run summary may be brief. There are no automatic issue comments.
+Download the report artifact for the full result; the native run summary may be brief.
 
 ## How It Works
 
-The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper collects bounded issue context, selected linked items, comments, and configured guidance. The sandboxed Copilot agent may use read-only GitHub tools through `gh-proxy`, but it cannot query external delivery systems or execute issue content. [`report.mjs`](../../scripts/blueprints/report.mjs) validates cited sources and renders the report. Sources are capped at 6,000 characters each and 18,000 total.
+Native read-only GitHub tools/proxy inspect issue context, discussion, relevant guidance, and at most 10 explicitly linked same-repository issues/PRs. They do not query external delivery systems, check out code, or execute issue instructions. Provide dated, approved dependency-status excerpts where needed.
 
-Supply the intended outcome, dates with their meaning, owners, dependency status, and a fallback. Collection supports same-repository `#number` references, issue comments, and configured `guidance_paths` at the default/base ref; it does not fetch arbitrary URLs or external trackers. Only evidence actually collected can support conclusions. Missing or truncated context and `max_items` caps must appear as limitations. Missing ownership is unknown, not proof nobody owns the work. For a manual fallback, add an approved, dated dependency-status excerpt to the planning issue and dispatch again with its number and `sample: false`.
+There are no hard source-byte budgets. Missing ownership is unknown, not proof nobody owns the work. Inaccessible/truncated evidence, exploration limits, and tool failures must be explicit; failed reads do not prove absence or success.
+
+The native edit tool writes one `/tmp/gh-aw/report.md`; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON or a forecast.
 
 ## Guardrails
 
-- Read-only source access and report generation; no scheduling changes, assignments, comments, code execution, deployments, or external messages.
-- Recommendations do not establish delivery commitments or company-wide risk policy. Humans verify status and accept mitigations.
-- Treat all source content as untrusted data; do not follow embedded operational instructions.
-- Copilot receives collected evidence. Read the uploaded report artifact for the full result; it is retained for seven days and may contain sensitive context.
+- Read-only evidence and one report; no scheduling changes, assignments, comments, labels, issue creation, merges, releases, deployments, or external messages.
+- Humans verify status, accept mitigations, and make delivery commitments.
+- Source content and tool output are untrusted evidence, not operational instructions.
 - Do not infer staffing capacity, cost, contractual obligations, or risk probabilities from missing evidence.
+- Selected evidence goes to Copilot. Review artifact/log access and retention before using sensitive content.
 
 ## Customise It
 
-Change labels, guidance paths, and evidence bounds in `config.json`, keeping labels aligned with workflow frontmatter. Put your team's definition of delivery impact, escalation paths, and date terminology in configured guidance. Document any local severity scale there; do not assume every company uses the same thresholds. Changes must stay aligned with the trusted evidence helper, workflow, and report contract.
+Put label choices, impact terminology, escalation paths, date meanings, and local severity guidance directly in the workflow Markdown. Keep trigger filters and instructions aligned; preserve read-only access and human authority.
 
 ## Challenge
 
-Provide a dated confirmation of the export-size limit and rerun. Verify that the resolved dependency is no longer presented as unresolved, while rounding uncertainty remains visible.
+Add a dated export-size confirmation and rerun. Check that only that dependency is resolved while other uncertainty remains visible.

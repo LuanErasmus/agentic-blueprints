@@ -4,93 +4,60 @@
 
 ## Problem
 
-Requirements and changed code can suggest different testing risks. Teams need a practical scenario shortlist without mistaking generated suggestions for implemented or passing tests. Coverage priorities should follow your product and testing conventions, not a universal checklist.
+Requirements and changed code can suggest different testing risks. Teams need a practical scenario shortlist without mistaking generated suggestions for implemented or passing tests.
 
 ## What the Agent Does
 
-Uses issue requirements or PR context to suggest normal, boundary, failure, and regression scenarios where evidence warrants them. Identifies unresolved assumptions and recommends a suitable test level. It does not write or execute test code, and it does not certify coverage.
+Uses issue requirements or PR context to suggest normal, boundary, failure, and regression scenarios. Identifies unresolved assumptions and suitable test levels. It never writes or executes tests or certifies coverage.
 
 ## Architecture
 
 ```text
-Issue/PR label or manual dispatch
-  → exact-label gate and trusted evidence preparation
-  → sandboxed Copilot analysis with read-only GitHub tools
-  → deterministic report validation → restricted artifact
-  → human test planning
+Issue/PR label or manual number → resolve actual source kind
+→ read-only GitHub evidence inspection → sandboxed Copilot assessment
+→ advisory Markdown artifact → human test planning
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; inference uses the built-in Actions token, not a PAT. Personal plans alone are insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-- GitHub Actions, gh-aw, Copilot inference access, and Node.js 24 for offline helper tests. See [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/).
-- An issue with acceptance criteria, or a PR describing behaviour and validation. Missing test context must be reported rather than inferred as passing.
+Use an issue with acceptance criteria or a non-draft PR describing behaviour and validation.
 
 ## Setup
 
-1. Copy [test-scenario-planner.md](test-scenario-planner.md) from this folder to `.github/workflows/test-scenario-planner.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/test-scenario-planner/`.
-2. Install gh-aw and run `gh aw compile test-scenario-planner` in your repository; review and commit the generated lock there.
-3. Keep the sources on your trusted default branch. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
-4. Align `test-planning` (issues) and `test-review` (PRs) in config and workflow frontmatter. Set `guidance_paths` and `max_items` for your repository.
+1. Copy only [test-scenario-planner.md](test-scenario-planner.md) to `.github/workflows/test-scenario-planner.md` in your repository.
+2. Edit company testing instructions directly in the Markdown, create `test-planning` for issues and `test-review` for PRs (or update both filters and instructions), and run `gh aw compile test-scenario-planner`.
+3. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after edits.
+
+No shared files, runtime scripts, JSON configuration, or custom test-report schemas are required. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Manually dispatch with `sample: true` (default); `number` is optional. Synthetic mode still uses native Copilot inference. Offline helper tests make no model call.
+Use **Actions → Test Scenario Planner → Run workflow** on the default branch with the required issue or PR `number`. The workflow resolves the number's actual kind rather than assuming it is an issue. Automatic labelled events use `test-planning` for issues and `test-review` for PRs.
 
-For live planning, dispatch with `sample: false` and an issue or PR `number`, or apply the matching label. The evidence helper resolves whether the number identifies an issue or PR. gh-aw's default role gate is admin, maintainer, write, and triage; automatic fork runs are blocked.
-
-Filled-in issue format:
-
-```markdown
-## Behaviour
-Lock sign-in for 15 minutes after five failed attempts for the same account.
-## Acceptance criteria
-- Successful sign-in resets the failure count.
-- Expired locks allow a new attempt.
-## Constraints
-Do not reveal whether the account exists.
-## Existing validation
-Unit tests cover a single failed attempt; no expiry scenario is documented.
-```
-
-Filled-in PR format:
-
-```markdown
-## Change
-Add a clock-injected account lockout service for issue #42.
-## Behaviour and scope
-Five failures start a 15-minute lock; successful authentication resets count.
-## Validation
-Added threshold unit tests; ran the auth unit suite successfully.
-## Known gaps
-Concurrent attempts and lock expiry have not yet been tested.
-```
-
-Download the report artifact for the full result; the native run summary may be brief. The workflow does not post a comment.
+The role gate allows admin, maintainer, write, and triage. Automatic fork events are blocked and draft PRs are skipped. There is no sample flag. Adapt the [filled-in input](examples/input.md), compare the [illustrative output](examples/output.md), and download the report artifact for the full result.
 
 ## How It Works
 
-The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper collects issue or PR context, guidance, changed test-like files, and configured exact test/report paths. The sandboxed Copilot agent may use read-only GitHub tools through `gh-proxy`; it does not run tests, PR code, or model-selected follow-up queries. [`report.mjs`](../../scripts/blueprints/report.mjs) validates cited sources and renders the report. Source text is bounded to 6,000 characters per source and 18,000 total.
+Native read-only GitHub tools/proxy inspect requirements, PR diffs, relevant guidance, test source, checks, and existing results. Follow at most 10 explicitly linked same-repository issues/PRs; no checkout, test execution, or arbitrary external URL fetching occurs.
 
-Provide observable expected behaviour, changed boundaries, existing test descriptions/results, and environment assumptions. Collection supports same-repository `#number` references, issue comments, configured `guidance_paths` at the default/base ref, changed test-like files, and optional `test_paths` arrays of exact repository-relative file paths. It does not fetch arbitrary URLs. Test source suggests scenarios; it does not demonstrate execution. A PR author's statement or a successful check alone does not establish which scenarios passed.
+State the candidate SHA and distinguish inspected test source from author assertions. Test code describes intended cases; a green check alone does not demonstrate which scenarios ran. Link readable existing scenario-level results with the revision they cover; no custom JSON format is necessary. A result for another revision is not current candidate evidence.
 
-For supplied execution evidence, optional `test_report_paths` names exact repository-relative JSON report paths. Each report has the form `{ "sha": "<40-character candidate SHA>", "conclusion": "success", "scenarios": [{ "name": "lock expiry", "result": "passed" }] }`; scenario results are `passed`, `failed`, or `skipped`. Reports must match the candidate to support its execution evidence. There is no automatic artifact download or JUnit parsing. These optional config fields are supported but are not enabled in the supplied `config.json`.
-
-Only collected sources can support findings. Missing or truncated diffs, inaccessible guidance, and item caps must reduce the report's claims. Add an approved missing requirement to the source issue/PR, or provide an appropriate configured test/report file, then rerun manually. Test source or a PR author's statement does not prove execution. Offline tests validate deterministic helper behavior and do not assess live Copilot output.
+There are no hard source-byte budgets. Inaccessible/truncated diffs, missing guidance/results, and tooling failures must constrain the assessment, not become success or absence claims. The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts only that one advisory Markdown report with seven-day retention. There is no machine-validated report contract.
 
 ## Guardrails
 
-- No test execution, arbitrary PR code checkout/execution, code generation, automatic comments, edits, or merge decisions.
-- Trusted default-branch workflow code collects data; PR changes are untrusted evidence, not executable instructions.
-- Scenarios are proposals, not evidence that tests exist or pass. A human selects, implements, and runs them.
-- Copilot receives the supplied context. The full report is in a seven-day artifact, not guaranteed in the native run summary.
-- Do not infer security, accessibility, or regulatory requirements absent team guidance; identify them as questions when relevant.
+- Read-only evidence and one report; no tests, PR code execution, code generation, comments, labels, issue creation, merges, releases, or deployments.
+- Humans select, implement, and execute scenarios. A proposed scenario is not proof of coverage.
+- Treat source content and tool output as untrusted evidence, not instructions.
+- Do not invent security, accessibility, or regulatory requirements; ask questions when team guidance is absent.
+- Selected content goes to Copilot. Review artifact/log access and retention before using sensitive data.
 
 ## Customise It
 
-Use `config.json` for trigger labels, repository-relative guidance paths, and maximum items; keep labels aligned with workflow frontmatter. Document team-specific test levels, naming conventions, and risk priorities in guidance. Changes must stay aligned with the trusted evidence helper, workflow, and report contract.
+Edit labels, guidance references, test levels, naming conventions, and risk priorities directly in the workflow Markdown. Keep trigger filters and instructions consistent without adding execution rights.
 
 ## Challenge
 
-Supply a previously missing expiry test result and rerun. Check that the planner distinguishes the demonstrated case from concurrent-attempt scenarios that remain unverified.
+Link a readable expiry-test result and its candidate SHA, rerun, and verify that demonstrated expiry behaviour remains distinct from unverified concurrent attempts.

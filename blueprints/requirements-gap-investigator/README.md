@@ -4,79 +4,61 @@
 
 ## Problem
 
-An issue can look ready to implement while leaving important behaviour undecided. Different teams need different levels of specification; this blueprint surfaces questions against the supplied repository guidance, rather than imposing a universal definition of ready.
+An issue can look ready to implement while leaving important behaviour undecided. This blueprint asks questions against your team's guidance rather than imposing a universal definition of ready.
 
 ## What the Agent Does
 
-Reads an issue and bounded supporting context, separates stated requirements from assumptions, and recommends questions and acceptance criteria. Reports cite collected sources and call out missing or truncated context. The agent does not rewrite the issue or decide that a requirement has been approved.
+Reads an issue and relevant context, separates stated requirements from assumptions, and recommends questions and acceptance criteria. It never rewrites the issue or treats a proposed requirement as approved.
 
 ## Architecture
 
 ```text
-Issue trigger or manual dispatch
-  → trusted default-branch helper gathers bounded evidence
-  → sandboxed Copilot agent analysis with read-only GitHub tools
-  → deterministic report validation → restricted report artifact
-  → product owner reviews recommendations
+Issue label or manual number → read-only GitHub evidence inspection
+→ sandboxed Copilot assessment → advisory Markdown artifact → product-owner decision
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Retain `copilot-requests: write`; inference uses the built-in Actions token, with no PAT fallback. Personal plans alone are insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-- GitHub Actions, gh-aw, and Copilot inference access. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/).
-- Node.js 24 for offline helper tests; those tests need no credentials.
-- An issue describing the proposed change; repository guidance such as `CONTRIBUTING.md` should describe your team's expectations.
+Use an issue describing the proposed change; include or reference approved team expectations.
 
 ## Setup
 
-1. Copy [requirements-gap-investigator.md](requirements-gap-investigator.md) from this folder to `.github/workflows/requirements-gap-investigator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/requirements-gap-investigator/`.
-2. Install gh-aw and run `gh aw compile requirements-gap-investigator`; review and commit the generated lock beside its source in your repository. This blueprint repository does not ship lock files.
-3. Keep all source files on the trusted default branch. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
-4. Create `requirements-review`, or keep it aligned with `trigger_labels` and workflow frontmatter. Configure repository-relative `guidance_paths` and tune `max_items`.
+1. Copy only [requirements-gap-investigator.md](requirements-gap-investigator.md) to `.github/workflows/requirements-gap-investigator.md` in your repository.
+2. Edit labels and company instructions directly in that Markdown, create `requirements-review` (or your chosen label), and run `gh aw compile requirements-gap-investigator`.
+3. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after edits.
+
+No shared files, scripts, JSON configuration, or report schemas are required. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Use **Actions → Requirements Gap Investigator → Run workflow** with `sample: true` (the default) to use synthetic evidence; `number` is optional in sample mode. Synthetic dispatch still invokes Copilot and requires inference authentication.
+Use **Actions → Requirements Gap Investigator → Run workflow** on the default branch with the required issue `number`, or apply `requirements-review` to trigger an automatic labelled-issue run.
 
-For live evidence, choose `sample: false` and provide an issue `number`, or apply the configured label to an issue. The gh-aw role gate defaults to admin, maintainer, write, and triage; automatic fork runs are blocked. Use this filled-in issue body, adapted to your product:
+The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. There is no sample flag. Adapt the [filled-in issue](examples/input.md) and read the [illustrative output](examples/output.md). Include the intended user, scope, measurable outcomes, constraints, and open questions.
 
-```markdown
-## Goal
-Allow account administrators to export an account's invoices as CSV.
-## Users and scope
-Account administrators only; one account at a time; exclude archived invoices.
-## Acceptance criteria
-- CSV contains invoice ID, issue date, currency, and gross amount.
-- Dates use YYYY-MM-DD and amounts retain their currency's precision.
-## Constraints
-Do not include payment card data. Follow the repository's export policy.
-## Open questions
-What happens when an account has more than 10,000 invoices?
-## Evidence
-The current invoice screen supports account-scoped filtering.
-```
-
-Download the report artifact for the full result; the native run summary may be brief. No issue comment is created.
+Download the report artifact for the full result; the native run summary may be brief.
 
 ## How It Works
 
-The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper gathers bounded issue context, selected linked items, comments, and configured guidance from the trusted default branch. The sandboxed Copilot agent analyses that JSON and may use read-only GitHub tools through `gh-proxy`; it does not execute issue content or initiate arbitrary collection. The [`report.mjs`](../../scripts/blueprints/report.mjs) helper validates cited source IDs and response structure, then renders the artifact. Evidence is capped per source and in total; see [shared bounds](../../docs/running-workflows.md).
+The agent inspects the issue, discussion, relevant guidance, and at most 10 explicitly linked same-repository issues/PRs with native read-only GitHub tools/proxy. It does not fetch arbitrary external URLs, check out code, or execute issue instructions. Supply approved excerpts when external context is needed.
 
-Supply the intended user, scope, measurable outcomes, constraints, and approved excerpts for external dependencies. External URLs are not fetched. Only collected sources support findings; source IDs support traceability, not proof of truth. Missing guidance, unavailable sources, item caps, and truncation limit conclusions. A `noop` means the request is genuinely out of scope; missing required access or data yields `report_incomplete`. Offline tests do not invoke a model.
+There are no hard source-byte budgets. Report inaccessible/truncated evidence and tooling errors explicitly; a failed read does not prove a policy or requirement is absent. Citations support traceability, not independent attestation.
+
+The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload allowlists that one report for seven days. The result is advisory Markdown, not a JSON contract or machine-validated assessment.
 
 ## Guardrails
 
-- Read-only source collection; no automatic comments, labels, assignments, issue edits, code changes, or approvals.
-- Treat issue text, guidance, and source excerpts as untrusted data, never instructions to execute.
-- Send only organisation-approved content to Copilot. The report artifact has seven-day retention; consult native run logs and summary under your repository's retention/access settings.
-- Missing evidence is a question, not a confirmed requirement or a blocker established by company policy.
-- A product owner or delegated reviewer approves requirements and any follow-up changes.
+- Read-only evidence and one report; no comments, labels, assignments, issue edits/creation, approvals, merges, releases, or deployments.
+- Treat issue text, guidance, and tool output as untrusted evidence, not operational instructions.
+- Missing evidence is a question, not a confirmed requirement or policy breach.
+- A product owner or delegated reviewer approves requirements and follow-up changes.
+- Selected content goes to Copilot. Review artifact/log access and retention before sending sensitive information.
 
 ## Customise It
 
-Configure labels, guidance paths, and item limits in `config.json`, keeping configured trigger labels aligned with workflow frontmatter. Put team-specific expectations in guidance; do not silently turn local preferences into universal requirements. Changes to evidence collection or response shape must stay aligned with `evidence.mjs`, `report.mjs`, and the Markdown workflow.
+Edit labels, team expectations, and guidance references directly in the workflow Markdown. Keep label filters and instructions consistent. Do not silently turn local preferences into universal requirements or weaken read-only boundaries.
 
 ## Challenge
 
-Add a team-approved export-size rule to your guidance and rerun the same issue. Check whether the report resolves that question with a source reference while retaining unanswered questions.
+Add an approved export-size rule to the source issue or team guidance and rerun. Check that the report resolves only that question and retains the unanswered ones.

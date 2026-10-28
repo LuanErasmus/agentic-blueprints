@@ -13,4 +13,4 @@ Added a unit test for dispatched orders.
 ## Known limitations
 Payment-provider failures are not covered here.
 
-Use this as a PR description or adapt it into your PR template. `review-preparation` is the optional configured trigger label. Claims about tests will be checked against inspected evidence, not accepted as proof.
+Use this as a PR description or adapt it into your PR template. Applying `review-preparation` enables the labelled automatic trigger; manual dispatch requires the PR number. Customise the label directly in the workflow Markdown. Claims about tests are compared with inspected evidence, not accepted as proof. Link readable scenario-level results and identify their revision when available.

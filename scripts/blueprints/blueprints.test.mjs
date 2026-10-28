@@ -1,43 +1,39 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, readFile, rm, readdir, access } from 'node:fs/promises';
+import { access, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, dirname, resolve } from 'node:path';
-import { execFileSync } from 'node:child_process';
-import { tasks } from './tasks.mjs';
-import { sampleEvidence } from './samples.mjs';
-import { parseJson, validateConfig, validateReport, calculateConfidence, issueNumbers, releaseRange } from './core.mjs';
-import { prepareEvidence, enabledForEvent } from './evidence.mjs';
-import { publishReport } from './report.mjs';
-import { azureRead, diagnosticArguments, collectAzureEvidence } from './azure.mjs';
-import { GitHubEvidence } from './github.mjs';
-import { stageWorkflowSources } from './validate.mjs';
+import { dirname, join, resolve } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { stageWorkflowSources, workflowSources } from './validate.mjs';
 
-const config = { trigger_labels: ['review'], guidance_paths: [], max_items: 20,
-  weights: { scope: 20, execution: 30, scenarios: 30, review: 20 }, minimum_evidence_dimensions: 3 };
-const report = () => ({
-  summary: 'Inspect the cancellation boundary before proceeding.',
-  findings: [{ status: 'gap', detail: 'The request does not define the refund outcome.', sources: ['request'] }],
-  limitations: ['Sample evidence only.'], next_steps: ['Ask the business owner to define the refund rule.'],
-  suggested_labels: ['bug'],
-});
+const sources = await workflowSources();
 
-test('all nine blueprints contain usage sections and filled-in input/output examples', async () => {
-  const sections = ['Problem', 'What the Agent Does', 'Architecture', 'Prerequisites', 'Setup',
-    'Run It', 'How It Works', 'Guardrails', 'Customise It', 'Challenge'];
-  for (const slug of Object.keys(tasks)) {
+function inlineScripts(source) {
+  const scripts = [];
+  let lines;
+  for (const line of [...source.split(/\r?\n/), '']) {
+    if (line === '    run: |') lines = [];
+    else if (lines && line.startsWith('      ')) lines.push(line.slice(6));
+    else if (lines) { scripts.push(lines.join('\n')); lines = undefined; }
+  }
+  return scripts;
+}
+
+test('all nine blueprints document usage, eligibility, and illustrative input/output', async () => {
+  assert.equal(sources.length, 9);
+  const sections = ['Problem', 'What the Agent Does', 'Architecture', 'Prerequisites',
+    'Setup', 'Run It', 'How It Works', 'Guardrails', 'Customise It', 'Challenge'];
+  for (const { slug, id } of sources) {
     const root = join('blueprints', slug);
     const readme = await readFile(join(root, 'README.md'), 'utf8');
     for (const section of sections) assert.ok(readme.includes(`## ${section}`), `${slug}: missing ${section}`);
-    const prerequisites = readme.split('## Prerequisites')[1].split('## Setup')[0];
-    assert.match(prerequisites, /Copilot Business/);
-    assert.match(prerequisites, /Copilot Enterprise/);
-    assert.match(prerequisites, /organisation-owned repository/);
-    assert.match(prerequisites, /copilot-requests: write/);
+    assert.ok(readme.includes(`gh aw compile ${id}`), `${slug}: missing compile command`);
+    assert.match(readme, /Copilot Business/);
+    assert.match(readme, /Copilot Enterprise/);
+    assert.match(readme, /copilot-requests: write/);
     assert.ok(readme.includes('running-workflows.md#copilot-licence-and-authentication-requirements'));
-    assert.doesNotMatch(readme, /COPILOT_GITHUB_TOKEN|remove `copilot-requests: write`/);
-    for (const filename of ['input.md', 'output.md']) {
-      assert.ok((await readFile(join(root, 'examples', filename), 'utf8')).length > 100, `${slug}: empty ${filename}`);
+    for (const file of ['input.md', 'output.md']) {
+      assert.ok((await readFile(join(root, 'examples', file), 'utf8')).length > 100, `${slug}: empty ${file}`);
     }
     assert.match(await readFile(join(root, 'blueprint.yml'), 'utf8'), /difficulty:/);
   }
@@ -63,377 +59,215 @@ test('documentation local links resolve', async () => {
   }
 });
 
-test('parses JSON fences and rejects empty and malformed model output', () => {
-  assert.deepEqual(parseJson('```json\n{"action":"stop"}\n```'), { action: 'stop' });
-  assert.throws(() => parseJson(''));
-  assert.throws(() => parseJson('Here is a plan: {}'));
+test('each workflow is a single file with no custom runtime dependencies', async () => {
+  for (const { path, slug } of sources) {
+    const source = await readFile(path, 'utf8');
+    assert.ok(source.startsWith('---\n') || source.startsWith('---\r\n'), `${slug}: missing frontmatter`);
+    assert.doesNotMatch(source, /^imports:|scripts\/blueprints|config\.json|BLUEPRINT_|sample:/m);
+    assert.match(source, /engine: copilot/);
+    assert.match(source, /strict: true/);
+    assert.match(source, /checkout: false/);
+    assert.match(source, /copilot-requests: write/);
+    assert.match(source, /report-blocked-version: false/);
+    assert.match(source, /roles: \[admin, maintainer, write/);
+    assert.match(source, /github\.event\.repository\.default_branch/);
+    assert.match(source, /allowed: \[\]/);
+    assert.match(source, /untrusted evidence/);
+    assert.match(source, /missing-data\/tool/);
+    assert.match(source, /upload_artifact/);
+    await assert.rejects(() => access(join(dirname(path), 'config.json')));
+  }
 });
 
-test('reports require real source IDs; invalid labels fail closed', () => {
-  const evidence = sampleEvidence('github-issue-triage');
-  assert.doesNotThrow(() => validateReport('github-issue-triage', report(), evidence));
-  const unknown = report();
-  unknown.findings[0].sources = ['invented'];
-  assert.throws(() => validateReport('github-issue-triage', unknown, evidence));
-  const invalid = report();
-  invalid.suggested_labels = ['does-not-exist'];
-  assert.throws(() => validateReport('github-issue-triage', invalid, evidence));
+test('reports are artifacts only, with no repository-write safe outputs', async () => {
+  for (const { path, slug } of sources) {
+    const source = await readFile(path, 'utf8');
+    const frontmatter = source.split(/^---\r?$/m)[1];
+    assert.match(frontmatter, /create-issue: false/);
+    assert.match(frontmatter, /report-failure-as-issue: false/);
+    assert.match(frontmatter, /report-as-issue: false/);
+    assert.match(frontmatter, /max-uploads: 1/);
+    assert.match(frontmatter, /retention-days: 7/);
+    assert.match(frontmatter, /allowed-paths: \[\/tmp\/gh-aw\/report\.md\]/);
+    assert.doesNotMatch(frontmatter, /add-comment:|add-labels:|create-pull-request:|update-release:/);
+    const writePermissions = [...frontmatter.matchAll(/^  ([\w-]+): write$/gm)].map(match => match[1]);
+    assert.deepEqual(writePermissions.sort(), slug === 'azure-deployment-investigator'
+      ? ['copilot-requests', 'id-token'] : ['copilot-requests']);
+  }
 });
 
-test('readiness rejects success-shaped risk statuses and accepts unknown evidence', () => {
-  const result = report();
-  assert.throws(() => validateReport('release-readiness-helper', result, sampleEvidence('release-readiness-helper')));
-  result.findings[0] = { status: 'unknown', detail: 'No acceptance report supplied.', sources: [] };
-  assert.doesNotThrow(() => validateReport('release-readiness-helper', result, sampleEvidence('release-readiness-helper')));
+test('event labels and required manual inputs stay usable without JSON configuration', async () => {
+  const labels = {
+    'github-issue-triage': 'triage-review',
+    'github-pr-review': 'review-preparation',
+    'requirements-gap-investigator': 'requirements-review',
+    'test-scenario-planner': 'test-planning, test-review',
+    'delivery-risk-investigator': 'delivery-risk-review',
+    'release-readiness-helper': 'release-readiness',
+    'pr-confidence-calculator': 'confidence-review',
+    'stakeholder-release-notes-generator': 'stakeholder-notes',
+  };
+  for (const { slug, path } of sources.filter(source => source.slug in labels)) {
+    const source = await readFile(path, 'utf8');
+    assert.ok(source.includes(`labels: [${labels[slug]}]`));
+    assert.match(source, /number:\r?\n\s+description:[^\n]+\r?\n\s+type: string\r?\n\s+required: true/);
+    assert.match(source, /mode: gh-proxy/);
+    assert.match(source, /gh api --method GET \*/);
+    assert.doesNotMatch(source, /pull_request_target|^steps:/m);
+    if (['github-pr-review', 'test-scenario-planner', 'pr-confidence-calculator'].includes(slug)) {
+      assert.match(source, /github\.event\.pull_request\.draft == false/);
+      assert.match(source, /head repository/);
+    }
+  }
+  const planner = await readFile(join('blueprints', 'test-scenario-planner', 'test-scenario-planner.md'), 'utf8');
+  assert.match(planner, /a PR has a `pull_request` field/);
 });
 
-test('unknown confidence weights are not redistributed; insufficient evidence withholds', () => {
-  const dimensions = { scope: { score: 100 }, execution: null, scenarios: { score: 100 }, review: { score: 100 } };
-  assert.equal(calculateConfidence(dimensions, config).score, 70);
-  dimensions.scenarios = null;
-  assert.equal(calculateConfidence(dimensions, config).score, null);
-  assert.throws(() => calculateConfidence(dimensions, { ...config, weights: { scope: 1 } }));
-  assert.throws(() => calculateConfidence(dimensions, { ...config, minimum_evidence_dimensions: 0 }));
+test('confidence is explicitly advisory and retains unknown-evidence scoring safeguards', async () => {
+  const source = await readFile(join('blueprints', 'pr-confidence-calculator', 'pr-confidence-calculator.md'), 'utf8');
+  assert.match(source, /AI-assessed advisory index/);
+  assert.match(source, /no deterministic/);
+  assert.match(source, /at least THREE/);
+  assert.match(source, /unknown dimensions\r?\ncontribute zero without redistributing/);
+  assert.match(source, /48\/100/);
+  assert.match(source, /failure makes execution\r?\nzero/);
+  assert.match(source, /withhold the total and mark\r?\nthe assessment stale/);
 });
 
-test('green CI does not establish scenario execution; stale reports do not count', () => {
-  const evidence = sampleEvidence('pr-confidence-calculator');
-  evidence.sources.push(...evidence.followups.inspect_checks, ...evidence.followups.inspect_tests);
-  const dimension = { score: 90, sources: ['checks'], reason: 'Assess evidence.' };
-  const result = { ...report(), dimensions: { scope: dimension, execution: dimension,
-    scenarios: { ...dimension, sources: ['test-source'] }, review: dimension } };
-  evidence.sources.push({ id: 'old-report', kind: 'test-report', data: { sha: 'old', conclusion: 'success' } });
-  validateReport('pr-confidence-calculator', result, evidence);
-  assert.equal(result.dimensions.execution, null);
-  assert.notEqual(result.dimensions.scenarios, null);
+test('release workflows require exact candidate or immutable change-range evidence', async () => {
+  const readiness = await readFile(join('blueprints', 'release-readiness-helper', 'release-readiness-helper.md'), 'utf8');
+  assert.match(readiness, /Candidate: <40-character SHA>/);
+  assert.match(readiness, /absent human sign-off remain unknown/);
+  const notes = await readFile(join('blueprints', 'stakeholder-release-notes-generator', 'stakeholder-release-notes-generator.md'), 'utf8');
+  assert.match(notes, /merge-base SHA equal to BASE_SHA/);
+  assert.match(notes, /Reject reversed\/divergent/);
+  assert.match(notes, /withhold a complete-release draft/);
 });
 
-test('confidence requires cited current scenario evidence and penalises observed failures', () => {
-  const evidence = sampleEvidence('pr-confidence-calculator');
-  evidence.sources.push({ id: 'scenario-report', kind: 'test-report', data: {
-    sha: evidence.candidate, conclusion: 'success', scenarios: [{ name: 'Reject dispatched order', result: 'passed' }],
-  } });
-  const dimension = { score: 80, sources: ['request'], reason: 'Scoped change.' };
-  const result = { ...report(), dimensions: { scope: dimension, execution: {
-    score: 90, sources: ['scenario-report'], reason: 'Current candidate scenario result.',
-  }, scenarios: null, review: dimension } };
-  validateReport('pr-confidence-calculator', result, evidence);
-  assert.equal(result.dimensions.execution.score, 90);
-  evidence.sources.at(-1).data.scenarios[0].result = 'failed';
-  validateReport('pr-confidence-calculator', result, evidence);
-  assert.equal(result.dimensions.execution.score, 0);
-  assert.ok(result.dimensions.execution.sources.includes('scenario-report'));
+test('Azure collection is inline, read-only, scoped, and logged out before inference', async () => {
+  const source = await readFile(join('blueprints', 'azure-deployment-investigator', 'azure-deployment-investigator.md'), 'utf8');
+  const frontmatter = source.split(/^---\r?$/m)[1];
+  assert.match(frontmatter, /uses: azure\/login@v2/);
+  assert.match(frontmatter, /resource_group:[\s\S]*?required: true/);
+  assert.match(frontmatter, /deployment_name:[\s\S]*?required: true/);
+  assert.match(frontmatter, /AZURE_CONFIG_DIR: \$\{\{ runner\.temp \}\}/);
+  assert.match(frontmatter, /RESOURCE_GROUP: \$\{\{ inputs\.resource_group \}\}/);
+  assert.match(frontmatter, /DEPLOYMENT_NAME: \$\{\{ inputs\.deployment_name \}\}/);
+  for (const script of inlineScripts(frontmatter)) assert.doesNotMatch(script, /\$\{\{/);
+  assert.match(frontmatter, /az deployment group show/);
+  assert.match(frontmatter, /az deployment operation group list/);
+  assert.match(frontmatter, /--offset 24h --max-events 20/);
+  assert.match(frontmatter, /"\$\{resource_id,,\}" != "\$\{scope,,\}"\*/);
+  assert.match(frontmatter, /grep -Fq '\(ResourceNotFound\)'/);
+  assert.match(frontmatter, /if: always\(\)/);
+  assert.match(frontmatter, /trap 'az account clear' EXIT\r?\n\s+az logout/);
+  assert.doesNotMatch(frontmatter, /az (?:deployment group create|resource delete|role assignment create)/);
+  const tools = frontmatter.split('tools:')[1].split('safe-outputs:')[0];
+  assert.match(tools, /cat \/tmp\/gh-aw\/azure\/\*/);
+  assert.doesNotMatch(tools, /az |github:/);
 });
 
-test('native-agent CLI report command accepts one JSON argument and fails on invalid assessments', async () => {
-  const folder = await mkdtemp(join(tmpdir(), 'blueprint-cli-test-'));
-  try {
-    const env = { ...process.env, BLUEPRINT_OUTPUT: folder, SAMPLE: 'true',
-      GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_EVENT_PATH: '' };
-    execFileSync(process.execPath, [join('scripts', 'blueprints', 'evidence.mjs'), 'github-issue-triage'],
-      { env, encoding: 'utf8' });
-    const result = report();
-    result.summary = "The customer's requested outcome needs clarification.";
-    const output = execFileSync(process.execPath,
-      [join('scripts', 'blueprints', 'report.mjs'), 'github-issue-triage', JSON.stringify(result)],
-      { env, encoding: 'utf8' });
-    assert.match(output, /customer's requested outcome/);
-    assert.match(output, /SYNTHETIC SAMPLE/);
-    assert.throws(() => execFileSync(process.execPath,
-      [join('scripts', 'blueprints', 'report.mjs'), 'github-issue-triage', '{}'],
-      { env, stdio: 'pipe' }));
-  } finally { await rm(folder, { recursive: true, force: true }); }
+test('Azure inline collection and cleanup have valid Bash syntax', async () => {
+  const source = await readFile(join('blueprints', 'azure-deployment-investigator', 'azure-deployment-investigator.md'), 'utf8');
+  const scripts = inlineScripts(source);
+  assert.equal(scripts.length, 2);
+  for (const script of scripts) {
+    const result = spawnSync('bash', ['-n'], { input: script, encoding: 'utf8' });
+    if (result.error) throw result.error;
+    assert.equal(result.status, 0, result.stderr);
+  }
 });
 
-test('source collection caps text and marks missing context instead of silent success', () => {
-  const collector = new GitHubEvidence({ repository: 'sample/repo', token: 'test-only', config });
-  for (let i = 0; i < 10; i++) collector.add(`source-${i}`, 'text', 'x'.repeat(10000));
-  assert.ok(collector.evidence.sources.length < 10);
-  assert.ok(collector.evidence.limitations.some(item => item.includes('omitted')));
-  assert.ok(JSON.stringify(collector.evidence.sources).length < 20000);
-  assert.throws(() => validateConfig({ ...config, max_items: 0 }));
-  assert.throws(() => validateConfig({ ...config, test_paths: '*.test.js' }));
-});
-
-test('extracts bounded same-repository issue links and requires release range', () => {
-  assert.deepEqual(issueNumbers('Work #12, then #12 and (#13). external https://example.com/#99', 2), [12, 13]);
-  assert.deepEqual(releaseRange('From: v1\nTo: v2', '', ''), { base: 'v1', head: 'v2' });
-  assert.throws(() => releaseRange('No release scope.'));
-});
-
-for (const slug of Object.keys(tasks)) {
-  test(`${slug}: offline evidence and validated native-agent report contract`, async () => {
-    const folder = await mkdtemp(join(tmpdir(), 'blueprint-test-'));
+test('Azure inline collection handles scoped reads, missing resources, and failures without live calls', async () => {
+  const source = await readFile(join('blueprints', 'azure-deployment-investigator', 'azure-deployment-investigator.md'), 'utf8');
+  const collection = inlineScripts(source)[0].replaceAll('/tmp/gh-aw/azure', '"$EVIDENCE"');
+  const mocks = `
+az() {
+  printf '%s\\n' "$*" >> "$CALLS"
+  case "$1 $2 $3" in
+    "deployment group show") printf '{"name":"example","provisioningState":"Failed"}' ;;
+    "deployment operation group")
+      node -e 'process.stdout.write(JSON.stringify([{provisioningState:"Failed",targetResource:{id:process.env.RESOURCE_ID}}]))' ;;
+    "monitor activity-log list") printf '[]' ;;
+    "resource show --ids")
+      case "$MODE" in
+        missing) echo '(ResourceNotFound) no such resource' >&2; return 3 ;;
+        denied) echo '(AuthorizationFailed) access denied' >&2; return 4 ;;
+        *) printf '{"provisioningState":"Failed"}' ;;
+      esac ;;
+    *) echo "Unexpected Azure command" >&2; return 99 ;;
+  esac
+}
+jq() {
+  if [[ "$1" == "-r" ]]; then
+    node -e 'const fs=require("node:fs");const rows=JSON.parse(fs.readFileSync(process.argv[1],"utf8"));process.stdout.write(rows.find(row=>row.provisioningState==="Failed")?.targetResource?.id??"")' "$3"
+  else
+    node -e 'process.stdout.write(JSON.stringify({found:false,code:"ResourceNotFound",resourceId:process.argv[1]}))' "$4"
+  fi
+}
+`;
+  for (const mode of ['success', 'missing', 'denied', 'out-of-scope', 'invalid-input']) {
+    const folder = await mkdtemp(join(tmpdir(), 'blueprint-azure-test-'));
     try {
-      const env = { BLUEPRINT_OUTPUT: folder, SAMPLE: 'true' };
-      const evidence = await prepareEvidence(slug, env);
-      assert.equal(evidence.followups, undefined);
-      assert.equal(evidence.enabled, true);
-      const result = report();
-      if (slug === 'azure-deployment-investigator') {
-        result.findings[0].sources = ['inspect_failed_resource'];
+      const evidence = join(folder, 'evidence');
+      const calls = join(folder, 'calls.txt');
+      const result = spawnSync('bash', ['-s'], {
+        input: `${mocks}\n${collection}`,
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          MSYS_NO_PATHCONV: '1', MSYS2_ARG_CONV_EXCL: '*', MSYS2_ENV_CONV_EXCL: 'RESOURCE_ID',
+          EVIDENCE: evidence.replaceAll('\\', '/'), CALLS: calls.replaceAll('\\', '/'),
+          RESOURCE_GROUP: mode === 'invalid-input' ? 'rg;echo unsafe' : 'example-rg',
+          DEPLOYMENT_NAME: 'example', SUBSCRIPTION_ID: 'test-subscription', MODE: mode,
+          RESOURCE_ID: `/subscriptions/${mode === 'out-of-scope' ? 'other' : 'test-subscription'}/resourceGroups/example-rg/providers/Example/widgets/demo`,
+        },
+      });
+      if (result.error) throw result.error;
+      if (mode === 'invalid-input') {
+        assert.notEqual(result.status, 0);
+        assert.match(result.stdout, /Invalid resource group/);
+        await assert.rejects(() => access(calls));
+        continue;
       }
-      if (slug === 'release-readiness-helper') result.findings[0].status = 'unknown';
-      if (slug === 'pr-confidence-calculator') result.dimensions = { scope: null, execution: null, scenarios: null, review: null };
-      await publishReport(slug, JSON.stringify(result), env);
-      const markdown = await readFile(join(folder, slug, 'report.md'), 'utf8');
-      assert.match(markdown, /SYNTHETIC SAMPLE/);
-      assert.match(markdown, /Internal evidence references/);
-      if (slug === 'pr-confidence-calculator') {
-        assert.match(markdown, /withheld/);
-        const structured = JSON.parse(await readFile(join(folder, slug, 'report.json'), 'utf8'));
-        assert.equal(structured.confidence.score, null);
+      const log = await readFile(calls, 'utf8');
+      assert.match(log, /deployment group show --resource-group example-rg --name example/);
+      assert.match(log, /--offset 24h --max-events 20/);
+      if (mode === 'denied') {
+        assert.notEqual(result.status, 0);
+        assert.match(result.stderr, /AuthorizationFailed/);
+      } else {
+        assert.equal(result.status, 0, result.stderr);
+        if (mode === 'missing') {
+          assert.equal(JSON.parse(await readFile(join(evidence, 'resource.json'), 'utf8')).code, 'ResourceNotFound');
+        } else if (mode === 'out-of-scope') {
+          assert.doesNotMatch(log, /resource show/);
+          assert.match(await readFile(join(evidence, 'resource-note.txt'), 'utf8'), /outside/);
+        } else {
+          assert.equal(JSON.parse(await readFile(join(evidence, 'resource.json'), 'utf8')).provisioningState, 'Failed');
+        }
       }
     } finally { await rm(folder, { recursive: true, force: true }); }
-  });
-}
-
-test('Azure collects fixed read-only snapshots, never model-selected commands', async () => {
-  const evidence = await collectAzureEvidence({ SAMPLE: 'true' });
-  assert.deepEqual(evidence.sources.map(source => source.id),
-    ['deployment', 'operations', 'inspect_failed_resource', 'inspect_recent_activity']);
-  const commands = [];
-  const live = await collectAzureEvidence({
-    RESOURCE_GROUP: 'demo', DEPLOYMENT_NAME: 'deployment', AZURE_SUBSCRIPTION_ID: 'allowed',
-  }, args => {
-    commands.push(args);
-    if (args[1] === 'operation') return [{
-      provisioningState: 'Failed',
-      targetResource: { id: '/subscriptions/other/resourceGroups/demo/providers/Test/resource/demo' },
-    }];
-    return {};
-  });
-  assert.equal(commands.length, 3);
-  assert.ok(live.limitations.some(item => item.includes('outside the configured')));
-  assert.ok(commands.every(args => !['delete', 'create', 'update'].some(word => args.includes(word))));
-});
-
-test('Azure executes only allowlisted argument lists and handles missing resources explicitly', () => {
-  assert.throws(() => diagnosticArguments('delete', {}));
-  assert.throws(() => diagnosticArguments('inspect_failed_resource', {}));
-  const args = diagnosticArguments('inspect_failed_resource', {
-    resourceId: '/subscriptions/demo/resourceGroups/demo/providers/Microsoft.Storage/storageAccounts/demo',
-  });
-  assert.deepEqual(args.slice(0, 3), ['resource', 'show', '--ids']);
-  const missing = () => { throw Object.assign(new Error('missing'), { stderr: '(ResourceNotFound) Not found.' }); };
-  assert.equal(azureRead(args, missing).found, false);
-  assert.throws(() => azureRead(args, () => { throw new Error('Authentication expired'); }), /Authentication/);
-});
-
-test('GitHub API errors remain failures; optional inaccessible resources are explicit', async t => {
-  const original = globalThis.fetch;
-  t.after(() => { globalThis.fetch = original; });
-  const collector = new GitHubEvidence({ repository: 'sample/repo', token: 'test-only', config });
-  globalThis.fetch = async () => ({ status: 403, ok: false });
-  await assert.rejects(() => collector.request('/issues/1'), /403/);
-  globalThis.fetch = async () => ({ status: 404, ok: false });
-  assert.equal(await collector.request('/issues/1', { optional: true }), null);
-  collector.evidence.linked_items = [12];
-  await collector.linked();
-  assert.match(collector.evidence.limitations[0], /not accessible/);
-});
-
-test('live PR collection links criteria, reads guidance at base and does not execute contributor code', async t => {
-  const original = globalThis.fetch;
-  t.after(() => { globalThis.fetch = original; });
-  const calls = [];
-  globalThis.fetch = async url => {
-    const path = new URL(url).pathname.replace('/repos/sample/repo', '');
-    calls.push(`${path}${new URL(url).search}`);
-    const fixtures = {
-      '/issues/5': { number: 5, title: 'Cancellation', body: 'Closes #12', state: 'open', labels: [], pull_request: {}, html_url: 'https://github.com/sample/repo/pull/5' },
-      '/pulls/5': { head: { sha: 'a'.repeat(40) }, base: { sha: 'b'.repeat(40) }, changed_files: 2 },
-      '/pulls/5/files': [{ filename: 'orders.mjs', patch: '+if (dispatched) throw Error();' }],
-      '/contents/CONTRIBUTING.md': { type: 'file', encoding: 'base64', content: Buffer.from('Preserve public error formats.').toString('base64') },
-      '/issues/5/comments': [],
-      '/issues/12': { title: 'Acceptance criteria', body: 'Reject cancellation after dispatch.', state: 'open', labels: [] },
-    };
-    assert.ok(Object.hasOwn(fixtures, path), `Unexpected GitHub request ${path}`);
-    return { ok: true, status: 200, json: async () => fixtures[path] };
-  };
-  const collector = new GitHubEvidence({
-    repository: 'sample/repo', token: 'test-only', config: { ...config, guidance_paths: ['CONTRIBUTING.md'] },
-  });
-  const evidence = await collector.collect(5, 'either', { blueprint: 'test-scenario-planner', defaultBranch: 'main' });
-  assert.equal(evidence.candidate, 'a'.repeat(40));
-  assert.ok(evidence.sources.some(source => source.id === 'linked-12'));
-  assert.ok(calls.some(path => path.includes(`ref=${'b'.repeat(40)}`)));
-  assert.ok(evidence.limitations.some(item => item.includes('Only 1 of 2')));
-});
-
-test('native confidence preparation collects tests, checks, and review records before assessment', async t => {
-  const original = globalThis.fetch;
-  t.after(() => { globalThis.fetch = original; });
-  const folder = await mkdtemp(join(tmpdir(), 'blueprint-confidence-test-'));
-  const candidate = 'a'.repeat(40);
-  globalThis.fetch = async url => {
-    const path = new URL(url).pathname.replace('/repos/sample/repo', '');
-    const text = body => ({ type: 'file', encoding: 'base64', content: Buffer.from(body).toString('base64') });
-    const fixtures = {
-      '/issues/5': { number: 5, title: 'Cancellation', body: 'Reject cancellation after dispatch.',
-        state: 'open', labels: [], pull_request: {} },
-      '/pulls/5': { head: { sha: candidate }, base: { sha: 'b'.repeat(40) }, changed_files: 1 },
-      '/pulls/5/files': [{ filename: 'tests/order.test.mjs', patch: '+assert.throws(() => cancel(dispatched));' }],
-      '/contents/CONTRIBUTING.md': text('Inspect failure scenarios and preserve public error formats.'),
-      '/issues/5/comments': [],
-      '/contents/tests/order.test.mjs': text('test("reject dispatched orders", () => assert.throws(() => cancel(dispatched)));'),
-      [`/commits/${candidate}/check-runs`]: { total_count: 1, check_runs: [{ name: 'unit', conclusion: 'success', head_sha: candidate }] },
-      [`/commits/${candidate}/status`]: { total_count: 0, statuses: [] },
-      '/pulls/5/reviews': [{ state: 'COMMENTED', body: 'Check the dispatch boundary.', commit_id: candidate }],
-    };
-    assert.ok(Object.hasOwn(fixtures, path), `Unexpected GitHub request ${path}`);
-    return { ok: true, status: 200, json: async () => fixtures[path] };
-  };
-  try {
-    const env = { BLUEPRINT_OUTPUT: folder, GITHUB_REPOSITORY: 'sample/repo',
-      GITHUB_TOKEN: 'test-only', DEFAULT_BRANCH: 'main', NUMBER: '5' };
-    const evidence = await prepareEvidence('pr-confidence-calculator', env);
-    for (const id of ['test-1', 'checks', 'reviews']) assert.ok(evidence.sources.some(source => source.id === id));
-    const dimension = (score, id) => ({ score, sources: [id], reason: 'Prepared evidence supports this assessment.' });
-    const result = { ...report(), dimensions: { scope: dimension(90, 'changes'),
-      execution: dimension(100, 'checks'), scenarios: dimension(75, 'test-1'), review: dimension(80, 'reviews') } };
-    const published = await publishReport('pr-confidence-calculator', JSON.stringify(result), env);
-    assert.equal(published.result.dimensions.execution, null);
-    assert.equal(published.result.confidence.score, 57);
-    assert.match(published.markdown, /partial/);
-  } finally { await rm(folder, { recursive: true, force: true }); }
-});
-
-test('report snapshots use trusted default branch and reject stale scenario reports', async t => {
-  const original = globalThis.fetch;
-  t.after(() => { globalThis.fetch = original; });
-  const urls = [];
-  globalThis.fetch = async url => {
-    urls.push(url);
-    return { ok: true, status: 200, json: async () => ({
-      type: 'file', encoding: 'base64',
-      content: Buffer.from(JSON.stringify({ sha: 'old', conclusion: 'success', scenarios: [{ name: 'Old scenario', result: 'passed' }] })).toString('base64'),
-    }) };
-  };
-  const collector = new GitHubEvidence({
-    repository: 'sample/repo', token: 'test-only', config: { ...config, test_report_paths: ['evidence/tests.json'] },
-  });
-  collector.evidence.candidate = 'a'.repeat(40);
-  collector.evidence.report_ref = 'main';
-  await collector.tests();
-  assert.ok(urls[0].endsWith('?ref=main'));
-  assert.ok(collector.evidence.limitations.some(item => item.includes('lacks candidate-specific')));
-  assert.equal(collector.evidence.sources.length, 0);
-});
-
-test('release comparison resolves immutable candidate refs and rejects divergent history', async t => {
-  const original = globalThis.fetch;
-  t.after(() => { globalThis.fetch = original; });
-  let divergent = false;
-  globalThis.fetch = async url => {
-    const path = new URL(url).pathname;
-    const data = path.includes('/compare/')
-      ? { status: divergent ? 'diverged' : 'ahead', total_commits: 1, commits: [{ sha: 'a'.repeat(40), commit: { message: 'Cancellation (#12)' } }], files: [] }
-      : { sha: path.endsWith('/v1') ? 'b'.repeat(40) : 'a'.repeat(40) };
-    return { ok: true, status: 200, json: async () => data };
-  };
-  const collector = new GitHubEvidence({ repository: 'sample/repo', token: 'test-only', config });
-  collector.evidence.range = { base: 'v1', head: 'v2' };
-  await collector.compare();
-  assert.equal(collector.evidence.candidate, 'a'.repeat(40));
-  assert.deepEqual(collector.evidence.linked_items, [12]);
-  divergent = true;
-  await assert.rejects(() => collector.compare(), /divergent/);
-});
-
-test('irrelevant labels and fork PR events do not invoke collection', async () => {
-  const folder = await mkdtemp(join(tmpdir(), 'blueprint-trigger-test-'));
-  try {
-    const eventPath = join(folder, 'event.json');
-    await writeFile(eventPath, JSON.stringify({ action: 'labeled', label: { name: 'unrelated' }, issue: { number: 12 } }));
-    const disabled = await prepareEvidence('requirements-gap-investigator', {
-      BLUEPRINT_OUTPUT: folder, GITHUB_EVENT_PATH: eventPath,
-      GITHUB_EVENT_NAME: 'issues', GITHUB_REPOSITORY: 'company/repo',
-    });
-    assert.equal(disabled.enabled, false);
-    await assert.rejects(() => publishReport('requirements-gap-investigator', JSON.stringify(report()),
-      { BLUEPRINT_OUTPUT: folder }), /Out-of-scope/);
-    await writeFile(eventPath, JSON.stringify({ action: 'opened', pull_request: { number: 12, head: { repo: { full_name: 'fork/repo' } } } }));
-    const fork = await prepareEvidence('github-pr-review', {
-      BLUEPRINT_OUTPUT: folder, GITHUB_EVENT_PATH: eventPath,
-      GITHUB_EVENT_NAME: 'pull_request', GITHUB_REPOSITORY: 'company/repo',
-    });
-    assert.equal(fork.enabled, false);
-  } finally { await rm(folder, { recursive: true, force: true }); }
-});
-
-test('native sources align trigger labels, imports, and source-only distribution', async () => {
-  const directory = join('.github', 'workflows');
-  const files = await readdir(directory);
-  assert.equal(files.filter(file => file.endsWith('.md')).length, 0);
-  assert.equal(files.filter(file => file.endsWith('.lock.yml')).length, 0);
-  await assert.rejects(() => access(join(directory, 'shared')));
-  for (const slug of Object.keys(tasks)) {
-    const id = slug.replace(/^github-/, '');
-    const source = await readFile(join('blueprints', slug, `${id}.md`), 'utf8');
-    assert.match(source, /shared\/blueprint-runtime\.md/);
-    assert.match(source, /shared\/report-contract\.md/);
-    assert.match(source, /strict: true/);
-    assert.match(source, /roles: \[admin, maintainer, write/);
-    assert.match(source, /copilot-requests: write/);
-    assert.ok(source.includes(`BLUEPRINT_SLUG: ${slug}`));
-    if (slug !== 'azure-deployment-investigator') {
-      const companyConfig = JSON.parse(await readFile(join('blueprints', slug, 'config.json'), 'utf8'));
-      const labels = source.match(/^  labels: \[([^\]]+)\]/m)[1].split(',').map(label => label.trim());
-      assert.deepEqual(labels, companyConfig.trigger_labels);
-    }
-    await assert.rejects(() => access(join(directory, `${id}.yml`)));
   }
-  const runtime = await readFile(join('blueprints', 'shared', 'blueprint-runtime.md'), 'utf8');
-  assert.match(runtime, /engine: copilot/);
-  assert.match(runtime, /mode: gh-proxy/);
-  assert.match(runtime, /pull-request: false/);
-  assert.match(runtime, /edit: false/);
-  assert.match(runtime, /allowed: \[\]/);
-  assert.match(runtime, /upload-artifact:/);
-  assert.match(runtime, /create-issue: false/);
 });
 
-test('validation stages the same source layout adopters install, without generated locks', async () => {
+test('a single copied Markdown file per blueprint is all the compiler staging needs', async () => {
   const folder = await mkdtemp(join(tmpdir(), 'blueprint-stage-test-'));
   try {
     await stageWorkflowSources(folder);
-    const files = await readdir(folder);
-    assert.equal(files.filter(file => file.endsWith('.md')).length, 9);
-    assert.equal(files.filter(file => file.endsWith('.lock.yml')).length, 0);
-    for (const slug of Object.keys(tasks)) {
-      const id = slug.replace(/^github-/, '');
-      const source = await readFile(join(folder, `${id}.md`), 'utf8');
-      assert.equal(source, await readFile(join('blueprints', slug, `${id}.md`), 'utf8'));
-      for (const match of source.matchAll(/^\s+- (shared\/[^\s]+\.md)$/gm)) {
-        await access(join(folder, match[1]));
-      }
+    assert.equal((await readdir(folder)).length, 9);
+    for (const { id, path } of sources) {
+      assert.equal(await readFile(join(folder, `${id}.md`), 'utf8'), await readFile(path, 'utf8'));
     }
   } finally { await rm(folder, { recursive: true, force: true }); }
 });
 
-test('draft, closed, wrong-kind, and unrequested issue events are out of scope', () => {
-  const pr = { head: { repo: { full_name: 'sample/repo' } } };
-  assert.equal(enabledForEvent('github-pr-review', { action: 'opened', pull_request: { ...pr, draft: true } },
-    'pull_request', 'sample/repo', config), false);
-  assert.equal(enabledForEvent('github-issue-triage', { action: 'reopened', issue: { state: 'closed' } },
-    'issues', 'sample/repo', config), false);
-  assert.equal(enabledForEvent('requirements-gap-investigator', { action: 'labeled', pull_request: pr },
-    'pull_request', 'sample/repo', config), false);
-  assert.equal(enabledForEvent('delivery-risk-investigator', { action: 'opened', issue: {} },
-    'issues', 'sample/repo', config), false);
-});
-
-test('a current failure cannot be hidden by citing only a passing scenario report', () => {
-  const evidence = sampleEvidence('pr-confidence-calculator');
-  const passing = { sha: evidence.candidate, conclusion: 'success', scenarios: [{ name: 'one', result: 'passed' }] };
-  evidence.sources.push({ id: 'pass', kind: 'test-report', data: passing },
-    { id: 'fail', kind: 'test-report', data: { ...passing, conclusion: 'failure' } });
-  const dimension = { score: 90, sources: ['request'], reason: 'Scoped change.' };
-  const result = { ...report(), dimensions: { scope: dimension, execution: {
-    score: 100, sources: ['pass'], reason: 'Only pass cited.',
-  }, scenarios: null, review: dimension } };
-  validateReport('pr-confidence-calculator', result, evidence);
-  assert.equal(result.dimensions.execution.score, 0);
-  assert.ok(result.dimensions.execution.sources.includes('fail'));
+test('the distribution contains no executable blueprint workflows or generated locks', async () => {
+  const files = await readdir(join('.github', 'workflows'));
+  assert.deepEqual(files, ['validate-blueprints.yml']);
+  for (const { path } of sources) {
+    assert.ok(!(await readdir(dirname(path))).some(file => file.endsWith('.lock.yml')));
+  }
+  assert.deepEqual((await readdir(join('scripts', 'blueprints'))).sort(),
+    ['blueprints.test.mjs', 'validate.mjs']);
 });

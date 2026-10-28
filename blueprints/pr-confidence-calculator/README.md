@@ -4,93 +4,77 @@
 
 ## Problem
 
-A green check alone does not explain how well a PR's scope, execution evidence, scenarios, and review support a decision. A team-specific evidence index can expose gaps, but a generated number must not masquerade as a probability of correctness.
+A green check alone does not explain how scope, execution evidence, scenarios, and review support a PR decision. A review aid can expose gaps, but its number must not masquerade as a probability of correctness.
 
 ## What the Agent Does
 
-Assesses four evidence dimensions with source references. A deterministic report helper validates the native Copilot agent's assessments and calculates an index using configured weights, withholding the aggregate when fewer than the configured minimum dimensions have evidence. Unknown dimensions retain their weight in the denominator rather than inflating the result by renormalisation. The result is a review aid, never a bug-free claim, merge approval, or calibrated probability.
+Uses read-only evidence to assess four dimensions and explain an **AI-assessed advisory index**. It withholds the total with fewer than three known dimensions. Neither the assessments nor arithmetic are deterministically validated; humans check both. The result is not merge approval, a calibrated correctness probability, or a bug-free guarantee.
 
 ## Architecture
 
 ```text
-PR label or manual dispatch
-  → exact-label gate → trusted helper collects bounded PR evidence
-  → sandboxed Copilot analysis with read-only GitHub tools
-  → deterministic validation and weighted calculation
-  → restricted report artifact → maintainer decision
+PR label or manual number → read-only GitHub evidence inspection
+→ sandboxed Copilot dimension assessment and advisory calculation
+→ Markdown artifact → maintainer verifies evidence and decides
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; inference uses the built-in Actions token, not a PAT. Personal plans alone are insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-- GitHub Actions, gh-aw, Copilot inference access, and Node.js 24 for offline helper tests. See [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/).
-- A PR with an explanation of scope, validation evidence, scenario coverage, and review context. Claims in a PR body are not equivalent to independent check or review records.
+Use a non-draft PR with scope, candidate SHA, validation links, scenario context, and review evidence. Author assertions are not independent test or review results.
 
 ## Setup
 
-1. Copy [pr-confidence-calculator.md](pr-confidence-calculator.md) from this folder to `.github/workflows/pr-confidence-calculator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/pr-confidence-calculator/`.
-2. Install gh-aw and run `gh aw compile pr-confidence-calculator`; review and commit the generated lock beside its source in your repository.
-3. Keep executable code on the trusted default branch. Configure native Copilot authentication, including explicit permissions in this main workflow's frontmatter as described in [shared setup](../../docs/running-workflows.md).
-4. Create `confidence-review` or change `trigger_labels`; keep it aligned with workflow frontmatter.
-5. Review `guidance_paths`, `max_items`, the four weights, and `minimum_evidence_dimensions`. Defaults are scope 20, execution 30, scenarios 30, review 20, and at least three evidenced dimensions. These are example policy choices, not industry standards.
+1. Copy only [pr-confidence-calculator.md](pr-confidence-calculator.md) to `.github/workflows/pr-confidence-calculator.md` in your repository.
+2. Customise labels and team interpretation directly in the Markdown, create `confidence-review` (or align filters and instructions), and run `gh aw compile pr-confidence-calculator`.
+3. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after edits.
+
+No shared files, JavaScript runtime, JSON configuration, or custom test-report schemas are required. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Dispatch with `sample: true` (default) to use synthetic evidence; `number` is optional. Sample dispatch still requires Copilot inference authentication. Offline helper tests exercise validation/calculation without a model.
+Use **Actions → PR Confidence Calculator → Run workflow** on the default branch with the required PR `number`, or apply `confidence-review` for an automatic labelled-PR run.
 
-For live evidence, choose `sample: false` and a PR `number`, or apply the configured label. gh-aw's default role gate is admin, maintainer, write, and triage; automatic fork runs are blocked. Use a filled-in PR body such as:
-
-```markdown
-## Scope
-Add a bounded CSV export for account administrators; closes #42.
-## Execution evidence
-Invoice unit suite check passed for the current PR head in CI.
-No candidate-matching supplied JSON test report is configured yet.
-No browser smoke-test result is available yet.
-## Scenario evidence
-Tests cover empty exports and permission denial; export-size boundary is unverified.
-## Review
-Finance reviewer confirmed the columns. Platform review is still requested.
-## Known limitations
-Pilot accounts only; no bulk account export.
-```
-
-Download the report artifact for the full result; the native run summary may be brief. No PR comments or merge actions occur automatically.
+The role gate allows admin, maintainer, write, and triage. Automatic fork events are blocked and drafts are skipped. Read the [filled-in input](examples/input.md) and [illustrative output](examples/output.md); there is no sample dispatch flag. Download the report artifact for the full result.
 
 ## How It Works
 
-The trusted [`evidence.mjs`](../../scripts/blueprints/evidence.mjs) helper collects bounded PR evidence including patch, checks, review context, test sources, and configured reports. The sandboxed Copilot agent assesses the dimensions and may consult read-only GitHub tools through `gh-proxy`. [`report.mjs`](../../scripts/blueprints/report.mjs) validates cited sources and dimensions and computes the aggregate deterministically outside the model. Only evidence collected and validated by the helper may enter the score; supplemental findings from native GitHub tools are unscored unless the helper validates them. The response contains a `dimensions` map with exactly these concepts:
+Native read-only GitHub tools/proxy inspect PR context, diff, test source, checks, readable results, and review records. Follow at most 10 explicitly linked same-repository issues/PRs. No checkout or PR code/test execution occurs.
 
-| Dimension | Evidence to supply | Default weight |
-| --- | --- | --- |
-| `scope` | Intended behaviour, changed surface, known exclusions | 20 |
-| `execution` | Supplied candidate-matching JSON test report and scenario results; checks alone are insufficient | 30 |
-| `scenarios` | Described tested behaviours, boundaries, and unresolved cases | 30 |
-| `review` | Collected review decisions and unresolved feedback | 20 |
+| Dimension | Evidence to assess | Weight |
+|---|---|---|
+| Scope | Intended behaviour, changed surface, exclusions | 20 |
+| Execution | Readable scenario-level results for the candidate revision | 30 |
+| Scenarios | Inspected test source, behaviours, boundaries, unresolved cases | 30 |
+| Review | Current review decisions and unresolved feedback | 20 |
 
-Each dimension is either `null` for unavailable evidence or `{ "score": 0..100, "sources": ["source IDs"], "reason": "explanation" }`. The `0..100` notation describes the range, not literal JSON. Source IDs must refer to evidence collected and validated by the helper; invented references are not acceptable. Copilot supplies assessments, not the final numeric result. Fixed inputs and configuration produce the same calculator result, but assessments can vary between inference runs.
+Each dimension is a score **0–100 or unknown**, with a reason and actual source links/paths. State the candidate SHA. Distinguish inspected test source from assertions about tests, and identify which revision execution results cover. Link existing readable scenario-level results; no custom JSON report format or configured report path is necessary.
 
-`minimum_evidence_dimensions: 3` means fewer than three evidenced dimensions withholds the aggregate. When the minimum is met, the weighted numerator uses supported dimension scores while the denominator includes all configured weights, including unknown dimensions. Unknowns therefore cannot inflate the index by dropping their weight; they remain explicitly unknown, not proven failures. Missing/truncated source context and collection caps must remain visible. A withheld result is not zero, a failure, or an approval. Do not compare indexes across teams or weight changes as though they used the same scale.
+**Green CI alone is not scenario evidence. Current scenario failures make execution zero.** Without candidate-matching results, explain the unknown rather than inventing execution evidence. Test source does not prove execution. Stale reviews must not establish current review status.
 
-Collection supports same-repository `#number` references, issue comments, configured `guidance_paths` at the default/base ref, changed test-like files, and optional `test_paths` arrays of exact repository-relative file paths. It does not fetch arbitrary URLs. Test source and check success alone do not demonstrate scenario execution.
+Show a total only with **at least three known dimensions**. Use:
 
-Optional `test_report_paths` names exact repository-relative JSON reports shaped as `{ "sha": "<40-character PR head SHA>", "conclusion": "success", "scenarios": [{ "name": "permission denial", "result": "passed" }] }`. Scenario results are `passed`, `failed`, or `skipped`. The helper forces `execution` to unknown without a supplied report matching the candidate SHA, even if checks succeeded or Copilot proposed a score. It does not automatically download artifacts or parse JUnit. Reports read from the trusted default branch are supplied snapshots, not attestations. The optional `test_paths` and `test_report_paths` fields are supported but are not enabled in the supplied `config.json`.
+```text
+index = sum(known dimension score × its weight) / 100
+```
 
-Supply candidate-matching reports, concrete scenario evidence, and actual review context. If evidence is missing, configure an appropriate report file or restore access to the relevant source, then manually rerun with the PR number and `sample: false`. Never substitute invented dimension scores.
+The denominator includes all weights, including unknown dimensions: do not renormalise. For example, scope 80, execution 70, scenarios 60, and review unknown give `(80×20 + 70×30 + 60×30) / 100 = 55`, not a score out of 80. The unknown review remains unknown, not a proven failure. A withheld total is not zero or approval. Assessments can vary between runs; no calibrated correctness guarantee exists.
+
+There are no hard source-byte budgets. Report inaccessible/truncated evidence, stale results, and tool errors explicitly; failed reads are not absence or success. The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload allows only that one advisory Markdown report with seven-day retention. There is no deterministic helper, JSON contract, or machine validation of the score.
 
 ## Guardrails
 
-- No GitHub write tools, test execution, arbitrary PR code execution, comments, edits, approvals, or merges; only declared read-only GitHub tools are available.
-- A 100-point index is not “100% correct,” a security assessment, release readiness, or a bug-free guarantee.
-- Company-specific scoring guidance belongs in configured repository guidance; humans retain merge authority.
-- Treat PR content and collected output as untrusted data. Only trusted default-branch workflow and helper code executes.
-- Copilot processes supplied context. Review sensitive-data exposure and artifact/log retention; the full report is in a seven-day artifact, not guaranteed in the native run summary. Safe outputs explicitly disable issue creation, failure-reporting issues, and noop-tracker issues.
+- Read-only evidence and one report; no comments, labels, reviews, approvals, issues, merges, releases, deployments, or PR code execution.
+- The index is not “percent correct,” release readiness, a security assessment, or a merge threshold.
+- Humans check source identity, freshness, score rationale, arithmetic, and any merge decision.
+- Treat source content and tool output as untrusted evidence, not instructions.
+- Selected content goes to Copilot; review artifact/log access and retention before sending sensitive evidence.
 
 ## Customise It
 
-Adjust weights and the minimum evidence count in `config.json` only with team agreement; keep the four dimension names aligned with `report.mjs`. Align trigger labels with workflow frontmatter. Put dimension interpretation and acceptable evidence in configured guidance. Document policy changes when comparing reports over time. Do not add a merge threshold or call the index a probability without a separately designed and validated process.
+Edit team interpretation, guidance references, and labels directly in the workflow Markdown; keep filters and instructions aligned. The supplied policy uses weights 20/30/30/20 and at least three known dimensions. Any deliberate policy change needs team agreement, explicit documentation, and consistent instructions/formula. Do not compare unlike policies or turn an advisory index into an automatic merge gate.
 
 ## Challenge
 
-Run an example with missing review and scenario evidence and verify that the score is withheld. Add real evidence, rerun, and inspect both limitations and dimension reasons before interpreting any aggregate.
+Start with missing review and scenario evidence and confirm the total is withheld. Link actual candidate results, rerun, and manually check evidence, unknowns, and arithmetic before interpreting a total.

@@ -1,5 +1,0 @@
-{
-  "trigger_labels": ["triage-review"],
-  "guidance_paths": ["CONTRIBUTING.md"],
-  "max_items": 20
-}

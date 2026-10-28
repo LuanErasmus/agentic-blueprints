@@ -16,4 +16,4 @@ What happens above 10,000 invoices? Which timezone defines the date?
 The supplied CONTRIBUTING.md excerpt asks for measurable acceptance criteria.
 No export-size policy or timezone decision is supplied.
 
-The number and references here are fictional. Machine-readable sample data is centralized in `scripts/blueprints/samples.mjs`; this file explains an illustrative scenario rather than live results.
+The number and references are fictional. Adapt this filled-in issue template in your repository and supply its real issue number for manual dispatch. This is not executable synthetic dispatch data; there is no sample flag.

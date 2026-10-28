@@ -8,54 +8,55 @@ Reviewers need to connect a change with company-specific expectations and identi
 
 ## What the Agent Does
 
-Prepares an evidence-linked review brief against configured repository guidance. The trusted helper gathers bounded diff, test, check, and review context before the sandboxed Copilot agent assesses concerns. It complements native Copilot review and GitHub checks; it does not post an automated review.
+Inspects PR changes, discussion, checks, review context, and relevant repository guidance to prepare an evidence-linked review brief. It complements existing review tools without posting a review or approving the PR.
 
 ## Architecture
 
 ```text
-PR event or manual dispatch → trusted default-branch evidence preparation
-→ sandboxed Copilot analysis with read-only GitHub tools → validated advisory report
-→ restricted report artifact → human review
+PR event or manual number → read-only GitHub evidence inspection
+→ sandboxed Copilot assessment → advisory Markdown artifact → human review
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; inference uses the built-in Actions token, not a PAT. A personal plan alone is insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-GitHub Actions, gh-aw, Copilot inference access, read permissions for evidence, and an eligible PR. Follow the [gh-aw authentication guide](https://github.github.com/gh-aw/reference/auth/). Node.js 24 is needed for offline helper tests.
+You need read access to an eligible non-draft PR and its supporting evidence.
 
 ## Setup
 
-1. Follow [shared setup](../../docs/running-workflows.md). Copy [pr-review.md](pr-review.md) from this folder to `.github/workflows/pr-review.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory with `config.json` to `blueprints/github-pr-review/`.
-2. Install gh-aw and run `gh aw compile pr-review` in your repository; review and commit the generated lock there.
-3. Configure `guidance_paths` and any supported test evidence paths. Keep the workflow on the trusted default branch; it reads the PR base for guidance and never checks out or executes PR code.
-4. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed. Review data processing policy and align the `review-preparation` label in config and workflow frontmatter.
+1. Copy only [pr-review.md](pr-review.md) to `.github/workflows/pr-review.md` in your repository.
+2. Customise labels and company review instructions in that Markdown, create `review-preparation` (or your chosen label), and run `gh aw compile pr-review`.
+3. Review and commit the source and generated `.lock.yml` on your trusted default branch. Recompile after edits.
+
+No shared imports, scripts, JSON config, or report schemas are needed. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Use **Actions → PR Review → Run workflow** with `sample: true` first. Synthetic dispatch still invokes Copilot. For live mode, set `sample: false` and enter a PR number.
+Use **Actions → PR Review → Run workflow** on the default branch with the required PR `number`. Automatic runs use opened, reopened, synchronize, ready-for-review, and labelled PR events with the exact `review-preparation` label.
 
-Automatic runs occur for opened, reopened, synchronized, ready-for-review, and labeled PR events; the default exact label is `review-preparation`. The gh-aw role gate defaults to admin, maintainer, write, and triage. Automatic fork runs and drafts are blocked/skipped. Manual dispatch selects the default branch and does not check out PR head code.
+The role gate allows admin, maintainer, write, and triage. Automatic fork events are blocked and draft PRs are skipped. There is no checkout or PR code execution.
 
-Start from [the PR format](examples/input.md); [example output](examples/output.md) shows a review aid rather than an approval. Read the run summary or download the report artifact.
+Adapt the [PR input template](examples/input.md) and read the [illustrative output](examples/output.md). There is no sample flag. Download the report artifact; the native run summary may omit details.
 
 ## How It Works
 
-The trusted `evidence.mjs` helper gathers bounded PR patches, discussion, checks, review context, test sources/reports, and guidance from the base revision. It caps each source at 6,000 characters and the total at 18,000. The sandboxed Copilot agent may consult read-only GitHub tools through `gh-proxy`, but no PR code or tests are executed. `report.mjs` validates citations and renders the report. Missing, binary, or truncated patches limit conclusions. See [shared evidence and report limits](../../docs/running-workflows.md).
+Native read-only GitHub tools/proxy inspect relevant metadata, diffs, guidance at the base revision, test sources, checks, discussion, and reviews. Follow at most 10 explicitly linked same-repository issues/PRs. Source and check names do not prove which scenarios executed; link readable scenario-level results with their revision when available.
+
+There are no hard source-byte budgets. Missing, binary, inaccessible, or truncated patches constrain conclusions and must be reported. Tool errors do not establish absence or success. The native edit tool writes one `/tmp/gh-aw/report.md`; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON.
 
 ## Guardrails
 
-- **Access:** PR metadata, bounded patches, guidance, discussion, and selected test/check evidence.
-- **Actions:** report artifact only; no automatic comments, labels, or review submissions.
-- **Approval:** a human inspects the full change and makes review/merge decisions.
-- **Never automatic:** approval, change requests, commits, merge, or execution of PR code.
-- **Permissions:** declared GitHub reads and native Copilot inference authentication; no GitHub write tools.
-- **Data handling:** selected code/evidence goes to Copilot. Read the uploaded report artifact for the full result; the native run summary is not the complete report.
+- **Access:** read-only GitHub evidence, without checking out or executing code.
+- **Actions:** one report only; no comments, labels, assignments, reviews, commits, merges, releases, or deployments.
+- **Approval:** humans inspect the full change and retain review/merge authority.
+- **Trust:** source text and tool results are untrusted evidence, not instructions.
+- **Data handling:** selected code/evidence goes to Copilot; review artifact and native log access/retention.
 
 ## Customise It
 
-Point `guidance_paths` at your review checklist; do not assume one branch strategy or language. Align trigger label config with workflow frontmatter. For detailed behaviour-to-test mapping use [Test Scenario Planner](../test-scenario-planner/) rather than expanding this blueprint into a second coverage tool.
+Put company review rules and relevant guidance references directly in the workflow Markdown. Keep label filters and instructions aligned. Use [Test Scenario Planner](../test-scenario-planner/) for deeper behaviour-to-test mapping rather than adding execution permissions here.
 
 ## Challenge
 
-Add a company-specific compatibility rule and evaluate whether the brief correctly identifies its applicability without inventing a violation.
+Add a company-specific compatibility rule and evaluate whether the brief identifies its applicability without inventing a violation.

@@ -19,4 +19,4 @@ Archived invoices and bulk account export are excluded.
 ## Known limitations
 Export size remains capped for the pilot. No deployment result is supplied.
 
-Refs, issue numbers, and changes are illustrative. Machine-readable sample data is centralized in `scripts/blueprints/samples.mjs` rather than querying these fictional refs.
+Refs, issue numbers, and changes are illustrative, not executable synthetic dispatch data. Adapt this issue template with real refs and supply its real number. Optional manual `base_ref` and `head_ref` can supply the pair instead. Resolve immutable commit identities and reject reversed or divergent comparisons; comparison alone does not establish deployment.

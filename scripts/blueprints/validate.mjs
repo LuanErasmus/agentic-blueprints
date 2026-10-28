@@ -1,16 +1,27 @@
-import { cp, mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { access, cp, mkdir, mkdtemp, readdir, rm } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
-import { tasks } from './tasks.mjs';
+
+export async function workflowSources() {
+  const sources = [];
+  for (const entry of await readdir('blueprints', { withFileTypes: true })) {
+    if (!entry.isDirectory()) continue;
+    const slug = entry.name;
+    const id = slug.replace(/^github-/, '');
+    const path = join('blueprints', slug, `${id}.md`);
+    await access(path);
+    sources.push({ slug, id, path });
+  }
+  if (!sources.length) throw new Error('No blueprint workflow sources found.');
+  return sources;
+}
 
 export async function stageWorkflowSources(directory) {
   await mkdir(directory, { recursive: true });
-  for (const slug of Object.keys(tasks)) {
-    const id = slug.replace(/^github-/, '');
-    await cp(join('blueprints', slug, `${id}.md`), join(directory, `${id}.md`));
+  for (const { id, path } of await workflowSources()) {
+    await cp(path, join(directory, `${id}.md`));
   }
-  await cp(join('blueprints', 'shared'), join(directory, 'shared'), { recursive: true });
 }
 
 export async function validateSources() {

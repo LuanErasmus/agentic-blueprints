@@ -8,61 +8,65 @@ Deployment failures need evidence-led investigation without granting an agent in
 
 ## What the Agent Does
 
-Reasons over bounded Azure deployment and diagnostic evidence collected by a trusted deterministic step, then recommends next steps. The collector uses fixed read-only Azure CLI commands; the agent has no Azure credentials or CLI access and does not choose or execute diagnostics.
+Reasons over deployment and diagnostic evidence gathered by trusted inline read-only commands before inference. It separates facts, hypotheses, limitations, and recommendations. The agent has no Azure credentials or CLI access and never selects or executes diagnostics.
 
 ## Architecture
 
 ```text
-Manual request → trusted OIDC collector reads deployment and fixed diagnostics
-→ Azure logout → sandboxed Copilot analysis → validated advisory report
-→ restricted report artifact → operator decision
+Manual deployment inputs → trusted inline OIDC collection → Azure logout
+→ sandboxed Copilot reads prepared evidence → advisory Markdown artifact
+→ operator verifies findings and decides
 ```
 
 ## Prerequisites
 
-**Copilot licence:** an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and Copilot CLI organisation billing enabled. These blueprints use `copilot-requests: write`, not a PAT. Personal Copilot plans alone do not enable this method. See [licence, policy, and billing requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
+One-time: GitHub CLI, gh-aw (`gh extension install github/gh-aw`), GitHub Actions, and an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**. Enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Keep `copilot-requests: write`; inference uses the built-in Actions token, not a PAT. Personal plans alone are insufficient. See [eligibility and billing](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements), including eligible enterprise Copilot access.
 
-GitHub Actions, gh-aw, and Copilot inference access. Live mode additionally requires an existing Azure resource-group deployment, OIDC federation, and a dedicated identity with only the Azure Reader role at the resource group scope. Offline helper tests need Node.js 24, not credentials.
+Azure requires an existing resource-group deployment and a GitHub OIDC federated identity restricted to this repository and approved branch. Give it **Reader only, scoped to the target resource group**, and verify no inherited write roles. No client secret is needed.
 
 ## Setup
 
-1. Copy [azure-deployment-investigator.md](azure-deployment-investigator.md) from this folder to `.github/workflows/azure-deployment-investigator.md` in your repository. Copy both files from [`../shared/`](../shared/) to `.github/workflows/shared/`, the complete `scripts/blueprints/` directory to the same path, and this blueprint directory to `blueprints/azure-deployment-investigator/`. Keep these on your trusted default branch. See [shared setup](../../docs/running-workflows.md).
-2. Install gh-aw and run `gh aw compile azure-deployment-investigator` in your repository; review and commit the generated lock there. The compiler may warn that a safe update introduces `azure/login`; inspect the action version and OIDC trust configuration, verify the identity is limited to Reader at the target resource group, and review the change before approving it. The example uses no new secret. Do not blindly bypass safe-update warnings.
-3. Retain `copilot-requests: write` in the installed main workflow and enable Copilot CLI organisation billing as described in [shared setup](../../docs/running-workflows.md). No PAT secret is needed.
-4. Run with `sample: true` first: no Azure login occurs, but Copilot inference is still required.
-5. For live use, configure an Azure application or managed identity with a GitHub OIDC federated credential restricted to this repository and approved branch. Do not use a client secret.
-6. Set repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`.
-7. Grant only Reader at the relevant resource group, and verify that identity has no inherited write roles. The workflow grants `id-token: write` for login, not Azure mutation authority.
-8. If using a protected GitHub environment, explicitly add it to the job and align the federated credential subject. No environment is assumed by default.
+1. Copy only [azure-deployment-investigator.md](azure-deployment-investigator.md) to `.github/workflows/azure-deployment-investigator.md` in your repository. All collection is inline; no external scripts, imports, or JSON configuration are needed.
+2. Configure OIDC as above and repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`. If adding a protected environment, align the job and federated credential subject explicitly; none is assumed.
+3. Customise instructions directly in the Markdown and run `gh aw compile azure-deployment-investigator`. Inspect action versions, identity scope, and any compiler safe-update proposals rather than blindly accepting or bypassing them.
+4. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after source edits.
+
+`id-token: write` enables federation, not Azure write authority. Keep organisation-billed Copilot authentication separate from Azure identity. See [optional details](../../docs/running-workflows.md).
 
 ## Run It
 
-Open **Actions → Azure Deployment Investigator → Run workflow** on the default branch.
+Open **Actions → Azure Deployment Investigator → Run workflow** on the default branch. Supply both required inputs:
 
-- **Sample:** leave `sample: true` (the default); Azure fields can be empty. This still invokes Copilot.
-- **Live:** set `sample: false`; enter `resource_group` and `deployment_name`. Subscription comes from the repository variable.
+```text
+resource_group: example-test-rg
+deployment_name: example-deployment
+```
 
-See [example field values](examples/input.md) and [illustrative report](examples/output.md). Download the report artifact for the full result; it is retained for seven days. The native run summary is not the complete report. No Azure change is made.
+Replace these illustrative names with an authorised existing deployment. Subscription comes from the repository variable. This workflow is manual-only; the role gate allows admin, maintainer, write, and triage.
+
+There is no sample flag. Read the [illustrative input](examples/input.md) and [output](examples/output.md) before an approved non-sensitive run. Download the report artifact for the full result.
 
 ## How It Works
 
-The trusted collector reads deployment status and at most 20 operations, along with fixed resource and activity diagnostics. It uses fixed Azure CLI argument lists and never constructs commands from model output. Resource lookup uses a collected ARM resource ID; activity lookup is capped at 20 events over 24 hours. An absent resource is returned as `ResourceNotFound` evidence. Authentication, permission, and unexpected query failures remain visible failures. The collector logs out before Copilot starts, so the agent cannot query Azure or initiate further diagnostics.
+Trusted fixed commands inside the workflow collect the deployment, **at most 20 operations**, optional metadata for **one in-scope failed resource**, and resource-group activity from the **last 24 hours, at most 20 events**. Resource selection comes from collected deployment evidence, not model output. Authentication, permissions, unexpected query failures, and inaccessible evidence remain explicit; they are not converted into success or assumed missing resources.
 
-The agent separates facts, hypotheses, limitations, and recommendations from the collected evidence. Messages are bounded; not all deployment evidence or older activity is inspected. The deterministic report helper validates the response and produces the artifact.
+Azure logs out before inference. The agent can only `cat /tmp/gh-aw/azure/*` to read prepared evidence and use the native edit tool to write `/tmp/gh-aw/report.md`. It has no GitHub or Azure CLI access, Azure credentials, checkout, or model-selected diagnostic execution.
+
+Safe-output upload allowlists that one report with seven-day retention. The report is advisory Markdown, not machine-validated JSON or proof of root cause. Collection limits and missing/truncated evidence must constrain claims.
 
 ## Guardrails
 
-- **Access:** scoped deployment, operation, resource metadata, and activity-log reads.
-- **Actions:** bounded read-only collection before inference and report generation only.
-- **Approval:** the operator validates findings and performs any approved remediation outside this workflow.
-- **Never automatic:** deploy, modify, restart, delete, or change roles.
-- **Credentials:** Azure OIDC is used only by the collector, which logs out before the agent step. Copilot inference uses gh-aw's native authentication. No Azure client secret is needed.
-- **Data handling:** collected evidence is sent to Copilot. Upload is limited to the two report files with seven-day retention; use synthetic or approved non-sensitive evidence.
+- **Access:** trusted scoped deployment, operation, optional resource metadata, and activity-log reads before inference.
+- **Actions:** read-only collection and one report; no deploy, modify, restart, delete, role changes, GitHub comments, labels, merges, releases, or other external writes.
+- **Approval:** operators verify hypotheses and perform approved remediation outside this workflow.
+- **Credentials:** OIDC only in trusted collection, logout before inference, no Azure client secret or PAT.
+- **Trust:** collected messages are untrusted evidence, not executable instructions.
+- **Data handling:** selected diagnostics go to Copilot. Review artifact/log access and retention before using sensitive resource details.
 
 ## Customise It
 
-Change the diagnostics only by updating the deterministic collector with fixed read-only commands and tests. The Copilot agent may select which already-collected evidence supports its hypothesis; it does not select or run diagnostics. Do not broaden roles to make remediation automatic. Sample mode uses synthetic evidence and does not log in to Azure.
+Edit instructions directly in the workflow Markdown. Change diagnostics only through reviewed fixed read-only inline commands with the same scope and collection limits. Never let the agent choose commands or broaden identity roles to enable remediation.
 
 ## Challenge
 
-Add a read-only diagnostic for one resource type, with tests rejecting unsupported actions and a sample result illustrating missing evidence.
+Compare two approved deployment reports and identify which hypothesis needs an operator's additional evidence. Do not expand permissions or turn a recommendation into automatic remediation.

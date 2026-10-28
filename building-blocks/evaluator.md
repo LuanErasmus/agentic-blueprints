@@ -22,4 +22,4 @@ Retries can repeat side effects. Retry only operations known to be safe to repea
 
 ## Demonstrated by
 
-The Azure Deployment Investigator evaluates a selected read-only diagnostic result. Issue Triage validates source IDs and label names. PR Confidence calculates a deterministic weighted score and withholds it when evidence is insufficient. Model-based evaluation can still be wrong; a maintainer validates the final analysis before taking action.
+The Azure Deployment Investigator interprets fixed read-only diagnostic results. Issue Triage checks relevant issue context and existing label names before recommending a next step. PR Confidence provides an AI-assessed advisory weighted index, withholding the total with fewer than three known dimensions. These Markdown assessments are not machine-validated metrics; a maintainer checks evidence, interpretation, and arithmetic before taking action.

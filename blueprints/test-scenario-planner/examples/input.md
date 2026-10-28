@@ -15,4 +15,4 @@ Lock expiry and simultaneous attempts have not been tested.
 A supplied guidance excerpt prefers clock-controlled unit tests for time-based domain rules.
 The sample does not contain a live check run or the complete authentication implementation.
 
-For an issue run, put the same behaviour and acceptance criteria in an issue and use its number. The trusted evidence helper detects the source kind through the issue API.
+For an issue run, put the same behaviour and acceptance criteria in an issue and use its real number. The workflow resolves the number's actual issue/PR kind with native read-only GitHub tools. This filled-in template is not executable synthetic dispatch data; there is no sample flag. Link existing readable scenario-level results and their revision when available; no custom JSON report schema is needed.

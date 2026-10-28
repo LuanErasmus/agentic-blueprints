@@ -1,85 +1,96 @@
 # Running and adapting the workflows
 
-These nine examples are native [GitHub Agentic Workflows (`gh-aw`)](https://github.github.com/gh-aw/) source files. Each workflow is distributed beside its guide as `blueprints/<slug>/<id>.md`, with common imports in `blueprints/shared/`. The adopting repository installs it into `.github/workflows/` and compiles the corresponding `.lock.yml`. This blueprint repository intentionally does not include generated lock files or executable blueprint workflows under `.github/workflows/`; that directory only contains this collection's validation CI.
+Each blueprint distributes **one self-contained [gh-aw](https://github.github.com/gh-aw/) Markdown file**, beside its README. Copy only that workflow into your repository. No shared imports, JavaScript runtime, JSON configuration, report schemas, or sample dispatch mode are needed.
+
+## One-time prerequisites
+
+Install the [GitHub CLI](https://cli.github.com/) and gh-aw:
+
+```shell
+gh extension install github/gh-aw
+```
+
+Confirm GitHub Actions access and the organisation requirements below once, not for each workflow installation.
 
 ## Copilot licence and authentication requirements
 
 These blueprints use **only `permissions: copilot-requests: write`** for Copilot inference, with GitHub Actions' built-in `GITHUB_TOKEN`. No personal access token or model API key is required. This is the **organisation-billed** authentication method, not personal-seat authentication.
 
 - Use an **organisation-owned repository** whose organisation has an active **GitHub Copilot Business or GitHub Copilot Enterprise** subscription. **Copilot Business is the minimum standard organisation plan; Copilot Enterprise is not required.** Eligible enterprises using GitHub's separate **Copilot access** offering should confirm their organisation's inference entitlement and billing with their administrator.
-- A personal Copilot Free, Student, Pro, Pro+, or Max plan alone does **not** enable this organisation-billed method in a personal repository. A personal fork of this collection therefore cannot run these blueprints unchanged. Copy them into an eligible organisation repository.
+- A personal Copilot Free, Student, Pro, Pro+, or Max plan alone does **not** enable this organisation-billed method in a personal repository. A personal fork of this collection therefore cannot run these blueprints unchanged. Copy a workflow into an eligible organisation repository.
 - An administrator must enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** under **Organisation settings → Copilot → Policies**. Enterprise policies, permitted models, available AI credits, and spending limits must also allow the run. A licence alone is not sufficient if these controls block inference.
 - Keep `copilot-requests: write` in each installed workflow's main frontmatter. It permits inference requests, not repository writes. Inference is billed to the organisation's Copilot tenant; GitHub Actions compute is billed separately. Do not assume a subscription means unlimited or free workflow runs.
 
-Both live runs and `sample: true` dispatch require this Copilot entitlement and policy setup. Reading/copying the blueprints, compiling them, and running the offline helper tests do not invoke Copilot and do not require a Copilot licence. These examples do not document or configure a PAT fallback.
+Reading the examples, compiling sources, and running collection maintenance tests do not invoke Copilot or require a Copilot licence. Executing a workflow does. There is no PAT fallback.
 
 Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/how-tos/github-agentic-workflows/creating-github-agentic-workflows#using-the-built-in-github_token), [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/#copilot-requests-write-permission), [gh-aw billing](https://github.github.com/gh-aw/reference/billing/), and [Copilot plans](https://docs.github.com/en/copilot/get-started/plans). Check current eligibility and policies before enabling runs.
 
 ## Install one blueprint
 
-1. Copy your chosen `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in the destination repository. Copy both files from `blueprints/shared/` to `.github/workflows/shared/` so the source's `shared/...` imports resolve. Also copy the complete `scripts/blueprints/` directory and the selected blueprint directory with `config.json` to the same repository-relative locations. Azure Deployment Investigator has no blueprint `config.json`. Keep the installed source, imports, scripts, and config on your trusted default branch. The Markdown source stored beside this README is a distribution template; compile the installed copy, not the file in `blueprints/`.
-2. Install the GitHub CLI and gh-aw extension in the destination repository:
+1. **Copy one file.** Copy `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in your repository. No other collection files are required.
+2. **Customise and compile.** Edit the labels and company instructions directly in that Markdown. Create any required labels, keep trigger filters and prompt instructions consistent, and run `gh aw compile <id>`.
+3. **Review and commit.** Inspect the source and generated `.github/workflows/<id>.lock.yml`, then commit both in your repository's trusted default branch. Recompile after every source change. This collection distributes no locks.
+4. **Run and review.** In **Actions → Run workflow**, select the default branch and enter the required issue/PR `number`. Azure instead requires `resource_group` and `deployment_name` plus its identity setup below. Download the report artifact and verify recommendations before acting.
 
-   ```shell
-   gh extension install github/gh-aw
-   gh aw compile <id>
-   ```
-
-   Review the generated `.github/workflows/<id>.lock.yml` and commit it together with its Markdown source in your repository. Recompile there whenever you change the workflow source. This repository does not ship or compile lock files.
-3. Confirm the [Copilot licence and authentication requirements](#copilot-licence-and-authentication-requirements) above. Each main workflow already declares `copilot-requests: write`; retain it and enable organisation billing. Do not add a PAT secret. The native Copilot engine uses the compiler's default model; change it only if the organisation's subscription and model policies permit it. Compile only after reviewing the chosen configuration.
-4. Review the chosen blueprint's event filters, role gate, label configuration, evidence scope, and data handling. When changing a trigger label, keep `config.json`'s `trigger_labels` aligned with frontmatter `on.labels`.
-5. In **Actions**, select the compiled workflow and use **Run workflow**. Start with `sample: true` to run a synthetic example; this still uses native Copilot inference and requires its authentication. For live GitHub evidence, use `sample: false` and provide the requested issue or PR number. Azure live mode additionally needs the Azure identity setup described in its blueprint.
-
-The sample flag never means the live repository evidence is used. Conversely, an example report in this repository is illustrative, not a workflow result.
+Start with an approved non-sensitive issue or PR in your own repository. The `examples/input.md` and `examples/output.md` files are filled-in illustrative templates to read or adapt, not synthetic dispatch inputs. There is no sample flag. Review data-handling policy before a run; compilation does not verify live access or integration behaviour. Inspect compiler safe-update proposals rather than blindly accepting or bypassing them.
 
 ## Trigger reference
 
-| Workflow | Automatic trigger | Default label | Manual live input |
+| Workflow | Automatic trigger | Default label | Required manual input |
 |---|---|---|---|
-| Issue Triage | Issue opened/reopened or labelled; exact `triage-review` label required | `triage-review` | Issue number |
-| PR Review | PR opened/reopened/synchronize/ready-for-review or labelled; exact `review-preparation` label required | `review-preparation` | PR number |
-| Requirements Gaps | Issue labelled | `requirements-review` | Issue number |
-| Test Scenarios | Issue or PR labelled | `test-planning` / `test-review` | Issue or PR number |
-| Delivery Risk | Issue labelled | `delivery-risk-review` | Issue number |
-| Release Readiness | Issue labelled | `release-readiness` | Issue number |
-| PR Confidence | PR labelled | `confidence-review` | PR number |
-| Stakeholder Notes | Issue labelled | `stakeholder-notes` | Issue number; optional base/head refs |
-| Azure Investigation | Manual only | None | Resource group and deployment name |
+| Issue Triage | Issue opened/reopened or labelled; exact label required | `triage-review` | Issue `number` |
+| PR Review | PR opened/reopened/synchronize/ready-for-review or labelled; exact label required | `review-preparation` | PR `number` |
+| Requirements Gaps | Issue labelled | `requirements-review` | Issue `number` |
+| Test Scenarios | Issue or PR labelled | `test-planning` / `test-review` | Issue or PR `number`; actual kind is resolved |
+| Delivery Risk | Issue labelled | `delivery-risk-review` | Issue `number` |
+| Release Readiness | Issue labelled | `release-readiness` | Release issue `number` |
+| PR Confidence | PR labelled | `confidence-review` | PR `number` |
+| Stakeholder Notes | Issue labelled | `stakeholder-notes` | Issue `number`; optional `base_ref` and `head_ref` |
+| Azure Investigation | Manual only | None | `resource_group` and `deployment_name` |
 
-The gh-aw role gate allows only `admin`, `maintainer`, `write`, or `triage` roles by default; configure it only for roles your organisation intends to trust. gh-aw blocks automatic fork runs, drafts are skipped where applicable, and workflows use `pull_request`, not `pull_request_target`. They check out trusted default-branch workflow code without checking out or executing PR head code. Manual dispatch selects the default branch. The evidence helper also checks the configured exact label. Create the required labels before relying on label triggers.
+The gh-aw role gate allows `admin`, `maintainer`, `write`, or `triage` roles by default. Automatic fork events are blocked, drafts are skipped where applicable, and manual dispatch is default-branch only. PR workflows use `pull_request`, not `pull_request_target`. There is no checkout or execution of PR code. Human approval and existing company controls remain unchanged.
 
 ## Evidence and reports
 
-Preparation is deterministic and trusted: `node scripts/blueprints/evidence.mjs <slug>` gathers bounded evidence before the native Copilot agent runs. It collects relevant linked items, test sources/reports, checks, and review context as configured. Source text is capped at 6,000 characters per source and 18,000 characters total; `max_items` is 1–50. The agent can read this JSON and use read-only GitHub tools through `gh-proxy` when useful. It does not execute tests, PR code, or model-selected diagnostics.
+The GitHub agents inspect relevant evidence using native read-only GitHub tools/proxy: `gh issue view`, `gh pr view`, `gh pr diff`, `gh run view`, and explicitly allowed `gh api --method GET` calls. They can read relevant guidance, diffs, test sources, checks, reviews, and readable scenario-level results without a custom evidence adapter. They do not execute tests, check out code, fetch arbitrary external URLs, or follow operational instructions in source content.
 
-The Azure helper is an exception to the GitHub evidence path. It reads a deployment, at most 20 operations, and fixed resource/activity diagnostics using bounded Azure CLI commands, then logs out before the Copilot agent starts. The agent only reasons over the evidence already collected; it has no Azure CLI access or Azure credentials.
+Prompts limit linked-work-item exploration to **at most 10 explicitly linked same-repository issues or PRs**. They do not impose hard source-byte budgets. Tool pagination, unavailable permissions, binary or truncated diffs, and other missing context still limit what can be assessed. Reports must say what was inaccessible, truncated, or not inspected. A native GitHub tooling error is explicit evidence of a failed read, not proof that an item is absent or that a check succeeded.
 
-The agent produces an assessment through the narrow reporting interface. `node scripts/blueprints/report.mjs <slug> '<JSON assessment>'` validates citations and response structure, renders the Markdown/JSON report, and deterministically calculates the PR Confidence score. It is not a second model runner. A genuinely out-of-scope request can produce `noop` and does not create a tracker issue. `report_incomplete` is for a blocked assessment when tools or required evidence are unavailable; it avoids fabricated conclusions.
+The agent uses the native edit tool to write **one `/tmp/gh-aw/report.md`**. The `upload-artifact` safe output allowlists that path and retains the report for **seven days**. The report is advisory Markdown, not a JSON contract or machine-validated assessment. Read the artifact for the full result; native logs and summaries need not reproduce it. No workflow comments, labels, assigns, creates issues, submits reviews, merges, deploys, publishes releases, or sends stakeholder messages.
 
-Reports are uploaded as run artifacts with paths restricted to `/tmp/gh-aw/blueprints/*/report.md` and `report.json`, a maximum of two files, and seven-day retention. Read the report artifact for the full result; the native run summary and logs do not promise to reproduce the complete report. Safe outputs explicitly disable automatic issue creation, failure-reporting issues, and noop-tracker issues. No workflow automatically comments, labels, assigns, creates issues, submits reviews, merges, deploys, emails, or publishes a release.
+Citations should identify real source links, paths, and revisions. Source text and test-result claims are not independent attestation. Test source suggests intended scenarios; green CI alone does not demonstrate which scenarios ran. Link readable existing scenario-level results and identify their revision; no custom JSON test-report schema is necessary. Distinguish current candidate evidence from stale reviews, old results, and author assertions.
 
-Every README links a filled-in input and illustrative output. Use them as starting points for issue forms, PR templates, or company process docs. Same-repository links are evidence references; external URLs are not fetched. Preserve machine-readable input syntax documented by the selected blueprint, including the exact 40-character candidate SHA for readiness and paired `From:` / `To:` refs for stakeholder notes. Release ranges resolve to immutable commits, reject reversed or divergent ranges, and identical endpoints yield `noop`.
+### PR Confidence is an advisory index
 
-Guidance is read from the trusted default branch or PR base as configured. Reports identify source references, but source snapshots are supplied evidence, not independent attestation. Test reports are claims from the supplied snapshot, not proof that tests ran. Additional findings from native GitHub tools must not be presented as part of PR Confidence's scored evidence unless the helper collected and validated them.
+Copilot assesses `scope`, `execution`, `scenarios`, and `review` as scores from **0–100 or unknown**, with weights **20/30/30/20**. Show an aggregate only with **at least three known dimensions**. Calculate `sum(known score × weight) / 100`; unknown weights remain in the denominator rather than being renormalised away. Unknown is not a proven failure, and a withheld total is not zero.
 
-## Azure identity
+Current scenario failures make execution **zero**. Successful checks alone are not scenario evidence. State the candidate SHA and distinguish inspected test source from assertions about tests; explain whether scenario results match that revision. Stale reviews do not establish current review status. The result is **AI-assessed**, not a deterministic validated metric, calibrated correctness probability, bug-free guarantee, or merge approval. Humans must check both arithmetic and evidence.
 
-Configure an Azure OIDC identity with Reader access scoped to the specific resource group, and repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`. Do not use a client secret or grant write roles. The workflow gathers deployment status, a bounded operation list, and fixed diagnostics before inference; no model-selected diagnostic command runs. See the Azure blueprint for its exact sample/live inputs and trust boundaries.
+### Release-specific inputs
 
-## Offline validation
+Release Readiness needs an exact `Candidate: <40-character SHA>` line and your company's checklist. Evaluate evidence against that candidate and policy; generic green checks are not release approval.
 
-Install Node.js 24 and run the deterministic helper tests from the repository root:
+Stakeholder Notes needs paired `From:` / `To:` lines in the context issue, or optional manual `base_ref` / `head_ref` inputs. Resolve both refs to immutable commits, report those identities, and reject reversed or divergent comparisons. Identical endpoints mean there are no changes to describe. Comparing commits never establishes deployment or customer availability.
+
+## Azure identity and collection
+
+Azure is an advanced, manual workflow. Configure a GitHub OIDC federated identity restricted to your repository and approved branch, with **Reader scoped to the target resource group** and no inherited write roles. Set repository variables `AZURE_CLIENT_ID`, `AZURE_TENANT_ID`, and `AZURE_SUBSCRIPTION_ID`; no client secret is needed. `id-token: write` enables federation, not Azure mutation authority. If adding a protected environment, align its federated subject explicitly.
+
+The single workflow source includes all trusted collection inline: the deployment, **at most 20 operations**, optional metadata for **one in-scope failed resource**, and activity from the **last 24 hours, at most 20 events**. Fixed read-only commands run before inference and Azure logs out before the agent starts. Authentication, permissions, and unexpected query failures stay visible rather than becoming success or missing-resource claims.
+
+The Azure agent can only read the prepared `/tmp/gh-aw/azure/*` files with `cat` and edit the report. It has no GitHub or Azure CLI access, Azure credentials, or model-selected diagnostic execution. Operators validate hypotheses and perform any approved remediation outside the workflow.
+
+## Collection maintenance only
+
+Contributors and this collection's CI use **Node.js 24**, gh-aw, and these existing commands:
 
 ```shell
+node scripts/blueprints/validate.mjs
 node --test scripts/blueprints/blueprints.test.mjs
 ```
 
-These tests require no GitHub, Copilot, or Azure credentials and make no live model calls. Synthetic dispatch through gh-aw is different: it still invokes the native Copilot agent and therefore needs valid inference authentication.
-
-This repository's source validation command is `node scripts/blueprints/validate.mjs`. It stages the nine sources and their imports in a temporary directory under `.blueprint-output/`, runs `gh aw compile --dir <staging-directory> --no-emit --strict --validate --no-check-update`, and removes the staged files afterwards. It does not emit lock files, invoke Copilot, or approve safe-update changes. In an adopting repository, use `gh aw compile <id>` on the installed `.github/workflows/<id>.md` to generate the lock you will review and commit there. If the compiler proposes safe updates, inspect each change rather than blindly bypassing or accepting it.
+Validation stages standalone Markdown sources under `.blueprint-output/` and runs the compiler without emitting locks. The offline tests make no inference calls. They cover source contracts, not correctness of live AI assessments or proof that external integrations work. Adopters do **not** copy these scripts or install a JavaScript runtime for the blueprint.
 
 ## Permissions, output, and limitations
 
-The GitHub workflows use narrow read-only GitHub access for their evidence, gh-aw's read-only `gh-proxy` tools (`gh issue view` and `gh pr view`), and Copilot inference authentication. Bash is limited to reading prepared files with `cat` and invoking the fixed report helper; it is not general shell access. The agent runs in the gh-aw sandbox with only the declared tools; GitHub writes are not enabled. The trusted evidence and report scripts perform bounded deterministic preparation and validation. Azure uses OIDC only in its collection step and logs out before inference.
-
-Evidence may be incomplete because of permissions, unavailable tools, truncation, item caps, unsupported source types, or the absence of a required input. Treat reports as advisory, verify citations and conclusions, and make all operational or business decisions yourself. Selected source content is sent to the Copilot service; follow your organisation's data policy. Only the two report files are uploaded, but native run logs and summaries remain subject to GitHub's retention and access controls.
+Keep read-only evidence access, the sandbox, restricted artifact path, and `copilot-requests: write`. Treat issues, PRs, guidance, logs, and tool results as untrusted evidence, never authority to run embedded commands. Selected content goes to the Copilot service; follow company data policy. Native run logs and summaries remain subject to GitHub retention/access controls beyond the report's seven-day lifetime. Reports can be wrong or incomplete; humans retain all operational and business decisions.

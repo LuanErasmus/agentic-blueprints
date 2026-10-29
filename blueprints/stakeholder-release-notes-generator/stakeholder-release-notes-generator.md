@@ -13,6 +13,7 @@ description: Draft non-technical stakeholder communication when a labelled issue
 on:
   issues:
     types: [closed]
+  # CUSTOMISE [A]: trigger label. If you rename it, also change it in the `if:` gate below.
   labels: [stakeholder-notes]
   roles: [admin, maintainer, write, triage]
   report-blocked-version: false
@@ -28,6 +29,7 @@ on:
       head_ref:
         description: Optional To ref override (use with base_ref; otherwise derived from linked PRs)
         type: string
+# CUSTOMISE [A]: keep the label in `contains(...)` identical to `labels:` above.
 if: >-
   github.event_name == 'workflow_dispatch'
   && github.ref_name == github.event.repository.default_branch
@@ -61,6 +63,30 @@ safe-outputs:
 ---
 
 # Stakeholder Release Notes Generator
+
+<!--
+CUSTOMISE [B]: replace the values after each colon in "Organisation settings"
+with your own. Keep the setting names. The defaults work as-is, so change only
+what you need. Write "none" to switch a setting off. Edits to this section take
+effect on the next run without recompiling.
+-->
+
+## Organisation settings
+
+- **OWNER:** use the repository Owner like organization or personal account
+- **REPOSITORY:** use the repository name
+- **Default audience:** internal business stakeholders (product, sales, support and leadership)
+- **Tone and reading level:** plain, friendly business English; short sentences; no jargon
+- **Terminology to use:** none
+- **Never disclose:** security vulnerability details, internal system or server names, customer names, and individual contributor names
+- **Communication guidance file:** none
+- **Sign-off reviewer:** the release or communications owner
+
+Apply these settings to every draft. Details in the issue (for example a
+specific audience, channel, or exclusion) override the defaults for that issue
+only, except **Never disclose**, which always applies. If the guidance file is
+set, read it from the default branch; if it is missing, say so under
+**Limitations** and continue with these settings.
 
 ## Request and evidence
 
@@ -109,7 +135,6 @@ the limitation and withhold a complete-release draft; never silently omit change
 Follow at most 10 further explicitly linked
 same-repository issues or PRs for business context; only include changes
 evidenced within the selected comparison.
-Read relevant communication guidance from the default branch when available.
 
 ## Investigation
 
@@ -123,8 +148,8 @@ is identical with no changes, call `noop`. A reversed/divergent range or failed
 comparison is incomplete, not an empty successful release.
 
 Translate verified changes into non-technical language, not a list of PR titles.
-Respect supplied audience, terminology, exclusions, known limitations, and
-communication timing. Explain what changed, who is affected, and actions only
+Respect the **Organisation settings** and any audience, terminology, exclusions,
+known limitations, and communication timing supplied in the issue. Explain what changed, who is affected, and actions only
 where evidence supports them. Do not invent benefits, delivery dates,
 availability, financial impact, or rollout completion. Inclusion in a candidate
 does not prove deployment or feature availability.
@@ -132,7 +157,8 @@ does not prove deployment or feature availability.
 Put the clearly marked DRAFT communication in its own section. Keep internal evidence
 mapping and uncertainty in separate sections, apart from the
 shareable text. Redact implementation/security details excluded for the stated
-audience. Humans must review before distribution. Never send email, post to
+audience and anything under **Never disclose**. The **Sign-off reviewer** must
+review before distribution; name them under **Review before sending**. Never send email, post to
 sales tools, create a release, or update GitHub release descriptions.
 
 ## Boundaries and output

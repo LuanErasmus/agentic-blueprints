@@ -28,8 +28,10 @@ Use an issue that describes the release context (audience, intended channel, ava
 ## Setup
 
 1. Copy only [stakeholder-release-notes-generator.md](stakeholder-release-notes-generator.md) to `.github/workflows/stakeholder-release-notes-generator.md` in your repository.
-2. Edit audience/company instructions directly in the Markdown, create `stakeholder-notes` (or align filters and instructions), and run `gh aw compile stakeholder-release-notes-generator`.
-3. Review and commit source plus generated `.lock.yml` on your trusted default branch. Recompile after edits.
+2. Create the `stakeholder-notes` label in your repository (**Issues → Labels → New label**), or pick your own name and change it in step 3.
+3. Open the copied file and edit the places marked `CUSTOMISE` (see [Customise It](#customise-it)). The defaults work as-is, so you can skip this on a first try.
+4. Run `gh aw compile stakeholder-release-notes-generator`.
+5. Review and commit the source plus the generated `.lock.yml` on your trusted default branch.
 
 No shared files, runtime scripts, JSON configuration, or report schemas are required. See [optional details](../../docs/running-workflows.md).
 
@@ -72,7 +74,32 @@ The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts o
 
 ## Customise It
 
-Edit labels, vocabulary, guidance references, disclosure restrictions, and approval expectations directly in the workflow Markdown. To rename the label, change it in both `labels:` and the `if:` gate (on `closed` events the `labels:` filter alone does not check the issue's labels). Keep filters and instructions consistent; preserve immutable scope resolution and human approval.
+Everything you need to change is marked `CUSTOMISE` in the workflow file. There are two places.
+
+**[A] Trigger label (frontmatter, at the top between the `---` lines).** Change it in both places, then run `gh aw compile` again:
+
+| What | Where in the file | Default |
+|------|-------------------|---------|
+| Label that starts a run | `labels: [stakeholder-notes]` | `stakeholder-notes` |
+| Same label in the start condition | `contains(github.event.issue.labels.*.name, 'stakeholder-notes')` in `if:` | `stakeholder-notes` |
+
+Both must match. On close events the `labels:` filter alone does not check the issue's labels, so the `if:` condition does the real check.
+
+**[B] Organisation settings (the `## Organisation settings` list under the title).** Replace the text after each colon and keep the bold setting names. Write `none` to switch a setting off. You do not need to recompile after editing this section.
+
+| Setting | What it controls | Default | Example |
+|---------|------------------|---------|---------|
+| Organisation / product name | Name used in the draft | the repository name | `Contoso Payments` |
+| Default audience | Who the notes are written for | internal business stakeholders | `customer success managers and key account owners` |
+| Tone and reading level | Writing style | plain, friendly business English | `formal; suitable for external customers` |
+| Terminology to use | Preferred words for your products and features | `none` | `say "workspace", not "tenant"; say "Contoso Pay", not "payments-api"` |
+| Never disclose | Topics always left out, even if the issue asks | security details, internal system names, customer and contributor names | add `pricing` or `unreleased roadmap items` |
+| Communication guidance file | A style guide in your repository the agent reads | `none` | `docs/communication-guidelines.md` |
+| Sign-off reviewer | Who must approve the draft before it is shared | the release or communications owner | `@contoso/product-marketing` |
+
+Audience, channel, and exclusions written in an issue override these defaults for that issue only. **Never disclose** always applies.
+
+Do not change the range resolution or the read-only and human-approval rules.
 
 ## Challenge
 

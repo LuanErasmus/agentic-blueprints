@@ -53,7 +53,7 @@ safe-outputs:
     max-uploads: 1
     retention-days: 7
     max-size-bytes: 1048576
-    allowed-paths: [/tmp/gh-aw/report.md]
+    allowed-paths: [report.md]
 ---
 
 # PR Confidence Calculator
@@ -118,8 +118,10 @@ or edit repository files. Do not comment, submit reviews, approve, merge, or
 deploy. Permission/API errors must be reported explicitly, never treated as
 success. If the PR cannot be retrieved, use native missing-data/tool reporting.
 
-Use the edit tool to write `/tmp/gh-aw/report.md` with **Summary**,
+Use the edit tool to write `report.md` in your working directory (the
+empty workspace; nothing is checked out) with **Summary**,
 **Candidate SHA**, **Dimension evidence and weights**, **Calculation**,
 **Limitations**, and **Next steps**. State missing/truncated evidence and
 candidate-specific failures, not just passing results. Upload only that file
-with `upload_artifact`. A human checks the evidence and makes the merge decision.
+with `upload_artifact` using path
+`report.md`. A human checks the evidence and makes the merge decision.

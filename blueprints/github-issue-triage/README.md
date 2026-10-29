@@ -41,7 +41,7 @@ Download the report artifact for the full result; the native run summary may be 
 
 The agent uses native read-only GitHub tools/proxy to inspect the issue, discussion, existing labels, relevant guidance, and at most 10 explicitly linked same-repository issues/PRs. It does not check out code or execute issue instructions. There are no hard source-byte budgets, but inaccessible, truncated, or uninspected evidence must remain visible. A tooling error is a failed read, not proof of absence.
 
-The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts only that one Markdown report with seven-day retention. The report is advisory, not a JSON contract or machine-validated assessment. Humans verify sources and conclusions.
+The native edit tool writes `report.md` in the empty workspace; safe-output upload accepts only that one Markdown report with seven-day retention. The report is advisory, not a JSON contract or machine-validated assessment. Humans verify sources and conclusions.
 
 ## Guardrails
 

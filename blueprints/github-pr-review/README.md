@@ -43,7 +43,7 @@ Adapt the [PR input template](examples/input.md) and read the [illustrative outp
 
 Native read-only GitHub tools/proxy inspect relevant metadata, diffs, guidance at the base revision, test sources, checks, discussion, and reviews. Follow at most 10 explicitly linked same-repository issues/PRs. Source and check names do not prove which scenarios executed; link readable scenario-level results with their revision when available.
 
-There are no hard source-byte budgets. Missing, binary, inaccessible, or truncated patches constrain conclusions and must be reported. Tool errors do not establish absence or success. The native edit tool writes one `/tmp/gh-aw/report.md`; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON.
+There are no hard source-byte budgets. Missing, binary, inaccessible, or truncated patches constrain conclusions and must be reported. Tool errors do not establish absence or success. The native edit tool writes one `report.md` in the empty workspace; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON.
 
 ## Guardrails
 

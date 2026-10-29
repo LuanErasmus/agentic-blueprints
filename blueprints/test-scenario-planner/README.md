@@ -44,7 +44,7 @@ Native read-only GitHub tools/proxy inspect requirements, PR diffs, relevant gui
 
 State the candidate SHA and distinguish inspected test source from author assertions. Test code describes intended cases; a green check alone does not demonstrate which scenarios ran. Link readable existing scenario-level results with the revision they cover; no custom JSON format is necessary. A result for another revision is not current candidate evidence.
 
-There are no hard source-byte budgets. Inaccessible/truncated diffs, missing guidance/results, and tooling failures must constrain the assessment, not become success or absence claims. The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts only that one advisory Markdown report with seven-day retention. There is no machine-validated report contract.
+There are no hard source-byte budgets. Inaccessible/truncated diffs, missing guidance/results, and tooling failures must constrain the assessment, not become success or absence claims. The native edit tool writes `report.md` in the empty workspace; safe-output upload accepts only that one advisory Markdown report with seven-day retention. There is no machine-validated report contract.
 
 ## Guardrails
 

@@ -46,7 +46,7 @@ safe-outputs:
     max-uploads: 1
     retention-days: 7
     max-size-bytes: 1048576
-    allowed-paths: [/tmp/gh-aw/report.md]
+    allowed-paths: [report.md]
 ---
 
 # Delivery Risk Investigator
@@ -86,8 +86,10 @@ Permission/API errors must be reported explicitly, never treated as success.
 If the item is out of scope, use `noop` with the reason. If evidence cannot be
 retrieved, use the native missing-data/tool reporting output and stop.
 
-Use the edit tool to write `/tmp/gh-aw/report.md` with **Summary**, **Findings**,
+Use the edit tool to write `report.md` in your working directory (the
+empty workspace; nothing is checked out) with **Summary**, **Findings**,
 **Limitations**, and **Next steps**. For each risk show evidence URLs, status
 (confirmed blocker, potential risk, or unknown), business impact, and the next
 human decision. State missing or truncated evidence. Upload only that file
-with `upload_artifact`. The report does not change delivery commitments.
+with `upload_artifact` using path
+`report.md`. The report does not change delivery commitments.

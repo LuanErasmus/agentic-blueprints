@@ -50,7 +50,7 @@ There is no sample flag. Read the [illustrative input](examples/input.md) and [o
 
 Trusted fixed commands inside the workflow collect the deployment, **at most 20 operations**, optional metadata for **one in-scope failed resource**, and resource-group activity from the **last 24 hours, at most 20 events**. Resource selection comes from collected deployment evidence, not model output. Authentication, permissions, unexpected query failures, and inaccessible evidence remain explicit; they are not converted into success or assumed missing resources.
 
-Azure logs out before inference. The agent can only `cat /tmp/gh-aw/azure/*` to read prepared evidence and use the native edit tool to write `/tmp/gh-aw/report.md`. It has no GitHub or Azure CLI access, Azure credentials, checkout, or model-selected diagnostic execution.
+Azure logs out before inference. The agent can only `cat /tmp/gh-aw/azure/*` to read prepared evidence and use the native edit tool to write `report.md` in the empty workspace. It has no GitHub or Azure CLI access, Azure credentials, checkout, or model-selected diagnostic execution.
 
 Safe-output upload allowlists that one report with seven-day retention. The report is advisory Markdown, not machine-validated JSON or proof of root cause. Collection limits and missing/truncated evidence must constrain claims.
 

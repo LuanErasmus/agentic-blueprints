@@ -45,7 +45,7 @@ Native read-only GitHub tools/proxy inspect issue context, discussion, relevant 
 
 There are no hard source-byte budgets. Missing ownership is unknown, not proof nobody owns the work. Inaccessible/truncated evidence, exploration limits, and tool failures must be explicit; failed reads do not prove absence or success.
 
-The native edit tool writes one `/tmp/gh-aw/report.md`; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON or a forecast.
+The native edit tool writes one `report.md` in the empty workspace; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not machine-validated JSON or a forecast.
 
 ## Guardrails
 

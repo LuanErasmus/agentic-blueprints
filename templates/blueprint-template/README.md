@@ -40,7 +40,7 @@ GitHub event or required manual inputs → native read-only evidence inspection
 
 [Describe native read-only GitHub tools/proxy and relevant evidence, with at most 10 explicit same-repository linked issues/PRs and no checkout or PR code execution. No hard source-byte budgets. Report inaccessible/truncated evidence and tool errors rather than inferring absence or success. Cite real links/paths and revisions; do not imply assertions or AI findings are independently validated.]
 
-The native edit tool writes only `/tmp/gh-aw/report.md`; safe-output upload allowlists that one Markdown report with seven-day retention. The output is advisory, with no custom JSON contract or machine validation.
+The native edit tool writes only `report.md` in the empty workspace; safe-output upload allowlists that one Markdown report with seven-day retention. The output is advisory, with no custom JSON contract or machine validation.
 
 [For Azure, document fixed trusted inline collection limits, logout before inference, and agent access only to prepared files via `cat` plus report editing; no GitHub/Azure CLI access.]
 

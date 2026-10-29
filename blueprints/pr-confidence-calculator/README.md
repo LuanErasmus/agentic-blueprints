@@ -61,7 +61,7 @@ index = sum(known dimension score × its weight) / 100
 
 The denominator includes all weights, including unknown dimensions: do not renormalise. For example, scope 80, execution 70, scenarios 60, and review unknown give `(80×20 + 70×30 + 60×30) / 100 = 55`, not a score out of 80. The unknown review remains unknown, not a proven failure. A withheld total is not zero or approval. Assessments can vary between runs; no calibrated correctness guarantee exists.
 
-There are no hard source-byte budgets. Report inaccessible/truncated evidence, stale results, and tool errors explicitly; failed reads are not absence or success. The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload allows only that one advisory Markdown report with seven-day retention. There is no deterministic helper, JSON contract, or machine validation of the score.
+There are no hard source-byte budgets. Report inaccessible/truncated evidence, stale results, and tool errors explicitly; failed reads are not absence or success. The native edit tool writes `report.md` in the empty workspace; safe-output upload allows only that one advisory Markdown report with seven-day retention. There is no deterministic helper, JSON contract, or machine validation of the score.
 
 ## Guardrails
 

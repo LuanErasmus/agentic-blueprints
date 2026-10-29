@@ -52,7 +52,7 @@ Native read-only GitHub tools/proxy inspect the issue, company checklist, candid
 
 Link readable existing scenario-level results and state their revision; no custom JSON test-report schema is required. Distinguish inspected test source and actual results from author assertions. Green CI alone does not establish scenario execution, sign-off, rollout, or readiness. Missing policy means a question, not an invented required control.
 
-There are no hard source-byte budgets. Explicitly report inaccessible/truncated evidence, stale results, and tooling errors; failed reads are not proof of absence or success. The native edit tool writes one `/tmp/gh-aw/report.md`; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not a machine-validated readiness decision.
+There are no hard source-byte budgets. Explicitly report inaccessible/truncated evidence, stale results, and tooling errors; failed reads are not proof of absence or success. The native edit tool writes one `report.md` in the empty workspace; safe-output upload allowlists that path with seven-day retention. This is advisory Markdown, not a machine-validated readiness decision.
 
 ## Guardrails
 

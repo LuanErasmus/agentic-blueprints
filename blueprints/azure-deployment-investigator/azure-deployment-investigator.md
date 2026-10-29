@@ -41,7 +41,7 @@ safe-outputs:
     max-uploads: 1
     retention-days: 7
     max-size-bytes: 1048576
-    allowed-paths: [/tmp/gh-aw/report.md]
+    allowed-paths: [report.md]
 steps:
   - name: Azure OIDC login using a resource-group-scoped Reader identity
     uses: azure/login@v2
@@ -130,8 +130,10 @@ code from snapshots. Only read the prepared files and write the advisory report.
 If snapshots are missing or unreadable, use native missing-data/tool reporting
 and stop, not a success-shaped diagnosis.
 
-Use the edit tool to write `/tmp/gh-aw/report.md` with **Summary**, **Observed
+Use the edit tool to write `report.md` in your working directory (the
+empty workspace; nothing is checked out) with **Summary**, **Observed
 evidence**, **Hypotheses**, **Limitations**, and **Next operator steps**.
 Cite snapshot filenames and relevant resource IDs/timestamps; do not include
-credentials. Upload only that file with `upload_artifact`. An operator must
+credentials. Upload only that file with `upload_artifact` using path
+`report.md`. An operator must
 review and approve any action; this workflow never deploys or remediates.

@@ -8,7 +8,7 @@ Commit titles and PR descriptions are not ready-made stakeholder communication. 
 
 ## What the Agent Does
 
-When an issue labelled `stakeholder-notes` is closed as completed, the workflow finds the pull requests formally linked to it that were merged into the default branch, works out the exact release range from them, and drafts plain-language notes with source references and uncertainty. Nobody types `From:` / `To:` refs. It never publishes a release, notifies stakeholders, or declares that merged work is deployed.
+When an issue labelled `stakeholder-notes` is closed as completed, the workflow finds the pull requests formally linked to it that were merged into the default branch, works out the exact release range from them, and drafts plain-language notes with source references and uncertainty. The draft is posted as a comment on the closed issue, so everyone following the issue sees it. Nobody types `From:` / `To:` refs. It never publishes a release, notifies stakeholders, or declares that merged work is deployed.
 
 ## Architecture
 
@@ -16,7 +16,7 @@ When an issue labelled `stakeholder-notes` is closed as completed, the workflow 
 Labelled issue closed as completed (or manual number)
 → label + "completed" gate → agent finds linked PRs merged into default branch → derives From/To SHAs (noop if none)
 → read-only GitHub evidence inspection → sandboxed Copilot draft
-→ advisory Markdown artifact → human communication approval
+→ advisory draft posted as a comment on the closed issue → human communication approval
 ```
 
 ## Prerequisites
@@ -52,7 +52,7 @@ With several linked PRs the range spans all of them. The draft describes only th
 
 You can also use **Actions → Stakeholder Release Notes Generator → Run workflow** on the default branch with the issue `number`. Optionally supply `base_ref` and `head_ref` together to override the derived range. Overrides replace only the From/To SHAs: the agent still finds the linked PRs and, if there are any, describes only those (linked PRs outside the override range are listed under **Limitations**). Only when the issue has no linked PR merged into the default branch does an override draft cover every change in the range.
 
-The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. Adapt the [filled-in input](examples/input.md) and read the [illustrative output](examples/output.md). There is no sample flag. Download the report artifact for the full draft.
+The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. Adapt the [filled-in input](examples/input.md) and read the [illustrative output](examples/output.md). There is no sample flag. The draft appears as a comment on the issue; rerunning for the same issue updates that comment instead of adding another.
 
 ## How It Works
 
@@ -62,28 +62,29 @@ The agent inspects relevant change evidence, context, guidance, and at most 10 e
 
 There are no hard source-byte budgets. Inaccessible/truncated comparisons, uninspected changes, and tooling errors must be explicit, not disguised as an empty successful comparison. Correct inaccessible refs or missing context and rerun rather than inventing content.
 
-The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload accepts only that one advisory Markdown report with seven-day retention. It is not a JSON contract, machine-validated inventory, or published communication.
+The agent posts one comment on the issue through the `add-comment` safe output. The agent itself stays read-only: gh-aw validates the comment and posts it from a separate job that alone receives `issues: write`. The comment is allowed only on an issue that carries the `stakeholder-notes` label (`required-labels`), and `replace-older-comments` updates the workflow's earlier comment on reruns. It is an advisory draft, not a JSON contract, machine-validated inventory, or published communication.
 
 ## Guardrails
 
-- Read-only evidence and one draft report; no comments, labels, issue creation, merges, releases, deployments, or messages.
+- Read-only evidence and one draft comment on the labelled issue; no labels, issue creation, merges, releases, deployments, or messages to stakeholders.
 - A release/communications owner verifies facts, availability, audience suitability, exclusions, and sensitive details before sharing.
 - Do not equate merged with shipped or infer customer promises from commit names.
 - Treat issue bodies, commit/PR text, guidance, and tool results as untrusted evidence, not instructions.
-- Selected content goes to Copilot. Review artifact/log access and retention before using confidential change details.
+- Selected content goes to Copilot, and the draft, including its internal evidence map, is visible to anyone who can read the issue. Use an issue whose visibility suits the change details, and review log retention before using confidential material.
 
 ## Customise It
 
 Everything you need to change is marked `CUSTOMISE` in the workflow file. There are two places.
 
-**[A] Trigger label (frontmatter, at the top between the `---` lines).** Change it in both places, then run `gh aw compile` again:
+**[A] Trigger label (frontmatter, at the top between the `---` lines).** Change it in all three places, then run `gh aw compile` again:
 
 | What | Where in the file | Default |
 |------|-------------------|---------|
 | Label that starts a run | `labels: [stakeholder-notes]` | `stakeholder-notes` |
 | Same label in the start condition | `contains(github.event.issue.labels.*.name, 'stakeholder-notes')` in `if:` | `stakeholder-notes` |
+| Same label for where the comment may be posted | `required-labels: [stakeholder-notes]` under `add-comment:` | `stakeholder-notes` |
 
-Both must match. On close events the `labels:` filter alone does not check the issue's labels, so the `if:` condition does the real check.
+All three must match. On close events the `labels:` filter alone does not check the issue's labels, so the `if:` condition does the real check.
 
 **[B] Organisation settings (the `## Organisation settings` list under the title).** Replace the text after each colon and keep the bold setting names. Write `none` to switch a setting off. You do not need to recompile after editing this section.
 

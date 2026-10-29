@@ -50,7 +50,7 @@ safe-outputs:
     max-uploads: 1
     retention-days: 7
     max-size-bytes: 1048576
-    allowed-paths: [/tmp/gh-aw/report.md]
+    allowed-paths: [report.md]
 ---
 
 # Release Readiness Helper
@@ -99,8 +99,10 @@ Permission/API errors must be reported explicitly, never treated as success.
 Use `noop` for out-of-scope work. If the request itself cannot be retrieved,
 use the native missing-data/tool reporting output and stop.
 
-Use the edit tool to write `/tmp/gh-aw/report.md` with **Summary**,
+Use the edit tool to write `report.md` in your working directory (the
+empty workspace; nothing is checked out) with **Summary**,
 **Candidate and observation time**, **Checklist evidence**, **Limitations**,
 and **Next steps**. Include evidence URLs and missing or truncated evidence.
-Upload only that file with `upload_artifact`. This is a readiness evidence
+Upload only that file with `upload_artifact` using path
+`report.md`. This is a readiness evidence
 assessment, not a release approval.

@@ -73,22 +73,28 @@ test('each workflow is a single file with no custom runtime dependencies', async
     assert.match(source, /allowed: \[\]/);
     assert.match(source, /untrusted evidence/);
     assert.match(source, /missing-data\/tool/);
-    assert.match(source, /upload_artifact/);
+    assert.match(source, slug === 'stakeholder-release-notes-generator' ? /add_comment/ : /upload_artifact/);
     await assert.rejects(() => access(join(dirname(path), 'config.json')));
   }
 });
 
-test('reports are artifacts only, with no repository-write safe outputs', async () => {
+test('reports are artifacts (or one labelled-issue comment), with no other repository-write safe outputs', async () => {
   for (const { path, slug } of sources) {
     const source = await readFile(path, 'utf8');
     const frontmatter = source.split(/^---\r?$/m)[1];
     assert.match(frontmatter, /create-issue: false/);
     assert.match(frontmatter, /report-failure-as-issue: false/);
     assert.match(frontmatter, /report-as-issue: false/);
-    assert.match(frontmatter, /max-uploads: 1/);
-    assert.match(frontmatter, /retention-days: 7/);
-    assert.match(frontmatter, /allowed-paths: \[\/tmp\/gh-aw\/report\.md\]/);
-    assert.doesNotMatch(frontmatter, /add-comment:|add-labels:|create-pull-request:|update-release:/);
+    if (slug === 'stakeholder-release-notes-generator') {
+      assert.match(frontmatter, /add-comment:\r?\n\s+max: 1\r?\n\s+target: "\*"/);
+      assert.match(frontmatter, /required-labels: \[stakeholder-notes\]/);
+      assert.doesNotMatch(frontmatter, /add-labels:|create-pull-request:|update-release:|upload-artifact:/);
+    } else {
+      assert.match(frontmatter, /max-uploads: 1/);
+      assert.match(frontmatter, /retention-days: 7/);
+      assert.match(frontmatter, /allowed-paths: \[report\.md\]/);
+      assert.doesNotMatch(frontmatter, /add-comment:|add-labels:|create-pull-request:|update-release:/);
+    }
     const writePermissions = [...frontmatter.matchAll(/^  ([\w-]+): write$/gm)].map(match => match[1]);
     assert.deepEqual(writePermissions.sort(), slug === 'azure-deployment-investigator'
       ? ['copilot-requests', 'id-token'] : ['copilot-requests']);

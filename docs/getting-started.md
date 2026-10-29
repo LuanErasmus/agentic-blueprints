@@ -36,7 +36,7 @@ Before enabling it, review permissions, triggers, instructions, and data sent to
 
 Use **Actions → Run workflow** on the default branch and supply the required issue/PR `number` (Azure requires `resource_group` and `deployment_name`). Automatic triggers are label-gated; automatic fork events are blocked and draft PRs are skipped. There is no sample flag: read the filled-in input/output examples as illustrative templates, then adapt a non-sensitive issue or PR in your repository.
 
-Read-only native GitHub tools inspect evidence without checking out or executing code. The agent uploads one advisory Markdown report, retained for seven days, not machine-validated JSON. Inspect the artifact and independently verify recommendations; the native run summary is not the full report. These workflows cannot approve reviews, change GitHub content, publish releases, or modify Azure resources.
+Read-only native GitHub tools inspect evidence without checking out or executing code. The agent uploads one advisory Markdown report, retained for seven days, not machine-validated JSON (Stakeholder Release Notes instead posts its draft as one comment on the closed issue). Inspect the artifact and independently verify recommendations; the native run summary is not the full report. Apart from that comment, these workflows cannot approve reviews, change GitHub content, publish releases, or modify Azure resources.
 
 ## Where to go next
 

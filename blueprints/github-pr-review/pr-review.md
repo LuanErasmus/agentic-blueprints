@@ -53,7 +53,7 @@ safe-outputs:
     max-uploads: 1
     retention-days: 7
     max-size-bytes: 1048576
-    allowed-paths: [/tmp/gh-aw/report.md]
+    allowed-paths: [report.md]
 ---
 
 # GitHub PR Review
@@ -99,8 +99,9 @@ Permission/API errors must be reported explicitly, never treated as success.
 If evidence cannot be retrieved, use the native missing-data/tool reporting
 output and stop.
 
-Use the edit tool to write `/tmp/gh-aw/report.md` with **Summary**, **Findings**,
+Use the edit tool to write `report.md` in your working directory (the
+empty workspace; nothing is checked out) with **Summary**, **Findings**,
 **Limitations**, and **Next steps**. Include the candidate SHA and cite
 file/line, issue, check, or review URLs for each material finding.
-State what was inspected, missing, or truncated. Upload only that file with
-`upload_artifact`. This brief complements native review; a human decides.
+State what was inspected, missing, or truncated. Upload only that file with `upload_artifact` using path
+`report.md`. This brief complements native review; a human decides.

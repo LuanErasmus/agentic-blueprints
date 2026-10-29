@@ -45,7 +45,7 @@ The agent inspects the issue, discussion, relevant guidance, and at most 10 expl
 
 There are no hard source-byte budgets. Report inaccessible/truncated evidence and tooling errors explicitly; a failed read does not prove a policy or requirement is absent. Citations support traceability, not independent attestation.
 
-The native edit tool writes `/tmp/gh-aw/report.md`; safe-output upload allowlists that one report for seven days. The result is advisory Markdown, not a JSON contract or machine-validated assessment.
+The native edit tool writes `report.md` in the empty workspace; safe-output upload allowlists that one report for seven days. The result is advisory Markdown, not a JSON contract or machine-validated assessment.
 
 ## Guardrails
 

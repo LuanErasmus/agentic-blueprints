@@ -30,7 +30,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 1. **Copy one file.** Copy `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in your repository. No other collection files are required.
 2. **Customise and compile.** Edit the labels and company instructions directly in that Markdown. Create any required labels, keep trigger filters and prompt instructions consistent, and run `gh aw compile <id>`.
 3. **Review and commit.** Inspect the source and generated `.github/workflows/<id>.lock.yml`, then commit both in your repository's trusted default branch. Recompile after every source change. This collection distributes no locks.
-4. **Run and review.** In **Actions → Run workflow**, select the default branch and enter the required issue/PR `number`. Azure instead requires `resource_group` and `deployment_name` plus its identity setup below. Download the report artifact and verify recommendations before acting.
+4. **Run and review.** In **Actions → Run workflow**, select the default branch and enter the required issue/PR `number`. Azure instead requires `resource_group` and `deployment_name` plus its identity setup below. Download the report artifact (or, for Stakeholder Notes, read the comment on the issue) and verify recommendations before acting.
 
 Start with an approved non-sensitive issue or PR in your own repository. The `examples/input.md` and `examples/output.md` files are filled-in illustrative templates to read or adapt, not synthetic dispatch inputs. There is no sample flag. Review data-handling policy before a run; compilation does not verify live access or integration behaviour. Inspect compiler safe-update proposals rather than blindly accepting or bypassing them.
 
@@ -56,7 +56,11 @@ The GitHub agents inspect relevant evidence using native read-only GitHub tools/
 
 Prompts limit linked-work-item exploration to **at most 10 explicitly linked same-repository issues or PRs**. They do not impose hard source-byte budgets. Tool pagination, unavailable permissions, binary or truncated diffs, and other missing context still limit what can be assessed. Reports must say what was inaccessible, truncated, or not inspected. A native GitHub tooling error is explicit evidence of a failed read, not proof that an item is absent or that a check succeeded.
 
-The agent uses the native edit tool to write **one `/tmp/gh-aw/report.md`**. The `upload-artifact` safe output allowlists that path and retains the report for **seven days**. The report is advisory Markdown, not a JSON contract or machine-validated assessment. Read the artifact for the full result; native logs and summaries need not reproduce it. No workflow comments, labels, assigns, creates issues, submits reviews, merges, deploys, publishes releases, or sends stakeholder messages.
+The agent uses the native edit tool to write **one `report.md` in the empty workspace**. The `upload-artifact` safe output allowlists that path and retains the report for **seven days**. The report is advisory Markdown, not a JSON contract or machine-validated assessment. Read the artifact for the full result; native logs and summaries need not reproduce it.
+
+**Exception, Stakeholder Notes:** instead of an artifact, it posts its draft as one comment on the closed issue through the `add-comment` safe output. The agent stays read-only; a separate gh-aw job posts the validated comment, only on an issue carrying the `stakeholder-notes` label, and updates that comment on reruns.
+
+Apart from that one comment, no workflow comments, labels, assigns, creates issues, submits reviews, merges, deploys, publishes releases, or sends stakeholder messages.
 
 Citations should identify real source links, paths, and revisions. Source text and test-result claims are not independent attestation. Test source suggests intended scenarios; green CI alone does not demonstrate which scenarios ran. Link readable existing scenario-level results and identify their revision; no custom JSON test-report schema is necessary. Distinguish current candidate evidence from stale reviews, old results, and author assertions.
 

@@ -50,7 +50,7 @@ The range is derived automatically:
 
 With several linked PRs the range spans all of them. The draft describes only the linked PRs; other commits merged in between are listed under **Limitations** as "in range but not linked".
 
-You can also use **Actions → Stakeholder Release Notes Generator → Run workflow** on the default branch with the issue `number`. Optionally supply `base_ref` and `head_ref` together to override the derived range.
+You can also use **Actions → Stakeholder Release Notes Generator → Run workflow** on the default branch with the issue `number`. Optionally supply `base_ref` and `head_ref` together to override the derived range. Overrides replace only the From/To SHAs: the agent still finds the linked PRs and, if there are any, describes only those (linked PRs outside the override range are listed under **Limitations**). Only when the issue has no linked PR merged into the default branch does an override draft cover every change in the range.
 
 The role gate allows admin, maintainer, write, and triage; automatic fork events are blocked. Adapt the [filled-in input](examples/input.md) and read the [illustrative output](examples/output.md). There is no sample flag. Download the report artifact for the full draft.
 

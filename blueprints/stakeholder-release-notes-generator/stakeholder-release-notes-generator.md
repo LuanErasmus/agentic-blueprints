@@ -99,8 +99,8 @@ Manual To override: `${{ inputs.head_ref }}`.
 
 ### Resolve the release range yourself
 
-If both overrides are nonempty, use them as From/To and skip to the
-comparison. One override without the other is an error. Otherwise:
+One override without the other is an error. Always run steps 1 and 2, even
+when both overrides are supplied; the overrides only replace steps 3 and 4.
 
 1. Find the pull requests formally linked to the issue (Development sidebar or
    closing keywords) with
@@ -109,8 +109,15 @@ comparison. One override without the other is an error. Otherwise:
 2. Keep only same-repository PRs that are merged into the default branch
    `${{ github.event.repository.default_branch }}`. Check each with
    `gh pr view --repo OWNER/REPO PR --json number,state,mergedAt,baseRefName,mergeCommit,commits,headRepository`.
-   If none qualify, call `noop` explaining that no linked PR was merged into the
+   This is the verified linked-PR list. If it is empty and no overrides were
+   supplied, call `noop` explaining that no linked PR was merged into the
    default branch.
+
+If both overrides are supplied, use them as From/To instead of steps 3 and 4,
+then go to step 5. Any verified linked PR whose merge commit is not inside the
+override range must be listed under **Limitations** as "linked but outside the
+range" and not described. Otherwise:
+
 3. Order the qualifying PRs by `mergedAt`. **To** (HEAD_SHA) is the merge commit
    of the latest-merged PR.
 4. **From** (BASE_SHA) is the default-branch commit just before the
@@ -138,12 +145,13 @@ evidenced within the selected comparison.
 
 ## Investigation
 
-Draft stakeholder release notes from the resolved range. When linked PRs are
-listed, describe only changes delivered by those PRs; list any other commits in
-the range (merged by unrelated work between the linked PRs) under
+Draft stakeholder release notes from the resolved range. Whenever the verified
+linked-PR list is nonempty, with or without overrides, describe only changes
+delivered by those PRs; list any other commits in the range under
 **Limitations** as "in range but not linked", without describing them in the
-shareable message. With a manual override and no linked PRs, describe all
-changes in the range. Reject conclusions from outside that range. If the range
+shareable message. Only when both overrides are supplied and the verified
+linked-PR list is empty, describe all changes in the range and state that
+under **Limitations**. Reject conclusions from outside that range. If the range
 is identical with no changes, call `noop`. A reversed/divergent range or failed
 comparison is incomplete, not an empty successful release.
 
@@ -169,7 +177,7 @@ secrets, or publish elsewhere. Use only read-only GitHub operations in this
 repository; do not fetch external links, execute code, or edit repository files.
 Do not post comments, assign, label, close, approve, merge, or deploy.
 Permission/API errors must be reported explicitly, never treated as success.
-Use `noop` for out-of-scope work, no qualifying linked PR, or an identical range. An inaccessible
+Use `noop` for out-of-scope work, no qualifying linked PR without overrides, or an identical range. An inaccessible
 comparison or linked PR requires native missing-data/tool reporting, not a draft
 that implies all changes were inspected.
 

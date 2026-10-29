@@ -7,7 +7,7 @@ This walkthrough uses a fictional order-cancellation feature. Each blueprint run
 3. A tester uses **Test Scenario Planner** on the approved criteria to prepare positive, negative, and boundary scenarios. On a later PR, the same blueprint compares inspected test evidence with changed behaviour.
 4. **GitHub PR Review** prepares a company-guidance brief, complementing native review. **PR Confidence Calculator** explains what evidence strengthens or limits confidence; neither approves the PR.
 5. A release owner creates a tracking issue with an exact candidate SHA and their checklist. **Release Readiness Helper** reports satisfied, unsatisfied, and unknown items. The owner uses existing company/GitHub approval processes for the release decision.
-6. **Stakeholder Release Notes Generator** compares a defined release range and drafts an accessible update. A person verifies availability, confidential details, and wording before sending it.
+6. **Stakeholder Release Notes Generator** runs when a labelled issue is closed by merged PRs, works out the release range from those PRs, and drafts an accessible update. A person verifies availability, confidential details, and wording before sending it.
 7. If an Azure deployment fails, **Azure Deployment Investigator** reviews deployment evidence and fixed read-only diagnostics collected before agent inference. An operator evaluates recommendations before any remediation.
 8. A later bug report enters **GitHub Issue Triage**, which recommends a category and next step rather than changing the issue automatically.
 

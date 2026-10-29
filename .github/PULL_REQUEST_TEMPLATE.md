@@ -16,5 +16,4 @@
 ## Blueprint checklist
 
 - [ ] Documentation follows the blueprint structure.
-- [ ] `blueprint.yml` metadata is present and consistent, if adding or updating a blueprint.
 - [ ] Setup and run instructions are reproducible.

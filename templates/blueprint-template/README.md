@@ -2,8 +2,6 @@
 
 **Difficulty:** [beginner / intermediate / advanced]
 
-Create a `blueprint.yml` alongside this README using the [metadata example](blueprint.yml), and update every value.
-
 ## Problem
 
 [Describe the real-world problem and who encounters it.]

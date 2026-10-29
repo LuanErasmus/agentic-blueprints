@@ -24,7 +24,7 @@ New to agentic workflows? Begin with [GitHub Issue Triage](blueprints/github-iss
 | 🔴 Advanced | [PR Confidence Calculator](blueprints/pr-confidence-calculator/) | Explain an AI-assessed advisory index and missing evidence |
 | 🟠 Intermediate | [Stakeholder Release Notes Generator](blueprints/stakeholder-release-notes-generator/) | Translate verified changes into plain-language draft updates |
 
-Each blueprint includes metadata, a native gh-aw Markdown workflow, setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Copy and compile a selected workflow in your own repository; generated lock files are intentionally not included here. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
+Each blueprint includes a native gh-aw Markdown workflow, a README with setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Copy and compile a selected workflow in your own repository; generated lock files are intentionally not included here. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
 
 Each workflow is **one self-contained Markdown file** in its blueprint folder. No shared imports, runtime scripts, JSON configuration, or report schema need to be copied.
 

@@ -45,7 +45,7 @@ Start with an approved non-sensitive issue or PR in your own repository. The `ex
 | Delivery Risk | Issue labelled | `delivery-risk-review` | Issue `number` |
 | Release Readiness | Issue labelled | `release-readiness` | Release issue `number` |
 | PR Confidence | PR labelled | `confidence-review` | PR `number` |
-| Stakeholder Notes | Issue labelled | `stakeholder-notes` | Issue `number`; optional `base_ref` and `head_ref` |
+| Stakeholder Notes | Labelled issue closed as completed with linked PR(s) merged into the default branch | `stakeholder-notes` | Issue `number`; optional `base_ref` and `head_ref` override pair |
 | Azure Investigation | Manual only | None | `resource_group` and `deployment_name` |
 
 The gh-aw role gate allows `admin`, `maintainer`, `write`, or `triage` roles by default. Automatic fork events are blocked, drafts are skipped where applicable, and manual dispatch is default-branch only. PR workflows use `pull_request`, not `pull_request_target`. There is no checkout or execution of PR code. Human approval and existing company controls remain unchanged.
@@ -70,7 +70,7 @@ Current scenario failures make execution **zero**. Successful checks alone are n
 
 Release Readiness needs an exact `Candidate: <40-character SHA>` line and your company's checklist. Evaluate evidence against that candidate and policy; generic green checks are not release approval.
 
-Stakeholder Notes needs paired `From:` / `To:` lines in the context issue, or optional manual `base_ref` / `head_ref` inputs. Resolve both refs to immutable commits, report those identities, and reject reversed or divergent comparisons. Identical endpoints mean there are no changes to describe. Comparing commits never establishes deployment or customer availability.
+Stakeholder Notes needs no manual range. When a `stakeholder-notes` issue is closed as completed, the agent finds the formally linked PRs (Development sidebar or closing keywords) merged into the default branch. From is the commit before the earliest linked PR landed; To is the latest linked PR's merge commit. Without a qualifying PR the agent calls `noop`. Manual dispatch may instead supply a `base_ref` / `head_ref` pair. The agent verifies the immutable comparison and rejects reversed or divergent ranges. Identical endpoints mean there are no changes to describe. Comparing commits never establishes deployment or customer availability.
 
 ## Azure identity and collection
 

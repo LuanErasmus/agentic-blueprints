@@ -1,10 +1,9 @@
 # Illustrative input — not a live release
 
 Issue #117: Invoice export pilot notes
-
-## Release scope
-From: v1.7.0
-To: v1.8.0
+Labels: `stakeholder-notes`
+Linked pull requests (Development sidebar): #121, #124 — both merged into `main`
+Closed as: completed
 
 ## Audience
 Internal support team and two pilot account administrators.
@@ -13,10 +12,10 @@ Internal support team and two pilot account administrators.
 Planned pilot after owner approval; not generally available.
 
 ## Supplied change evidence
-A fictional comparison includes account-scoped CSV export and clearer permission-denial messaging.
+Linked PR #121 adds account-scoped CSV export; linked PR #124 clarifies permission-denial messaging.
 Archived invoices and bulk account export are excluded.
 
 ## Known limitations
 Export size remains capped for the pilot. No deployment result is supplied.
 
-Refs, issue numbers, and changes are illustrative, not executable synthetic dispatch data. Adapt this issue template with real refs and supply its real number. Optional manual `base_ref` and `head_ref` can supply the pair instead. Resolve immutable commit identities and reject reversed or divergent comparisons; comparison alone does not establish deployment.
+Issue numbers, PRs, and changes are illustrative, not executable synthetic dispatch data. No `From:` / `To:` lines are needed: the workflow derives the range from the linked PRs when the labelled issue is closed as completed. Optional manual `base_ref` and `head_ref` can override the pair. The range is verified as immutable commits and reversed or divergent comparisons are rejected; comparison alone does not establish deployment.

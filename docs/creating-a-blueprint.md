@@ -13,33 +13,14 @@ A one-off prompt or single model call with no meaningful decision, tool use, eva
 Create a directory under `blueprints/` containing:
 
 - `README.md` following the [blueprint template](../templates/blueprint-template/README.md).
-- `blueprint.yml` with the small metadata schema below.
 - One self-contained native workflow Markdown file and filled-in illustrative input/output examples. Put company customisation in the workflow itself. See [running workflows](running-workflows.md) for evidence boundaries.
-- Only the documentation, metadata, workflow, and examples needed to explain it; avoid empty directories and runtime dependencies.
+- Only the documentation, workflow, and examples needed to explain it; avoid empty directories and runtime dependencies.
 
 Distribute one native workflow source in `blueprints/<slug>/<id>.md`, beside its README and examples. Adopters copy only that source to `.github/workflows/<id>.md`, customise labels/instructions directly, compile with `gh aw compile <id>`, and review and commit source plus generated lock in their repository. Do not require shared imports, JavaScript runtime helpers, JSON configuration, custom report schemas, or sample dispatch. This collection distributes no locks. Contributors use Node.js 24 with `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`; validation stages standalone sources and runs the compiler without emitting locks. These scripts stay in the collection, not the adopting repository.
 
 Use the native Copilot engine with `permissions: copilot-requests: write` in the main workflow. Document the required organisation-owned repository, Copilot Business or Enterprise entitlement, and organisation billing policies in every blueprint's prerequisites; link the [shared licence/authentication requirements](running-workflows.md#copilot-licence-and-authentication-requirements). Do not introduce PAT setup instructions or suggest a personal Copilot plan alone enables this method.
 
 Keep the template's ten README section headings and make Setup three or four short steps after one-time prerequisites. Explain native read-only evidence inspection, advisory Markdown reporting, and human decisions. Azure's trusted inline collection happens before inference; distinguish it from the agent's interpretation. Never imply uncollected evidence, citations, or AI output were machine-validated.
-
-## Metadata
-
-Use these fields in `blueprint.yml`:
-
-```yaml
-name: Example Blueprint
-description: One-sentence summary of the engineering problem and workflow
-difficulty: beginner
-category: github
-patterns:
-  - human-in-the-loop
-autonomy: recommend
-requires:
-  - github
-```
-
-`difficulty` is `beginner`, `intermediate`, or `advanced`. `patterns` lists relevant pattern slugs. `autonomy` describes the highest level of action the example performs, such as `recommend` or `read-only`. `requires` lists the services or capabilities needed to run it. Keep metadata descriptive and consistent with the implementation; v1.0 does not require a separate validation system.
 
 ## Guardrails
 

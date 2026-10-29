@@ -17,8 +17,8 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 ## Create a blueprint
 
 1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md).
-2. Copy `templates/blueprint-template/README.md` and `templates/blueprint-template/blueprint.yml` into a new directory under `blueprints/`.
-3. Fill in every section and keep metadata consistent with the README and implementation.
+2. Copy `templates/blueprint-template/README.md` into a new directory under `blueprints/`.
+3. Fill in every section and keep the README consistent with the workflow.
 4. Add only files and directories needed for a working example; do not create empty directories to match a suggested layout.
 5. Author one self-contained gh-aw Markdown source in each `blueprints/<slug>/` folder, not this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, JavaScript runtime, JSON configuration, or report schemas. Put labels and instructions directly in it. Use `copilot-requests: write` with organisation billing and document the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Use the sandbox and native read-only GitHub tools/proxy, with no checkout or PR code execution. Write one advisory Markdown report with the native edit tool and upload only `/tmp/gh-aw/report.md` with seven-day retention. Keep impactful actions outside the workflow under human control.
 6. With Node.js 24 and gh-aw installed, validate standalone sources without emitting locks using `node scripts/blueprints/validate.mjs`, and run `node --test scripts/blueprints/blueprints.test.mjs`. These are collection maintenance tools, not adopter dependencies. Do not add compiled lock files to this blueprint repository; explain what could not be verified, including any untested live integrations.
@@ -39,7 +39,6 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 - [ ] Guardrails describe access, actions, approval requirements, and forbidden automation.
 - [ ] No secrets are committed.
 - [ ] A small challenge helps readers experiment.
-- [ ] `blueprint.yml` uses the documented metadata fields.
 - [ ] Filled-in trigger/input and illustrative output examples are included.
 - [ ] Setup copies one Markdown file; no sample dispatch flag or custom JSON report contract is required.
 - [ ] Evidence limits, inaccessible/truncated results, and tool errors are explicit; no missing result is treated as success.

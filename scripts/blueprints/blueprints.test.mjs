@@ -35,7 +35,6 @@ test('all nine blueprints document usage, eligibility, and illustrative input/ou
     for (const file of ['input.md', 'output.md']) {
       assert.ok((await readFile(join(root, 'examples', file), 'utf8')).length > 100, `${slug}: empty ${file}`);
     }
-    assert.match(await readFile(join(root, 'blueprint.yml'), 'utf8'), /difficulty:/);
   }
 });
 

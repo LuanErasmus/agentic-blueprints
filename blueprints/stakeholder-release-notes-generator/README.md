@@ -89,13 +89,16 @@ Both must match. On close events the `labels:` filter alone does not check the i
 
 | Setting | What it controls | Default | Example |
 |---------|------------------|---------|---------|
-| Organisation / product name | Name used in the draft | the repository name | `Contoso Payments` |
+| OWNER | Organisation or personal account used as `OWNER` in the agent's `gh` commands | the owner of the repository running the workflow | `contoso` |
+| REPOSITORY | Repository name used as `REPO` in the agent's `gh` commands | the repository running the workflow | `payments-api` |
 | Default audience | Who the notes are written for | internal business stakeholders | `customer success managers and key account owners` |
 | Tone and reading level | Writing style | plain, friendly business English | `formal; suitable for external customers` |
 | Terminology to use | Preferred words for your products and features | `none` | `say "workspace", not "tenant"; say "Contoso Pay", not "payments-api"` |
 | Never disclose | Topics always left out, even if the issue asks | security details, internal system names, customer and contributor names | add `pricing` or `unreleased roadmap items` |
 | Communication guidance file | A style guide in your repository the agent reads | `none` | `docs/communication-guidelines.md` |
 | Sign-off reviewer | Who must approve the draft before it is shared | the release or communications owner | `@contoso/product-marketing` |
+
+OWNER and REPOSITORY must match the repository the workflow runs in. The agent works only in that repository, so the defaults are usually right.
 
 Audience, channel, and exclusions written in an issue override these defaults for that issue only. **Never disclose** always applies.
 

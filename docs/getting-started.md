@@ -1,46 +1,34 @@
 # Getting Started
 
-Agentic Blueprints are native GitHub Agentic Workflows (`gh-aw`) examples that use a sandboxed Copilot agent to help with a specific engineering or business process. Start with one example, follow its guardrails, and adapt it only after you understand its permissions and data flow.
+Agentic Blueprints are native GitHub Agentic Workflows (`gh-aw`) examples. Each one uses a sandboxed Copilot agent to help with one everyday task in a GitHub repository.
 
-## Choose a blueprint
+## Choose a level
 
-- [GitHub Issue Triage](../blueprints/github-issue-triage/) is the beginner starting point. It analyses an issue and recommends a response.
-- [GitHub PR Review](../blueprints/github-pr-review/) analyses pull request changes and repository guidance for a human reviewer.
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) collects bounded read-only deployment diagnostics before inference and recommends next steps.
-- [Requirements Gap Investigator](../blueprints/requirements-gap-investigator/) checks business requests for ambiguity and missing criteria.
-- [Test Scenario Planner](../blueprints/test-scenario-planner/) investigates requirements or PR behaviour against available test evidence.
-- [Delivery Risk Investigator](../blueprints/delivery-risk-investigator/) investigates blockers and dependencies without rescheduling work.
-- [Release Readiness Helper](../blueprints/release-readiness-helper/) builds an evidence-linked candidate readiness brief.
-- [PR Confidence Calculator](../blueprints/pr-confidence-calculator/) explains a configurable evidence assessment, not a guarantee of correctness.
-- [Stakeholder Release Notes Generator](../blueprints/stakeholder-release-notes-generator/) drafts non-technical release communication for approval.
+Blueprints are grouped by [experience level](../blueprints/). Start with **Beginner**:
 
-Each blueprint lists its difficulty, prerequisites, required credentials, and data handling. Read its **Guardrails** section before setting it up.
+- [Issue Helper](../blueprints/beginner/issue-helper/) welcomes new issues and asks for missing details.
+- [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) explains completed work for non-technical colleagues.
+- [Weekly Update](../blueprints/beginner/weekly-update/) opens a weekly summary issue.
+
+Beginner blueprints need no labels, secrets, or settings. Copy them as they are.
 
 ## One-time prerequisites
 
-Install the [GitHub CLI](https://cli.github.com/) and gh-aw with `gh extension install github/gh-aw`. Cloning this collection is optional; you only need one workflow file to adopt a blueprint.
+Install the [GitHub CLI](https://cli.github.com/) and gh-aw with `gh extension install github/gh-aw`. Cloning this collection is optional; you only need one workflow file.
 
-**Copilot licence required for workflow execution:** use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, with **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** enabled by an administrator. These blueprints use `permissions: copilot-requests: write` and the built-in Actions token only, not a PAT. A personal Copilot plan alone does not enable this organisation-billed method in a personal repository. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises.
-
-Azure additionally requires OIDC federation and Reader access scoped to the target resource group. Compiling sources does not call Copilot. Node.js 24 and this collection's validation scripts are for contributors/CI only, not adopters.
+**Copilot licence required to run:** use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, with **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** enabled by an administrator. A personal Copilot plan alone does not enable this method in a personal repository. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements).
 
 ## Setup in three steps
 
-1. Copy your chosen `blueprints/<slug>/<id>.md` to `.github/workflows/<id>.md` in your repository. No shared files, runtime scripts, JSON configuration, or report schemas are needed.
-2. Customise the labels and company instructions directly in the Markdown, create the required labels, and run `gh aw compile <id>`.
-3. Review and commit the source and generated `.lock.yml` in your repository's trusted default branch. Recompile whenever you edit the source. This collection does not distribute locks.
+1. Copy the blueprint's `.md` file to `.github/workflows/` in your repository.
+2. Run `gh aw compile <name>`.
+3. Commit and push the `.md` and generated `.lock.yml` to your default branch.
 
-Before enabling it, review permissions, triggers, instructions, and data sent to Copilot. See [workflow usage](running-workflows.md) for optional details.
-
-## Run it
-
-Use **Actions → Run workflow** on the default branch and supply the required issue/PR `number` (Azure requires `resource_group` and `deployment_name`). Automatic triggers are label-gated; automatic fork events are blocked and draft PRs are skipped. There is no sample flag: read the filled-in input/output examples as illustrative templates, then adapt a non-sensitive issue or PR in your repository.
-
-Read-only native GitHub tools inspect evidence without checking out or executing code. The agent uploads one advisory Markdown report, retained for seven days, not machine-validated JSON (Stakeholder Release Notes instead posts its draft as one comment on the closed issue). Inspect the artifact and independently verify recommendations; the native run summary is not the full report. Apart from that comment, these workflows cannot approve reviews, change GitHub content, publish releases, or modify Azure resources.
+Then follow the **Try it** section in the blueprint's README.
 
 ## Where to go next
 
+- Read [Running workflows](running-workflows.md) for triggers, cost limits, and the safety model.
 - Learn the difference between [automation, AI-assisted workflows, and agentic workflows](what-is-agentic.md).
 - Explore reusable [patterns](../patterns/) and [building blocks](../building-blocks/).
-- Adapt the [blueprint template](../templates/blueprint-template/) and read [Creating a Blueprint](creating-a-blueprint.md).
-- Report issues or contribute using [CONTRIBUTING.md](../CONTRIBUTING.md).
+- Create your own with the [blueprint template](../templates/blueprint-template/) and [Creating a Blueprint](creating-a-blueprint.md).

@@ -39,6 +39,5 @@ Use this pattern when an action changes user-visible state, affects infrastructu
 
 ## Demonstrated by
 
-- [GitHub PR Review](../blueprints/github-pr-review/) keeps all review and approval decisions with a human.
-- [GitHub Issue Triage](../blueprints/github-issue-triage/) suggests labels but never applies them.
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) provides read-only diagnostic recommendations.
+- [Issue Helper](../blueprints/beginner/issue-helper/) suggests labels in a comment but never applies them.
+- [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) marks every note as a draft for a person to check before sharing.

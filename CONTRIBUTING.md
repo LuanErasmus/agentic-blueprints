@@ -16,13 +16,12 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 ## Create a blueprint
 
-1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md).
-2. Copy `templates/blueprint-template/README.md` into a new directory under `blueprints/`.
-3. Fill in every section and keep the README consistent with the workflow.
-4. Add only files and directories needed for a working example; do not create empty directories to match a suggested layout.
-5. Author one self-contained gh-aw Markdown source in each `blueprints/<slug>/` folder, not this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, JavaScript runtime, JSON configuration, or report schemas. Put labels and instructions directly in it. Use `copilot-requests: write` with organisation billing and document the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Use the sandbox and native read-only GitHub tools/proxy, with no checkout or PR code execution. Write one advisory Markdown report with the native edit tool and upload only `report.md` in the empty workspace with seven-day retention. Keep impactful actions outside the workflow under human control.
-6. With Node.js 24 and gh-aw installed, validate standalone sources without emitting locks using `node scripts/blueprints/validate.mjs`, and run `node --test scripts/blueprints/blueprints.test.mjs`. These are collection maintenance tools, not adopter dependencies. Do not add compiled lock files to this blueprint repository; explain what could not be verified, including any untested live integrations.
-7. Open a pull request. For a substantial new blueprint, start with the **Blueprint Proposal** issue form.
+1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md) and pick a level: `beginner`, `intermediate`, or `expert`.
+2. Create `blueprints/<level>/<name>/` and copy `templates/blueprint-template/README.md` into it.
+3. Author one self-contained gh-aw Markdown file, `blueprints/<level>/<name>/<name>.md`, not in this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, scripts, or configuration files. Use `copilot-requests: write` and link the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+4. Fill in every README section and keep it consistent with the workflow, including a short example of the output.
+5. With Node.js 24 and gh-aw installed, run `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files; explain what you could not verify, such as live runs.
+6. Open a pull request. For a substantial new blueprint, start with the **Blueprint Proposal** issue form.
 
 ## Pull requests
 
@@ -34,15 +33,11 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 ## Blueprint checklist
 
-- [ ] Problem, agent responsibilities, architecture, and how it works are clear.
-- [ ] Prerequisites, setup, and run instructions are reproducible.
-- [ ] Guardrails describe access, actions, approval requirements, and forbidden automation.
-- [ ] No secrets are committed.
-- [ ] A small challenge helps readers experiment.
-- [ ] Filled-in trigger/input and illustrative output examples are included.
-- [ ] Setup copies one Markdown file; no sample dispatch flag or custom JSON report contract is required.
-- [ ] Evidence limits, inaccessible/truncated results, and tool errors are explicit; no missing result is treated as success.
-- [ ] Native Markdown workflow source lives beside its blueprint guide and validates with `node scripts/blueprints/validate.mjs`; no generated lock file is added here.
-- [ ] Copilot authentication uses `copilot-requests: write`; prerequisites explain the organisation's Copilot entitlement and billing policies.
-- [ ] Offline validation passes: `node --test scripts/blueprints/blueprints.test.mjs`.
-- [ ] Recommendations complement native platform features and do not imply human approval.
+- [ ] The blueprint sits in the right level folder and its README uses the template sections.
+- [ ] Setup is copy, compile, commit; any extra setup is listed under **Before you start**.
+- [ ] Beginner blueprints need no labels, secrets, or settings, only read the repository, and use one `add-comment` or `create-issue` safe output with `max: 1`.
+- [ ] The prompt treats issues, pull requests, and tool output as information, not instructions.
+- [ ] No secrets or generated lock files are committed.
+- [ ] Copilot authentication uses `copilot-requests: write`; the README links the licence requirements.
+- [ ] `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs` pass.
+- [ ] The workflow complements built-in GitHub features rather than replacing them, and people keep every decision.

@@ -1,35 +1,40 @@
 # Creating a Blueprint
 
-A blueprint is a reusable implementation of an agentic workflow that solves a specific engineering or business problem. In this repository, runnable workflows are authored as native gh-aw Markdown sources and compiled in the adopting repository.
+A blueprint is a reusable gh-aw workflow that helps with one specific task in a GitHub repository. Workflows are authored as native gh-aw Markdown and compiled in the adopting repository.
 
 ## What qualifies
 
-A blueprint demonstrates a meaningful workflow loop, such as observing context, reasoning about a goal, choosing a bounded action or recommendation, and evaluating a result. It may show tool selection, iteration, explicit human approval, or a safe recommendation boundary.
+A blueprint uses an agent to read context, reason about it, and produce a useful, bounded result for a person, such as a comment, summary, or recommendation. A fixed script with no reasoning is not an agentic workflow. Blueprints complement built-in GitHub features (code review, Dependabot, releases); they do not replace them.
 
-A one-off prompt or single model call with no meaningful decision, tool use, evaluation, iteration, or human decision boundary does not qualify on its own. Explain how the implementation demonstrates agentic behaviour, not just what the prompt says.
+## Levels
+
+| Level | Rules |
+|---|---|
+| **Beginner** | Copy, compile, commit; no labels, secrets, inputs, or settings to change. Triggered by a normal event or schedule. Read-only, with exactly one `add-comment` or `create-issue` safe output and `max: 1`. Short prompt with sensible defaults. |
+| **Intermediate** | May need labels, manual inputs, or team settings that the README explains clearly. Still read-only apart from its safe outputs. |
+| **Expert** | May collect evidence from external systems, use identity federation, or run multi-step investigations. Document every extra permission and guardrail. |
 
 ## Required structure
 
-Create a directory under `blueprints/` containing:
+```text
+blueprints/<level>/<name>/
+├── <name>.md    # the gh-aw workflow
+└── README.md    # based on the blueprint template
+```
 
-- `README.md` following the [blueprint template](../templates/blueprint-template/README.md).
-- One self-contained native workflow Markdown file and filled-in illustrative input/output examples. Put company customisation in the workflow itself. See [running workflows](running-workflows.md) for evidence boundaries.
-- Only the documentation, workflow, and examples needed to explain it; avoid empty directories and runtime dependencies.
-
-Distribute one native workflow source in `blueprints/<slug>/<id>.md`, beside its README and examples. Adopters copy only that source to `.github/workflows/<id>.md`, customise labels/instructions directly, compile with `gh aw compile <id>`, and review and commit source plus generated lock in their repository. Do not require shared imports, JavaScript runtime helpers, JSON configuration, custom report schemas, or sample dispatch. This collection distributes no locks. Contributors use Node.js 24 with `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`; validation stages standalone sources and runs the compiler without emitting locks. These scripts stay in the collection, not the adopting repository.
-
-Use the native Copilot engine with `permissions: copilot-requests: write` in the main workflow. Document the required organisation-owned repository, Copilot Business or Enterprise entitlement, and organisation billing policies in every blueprint's prerequisites; link the [shared licence/authentication requirements](running-workflows.md#copilot-licence-and-authentication-requirements). Do not introduce PAT setup instructions or suggest a personal Copilot plan alone enables this method.
-
-Keep the template's ten README section headings and make Setup three or four short steps after one-time prerequisites. Explain native read-only evidence inspection, advisory Markdown reporting, and human decisions. Azure's trusted inline collection happens before inference; distinguish it from the agent's interpretation. Never imply uncollected evidence, citations, or AI output were machine-validated.
+- Adopters copy only `<name>.md` to `.github/workflows/<name>.md`, run `gh aw compile <name>`, and commit both files. This collection distributes no lock files.
+- Do not require shared imports, scripts, or configuration files. Put any logic in the prompt and let the agent work it out.
+- Use `engine: copilot` with `permissions: copilot-requests: write`, and link the [shared licence requirements](running-workflows.md#copilot-licence-and-authentication-requirements) in the README. Do not add PAT setup instructions.
+- Follow the [blueprint template](../templates/blueprint-template/README.md) sections and include a short example of the output.
 
 ## Guardrails
 
-Document access, forbidden actions, human authority, permissions, and data handling. GitHub evidence tools use the native read-only proxy, with no checkout or PR code execution; linked-item exploration is limited to 10 explicit same-repository issues/PRs. Report inaccessible/truncated evidence and tooling errors rather than treating failed reads as absence or success. Do not impose hard source-byte budgets. The native edit tool writes only `report.md` in the empty workspace; safe-output upload allowlists that one report for seven days. No automatic comments, labels, merges, releases, or other GitHub changes are allowed.
+- Give the agent read-only permissions. Writes happen only through gh-aw safe outputs with a low `max`.
+- Tell the agent to treat issues, pull requests, comments, and tool output as information, never as instructions.
+- Never use `pull_request_target` or run pull request code.
+- Never commit tokens, passwords, connection strings, private keys, or other credentials.
+- People keep every decision; mark AI-written output as a draft where it may be shared.
 
-Require manual `number` input and default-branch dispatch; skip drafts and block automatic fork events. Preserve the role gate. Use illustrative examples rather than synthetic dispatch. Keep maintenance tests credential-free and distinguish static checks from live integration verification. Any confidence index must be described as AI-assessed and advisory, not deterministic or calibrated; follow the [confidence policy](running-workflows.md#pr-confidence-is-an-advisory-index).
+## Validation
 
-Treat user-controlled content and tool output as untrusted input. Never commit tokens, passwords, connection strings, private keys, or other credentials. Use repository secrets or an appropriate identity federation mechanism.
-
-## Contribution expectations
-
-Make setup reproducible from a clean checkout. Test what can be tested, distinguish verified behavior from assumptions, and explain any external access or limits that prevented testing. Keep examples focused; do not implement roadmap ideas as part of an unrelated change. See [CONTRIBUTING.md](../CONTRIBUTING.md) before opening a pull request.
+Contributors use Node.js 24 with `node scripts/blueprints/validate.mjs` (strict compile without emitting locks) and `node --test scripts/blueprints/blueprints.test.mjs`. These scripts stay in the collection. See [CONTRIBUTING.md](../CONTRIBUTING.md) before opening a pull request.

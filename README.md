@@ -8,37 +8,31 @@ Agentic Blueprints is an open-source developer resource for learning from, runni
 
 ## Start here
 
-New to agentic workflows? Begin with [GitHub Issue Triage](blueprints/github-issue-triage/), the beginner blueprint. Follow its setup, run it on an issue, and inspect its recommendation.
+New to agentic workflows? Pick a [Beginner blueprint](blueprints/beginner/). Each one is a single file you copy, compile, and commit, with nothing else to set up.
 
 ## Blueprints
 
-| Difficulty | Blueprint | Workflow |
-|---|---|---|
-| 🟢 Beginner | [GitHub Issue Triage](blueprints/github-issue-triage/) | Classify issues, check for missing information, and recommend next steps |
-| 🟠 Intermediate | [GitHub PR Review](blueprints/github-pr-review/) | Assess pull request changes and repository standards for a human reviewer |
-| 🔴 Advanced | [Azure Deployment Investigator](blueprints/azure-deployment-investigator/) | Investigate deployment evidence and recommend read-only diagnostics |
-| 🟠 Intermediate | [Requirements Gap Investigator](blueprints/requirements-gap-investigator/) | Clarify business rules, contradictions, and acceptance criteria |
-| 🟠 Intermediate | [Test Scenario Planner](blueprints/test-scenario-planner/) | Map issue or PR behaviour to test evidence and suggest scenarios |
-| 🟠 Intermediate | [Delivery Risk Investigator](blueprints/delivery-risk-investigator/) | Investigate delivery blockers and explicit dependencies |
-| 🔴 Advanced | [Release Readiness Helper](blueprints/release-readiness-helper/) | Assess candidate-specific company readiness evidence |
-| 🔴 Advanced | [PR Confidence Calculator](blueprints/pr-confidence-calculator/) | Explain an AI-assessed advisory index and missing evidence |
-| 🟠 Intermediate | [Stakeholder Release Notes Generator](blueprints/stakeholder-release-notes-generator/) | Translate verified changes into plain-language draft updates |
+Blueprints are grouped by [experience level](blueprints/):
 
-Each blueprint includes a native gh-aw Markdown workflow, a README with setup and trigger instructions, filled-in input/output examples, and explicit guardrails. Copy and compile a selected workflow in your own repository; generated lock files are intentionally not included here. Adopt one independently; company policies and evidence remain yours. These complement GitHub features rather than replace Dependabot, code review, checks, or release tooling.
+| Level | Blueprint | Runs when | Result |
+|---|---|---|---|
+| 🟢 Beginner | [Issue Helper](blueprints/beginner/issue-helper/) | An issue is opened | A friendly comment that summarises the issue and asks for missing details |
+| 🟢 Beginner | [Plain-Language Release Notes](blueprints/beginner/plain-language-release-notes/) | An issue is completed by a merged pull request | A comment that explains the change for non-technical colleagues |
+| 🟢 Beginner | [Weekly Update](blueprints/beginner/weekly-update/) | Every Monday, or on demand | An issue summarising the past week |
+| 🟠 Intermediate | [Coming soon](blueprints/intermediate/) | | |
+| 🔴 Expert | [Coming soon](blueprints/expert/) | | |
 
-Each workflow is **one self-contained Markdown file** in its blueprint folder. No shared imports, runtime scripts, JSON configuration, or report schema need to be copied.
+Each blueprint is **one self-contained gh-aw Markdown file** with a README. Beginner blueprints only read your repository and post one comment or open one issue. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.
 
 ### Setup in three steps
 
-One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh-aw (`gh extension install github/gh-aw`), and confirm the organisation access below.
+One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh-aw (`gh extension install github/gh-aw`), and confirm the Copilot licence below.
 
-1. Copy your chosen workflow file to `.github/workflows/<id>.md` in your repository.
-2. Customise labels and instructions directly in that Markdown; run `gh aw compile <id>`.
-3. Review and commit the source and generated `.lock.yml` in **your** repository. Run it from Actions on the default branch with the required issue/PR number (Azure requires deployment inputs).
+1. Copy the blueprint's `.md` file to `.github/workflows/` in your repository.
+2. Run `gh aw compile <name>`.
+3. Commit and push the `.md` and generated `.lock.yml` to your default branch.
 
-Read the advisory Markdown report artifact and verify its evidence before acting. The filled-in examples are illustrative templates, not executable synthetic dispatches.
-
-**Copilot licence required to run:** these blueprints use `permissions: copilot-requests: write` and the built-in Actions token for organisation billing. Use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and have an administrator enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Personal Copilot plans alone do not enable this method in a personal repository; no PAT fallback is configured. See [full eligibility, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements), including the separate offering for eligible enterprises. Offline tests and source compilation do not require a Copilot licence.
+**Copilot licence required to run:** these blueprints use `permissions: copilot-requests: write` and the built-in Actions token for organisation billing. Use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and have an administrator enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Personal Copilot plans alone do not enable this method in a personal repository. See [full eligibility, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Offline tests and source compilation do not require a Copilot licence.
 
 ## Patterns
 
@@ -52,15 +46,13 @@ Read the advisory Markdown report artifact and verify its evidence before acting
 
 ## Getting started
 
-Choose a blueprint and copy its single workflow file; cloning this collection is optional. See the [Getting Started guide](docs/getting-started.md) for details and [What Is Agentic?](docs/what-is-agentic.md) for a practical introduction. To propose or create a blueprint, read [Contributing](CONTRIBUTING.md) and [Creating a Blueprint](docs/creating-a-blueprint.md).
+Choose a blueprint and copy its single workflow file; cloning this collection is optional. See the [Getting Started guide](docs/getting-started.md) and [What Is Agentic?](docs/what-is-agentic.md) for a practical introduction. To propose or create a blueprint, read [Contributing](CONTRIBUTING.md) and [Creating a Blueprint](docs/creating-a-blueprint.md).
 
 ## Roadmap
 
-**Included:** nine self-contained gh-aw blueprint sources, illustrative input/output templates, and repository-only source validation tests. Workflows inspect evidence with read-only tools and upload one advisory Markdown report, retained for seven days. Azure additionally requires a scoped OIDC identity. Compilation and offline tests do not invoke inference; source validation is not verification of live integrations.
+**Included:** three Beginner gh-aw blueprints and repository-only source validation tests.
 
-**Future:** read-only evidence adapters, additional report formats, and more company-focused examples. No automatic dependency-upgrade agent is planned to duplicate Dependabot.
-
-See [workflow usage](docs/running-workflows.md) for copy/setup/compile instructions and [the fictional company walkthrough](docs/company-walkthrough.md) for optional handoffs.
+**Next:** Intermediate blueprints (labels, manual runs, team settings) and Expert blueprints (external evidence, multi-step investigations). No agent is planned to duplicate Dependabot or other built-in GitHub features.
 
 ## Contributing
 

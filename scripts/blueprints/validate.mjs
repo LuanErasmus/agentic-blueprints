@@ -3,15 +3,18 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
+export const tiers = ['beginner', 'intermediate', 'expert'];
+
 export async function workflowSources() {
   const sources = [];
-  for (const entry of await readdir('blueprints', { withFileTypes: true })) {
-    if (!entry.isDirectory()) continue;
-    const slug = entry.name;
-    const id = slug.replace(/^github-/, '');
-    const path = join('blueprints', slug, `${id}.md`);
-    await access(path);
-    sources.push({ slug, id, path });
+  for (const tier of tiers) {
+    for (const entry of await readdir(join('blueprints', tier), { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      const slug = entry.name;
+      const path = join('blueprints', tier, slug, `${slug}.md`);
+      await access(path);
+      sources.push({ tier, slug, id: slug, path });
+    }
   }
   if (!sources.length) throw new Error('No blueprint workflow sources found.');
   return sources;

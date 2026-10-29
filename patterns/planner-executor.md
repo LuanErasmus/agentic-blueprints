@@ -36,5 +36,5 @@ Use this pattern when a task has multiple diagnostic or operational steps, and t
 
 ## Demonstrated by
 
-- [Azure Deployment Investigator](../blueprints/azure-deployment-investigator/) demonstrates a bounded evidence workflow with fixed read-only collection before inference; the agent does not execute selected diagnostics.
-- [Delivery Risk Investigator](../blueprints/delivery-risk-investigator/) uses native read-only GitHub tools to inspect relevant issue evidence and reports risks for a human to evaluate; it does not execute delivery changes.
+- [Weekly Update](../blueprints/beginner/weekly-update/) plans which activity to gather, collects it with read-only tools, and hands one issue to a separate safe-output job to create.
+- Planned [Expert blueprints](../blueprints/expert/) will show multi-step investigations with stricter limits.

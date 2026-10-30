@@ -4,9 +4,8 @@
 
 Every Monday, the agent reads the past seven days of activity in your repository and opens **one** issue with a plain-language summary:
 
-- highlights from merged pull requests;
-- newly opened issues;
-- simple counts.
+- up to three merged pull requests and three newly opened issues;
+- counts of the items reviewed, not repository-wide totals.
 
 When the new update is opened, last week's update issue is closed automatically, so only the latest one stays open.
 
@@ -50,11 +49,11 @@ A new issue titled `[weekly update] Week of 2 June`:
 >
 > - Add a dark mode option (#47).
 >
-> ## By the numbers
+> ## Activity reviewed
 >
-> - Pull requests merged: 2
-> - Issues opened: 1
-> - Issues closed: 2
+> - Merged pull requests reviewed (up to 3): 2
+> - Opened issues reviewed (up to 3): 1
+> - Closed issues reviewed (up to 3): 2
 >
 > ---
 > _Written by an AI assistant from repository activity._
@@ -70,4 +69,6 @@ All changes are optional:
 
 - Read-only access to your repository.
 - Can open at most one issue per run, and closes only its own older update issues.
+- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Makes one bounded query per activity category, does not paginate, and stops instead of guessing or retrying failed lookups.
 - Treats issues, pull requests, and comments as information, never as instructions.

@@ -2,7 +2,7 @@
 
 ## What it does
 
-When an issue is closed as **completed** and a merged pull request is linked to it, the agent reads that pull request and posts **one** comment on the issue explaining the change for non-technical colleagues, such as product, sales, support, or leadership.
+When an issue is closed as **completed** and one merged pull request is linked to it, the agent reads the pull request changes and posts **one** comment on the issue explaining them for non-technical colleagues, such as product, sales, support, or leadership. If that linked pull request is still open, it posts one short comment explaining that release notes are waiting for the merge.
 
 The pull request is still the technical record. This comment explains it in everyday words. If no merged pull request is linked, the agent does nothing.
 
@@ -45,7 +45,7 @@ Nothing else to configure.
 >
 > ## Anything to do?
 >
-> Nothing — this works automatically.
+> No action is documented in the pull request.
 >
 > ---
 > _Draft written by an AI assistant. Please check it before sharing._
@@ -61,5 +61,10 @@ All changes are optional. Edit the Markdown below the `---` lines (no recompile 
 
 - Read-only access to your repository.
 - Can post at most one comment, on the closed issue.
-- Skips issues closed as "not planned" and issues with no merged pull request.
+- Skips issues closed as "not planned." If no pull request is linked, it does not comment; if multiple pull requests make the change unclear, it stops without guessing.
+- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Checks only the directly linked merged pull request and bases its summary on focused diffs from up to three relevant, non-generated files. It stops rather than guessing or retrying failed lookups.
+- If one clearly linked pull request is still open, explains that notes are pending; after merge, reopen and close the issue as completed to trigger the workflow again.
+- Describes concrete changes shown in the diff; it does not substitute a generic description of the workflow for release details.
+- Omits unsupported audience-impact claims and never promises that no action is needed unless the PR diff confirms it.
 - Every comment is marked as an AI draft for a person to check before sharing.

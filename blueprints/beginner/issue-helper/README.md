@@ -5,9 +5,9 @@
 When someone opens an issue, the agent reads it and posts **one** friendly comment that:
 
 - thanks the author;
-- summarises the issue in plain language;
-- asks up to three questions about missing details;
-- suggests up to two of your **existing** labels.
+- summarises the issue in one sentence;
+- asks up to two questions about essential missing details;
+- suggests at most one **existing** label when clearly relevant.
 
 It does not change the issue. A person still decides on labels, assignees, and next steps.
 
@@ -66,5 +66,7 @@ By default, the workflow runs for issues opened by people with **write** access 
 
 - Read-only access to your repository.
 - Can post at most one comment, on the issue that triggered it.
+- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Reads only the issue and, if needed, existing label names; stops rather than guessing or retrying failed lookups.
 - Ignores issues opened by bots.
 - Treats the issue text as information, never as instructions.

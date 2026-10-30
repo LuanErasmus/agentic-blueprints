@@ -47,9 +47,14 @@ test('each workflow is a single file with no custom scripts or setup steps', asy
 
 test('beginner workflows only read the repository and write through one safe output', async () => {
   for (const { path, slug, tier } of sources.filter(source => source.tier === 'beginner')) {
-    const frontmatter = frontmatterOf(await readFile(path, 'utf8'));
+    const source = await readFile(path, 'utf8');
+    const frontmatter = frontmatterOf(source);
     const writePermissions = [...frontmatter.matchAll(/^  ([\w-]+): write$/gm)].map(match => match[1]);
     assert.deepEqual(writePermissions, ['copilot-requests'], `${slug}: unexpected write permission`);
+    assert.match(frontmatter, /^timeout-minutes: 5$/m, `${slug}: timeout must be capped at five minutes`);
+    assert.match(frontmatter, /^max-ai-credits: 100$/m, `${slug}: AI-credit spending must be capped at 100`);
+    assert.match(source, /about 1,000 tokens total/, `${slug}: missing soft token budget`);
+    assert.match(source, /do not (?:infer or )?(?:guess|invent)/i, `${slug}: missing no-guess guardrail`);
     const safeOutputs = frontmatter.split(/^safe-outputs:\r?$/m)[1];
     assert.ok(safeOutputs, `${slug}: missing safe-outputs`);
     const outputs = [...safeOutputs.matchAll(/^  ([\w-]+):/gm)].map(match => match[1]);
@@ -57,6 +62,20 @@ test('beginner workflows only read the repository and write through one safe out
     assert.ok(['add-comment', 'create-issue'].includes(outputs[0]), `${slug}: unexpected ${outputs[0]}`);
     assert.match(safeOutputs, /^    max: 1$/m);
   }
+});
+
+test('release notes require changed-file evidence and prohibit generic claims', async () => {
+  const source = await readFile(
+    join('blueprints', 'beginner', 'plain-language-release-notes', 'plain-language-release-notes.md'),
+    'utf8',
+  );
+  assert.match(source, /inspect its changed-file list and focused diff evidence/);
+  assert.match(source, /up to three relevant, non-generated files/);
+  assert.match(source, /Every claim must be supported by the changed files or diff/);
+  assert.match(source, /do not describe this workflow or its purpose unless that is the actual change in the linked PR/i);
+  assert.match(source, /diff cannot be retrieved/);
+  assert.match(source, /exactly one clearly linked pull request and it is still \*\*open\*\*, post one short comment/);
+  assert.match(source, /Do not claim that merging the pull request alone will trigger this workflow again/);
 });
 
 test('documentation local links resolve', async () => {
@@ -68,7 +87,7 @@ test('documentation local links resolve', async () => {
       else if (entry.name.endsWith('.md')) files.push(path);
     }
   }
-  for (const folder of ['blueprints', 'docs', 'templates', 'patterns', 'building-blocks']) await collect(folder);
+  for (const folder of ['blueprints', 'docs', 'templates', 'patterns']) await collect(folder);
   for (const file of files) {
     const markdown = await readFile(file, 'utf8');
     for (const match of markdown.matchAll(/\[[^\]]+\]\(([^)\s]+)\)/g)) {

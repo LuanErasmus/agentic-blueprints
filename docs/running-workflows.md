@@ -55,7 +55,7 @@ Every run uses Copilot inference. gh-aw caps spending by default: **1,000 AI cre
 max-ai-credits: 200
 ```
 
-The agent is warned as it approaches the limit and is stopped when it reaches it. `timeout-minutes` also limits each run. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
+The agent is warned as it approaches the limit and is stopped when it reaches it. `timeout-minutes` also limits each run. The Beginner blueprints use a 10-credit per-run cap and a five-minute timeout. Their approximately 1,000-token prompt budget is guidance, not a hard token-meter limit; the enforceable limit is AI-credit spending. Each prompt also bounds the evidence it reads, output size, and when to stop. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
 
 ## How the safety model works
 

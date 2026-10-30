@@ -4,7 +4,7 @@ Agentic Blueprints are native GitHub Agentic Workflows (`gh-aw`) examples. Each 
 
 ## Choose a level
 
-Blueprints are grouped by [experience level](../blueprints/). Start with **Beginner**:
+Browse the [Beginner blueprints](../blueprints/):
 
 - [Issue Helper](../blueprints/beginner/issue-helper/) welcomes new issues and asks for missing details.
 - [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) explains completed work for non-technical colleagues.
@@ -30,5 +30,5 @@ Then follow the **Try it** section in the blueprint's README.
 
 - Read [Running workflows](running-workflows.md) for triggers, cost limits, and the safety model.
 - Learn the difference between [automation, AI-assisted workflows, and agentic workflows](what-is-agentic.md).
-- Explore reusable [patterns](../patterns/) and [building blocks](../building-blocks/).
+- Explore reusable [patterns](../patterns/).
 - Create your own with the [blueprint template](../templates/blueprint-template/) and [Creating a Blueprint](creating-a-blueprint.md).

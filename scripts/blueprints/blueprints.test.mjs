@@ -11,7 +11,7 @@ function frontmatterOf(source) {
   return source.split(/^---\r?$/m)[1];
 }
 
-test('blueprints are grouped into beginner, intermediate, and expert tiers', async () => {
+test('blueprints are limited to the beginner tier', async () => {
   assert.ok((await readFile(join('blueprints', 'README.md'), 'utf8')).length > 100);
   for (const tier of tiers) {
     assert.ok((await readFile(join('blueprints', tier, 'README.md'), 'utf8')).length > 100, `${tier}: missing README`);
@@ -19,7 +19,7 @@ test('blueprints are grouped into beginner, intermediate, and expert tiers', asy
   const unexpected = (await readdir('blueprints', { withFileTypes: true }))
     .filter(entry => entry.isDirectory() && !tiers.includes(entry.name));
   assert.deepEqual(unexpected, []);
-  assert.ok(sources.some(source => source.tier === 'beginner'));
+  assert.ok(sources.length > 0);
 });
 
 test('each blueprint README explains setup, use, and safety in plain sections', async () => {

@@ -3,14 +3,5 @@
 .env.*
 !.env.example
 
-# Local Azure CLI state
-.azure/
-
-# Terraform local state and plans
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-
 # Local blueprint execution output
 .blueprint-output/

@@ -1,14 +1,12 @@
 # Agentic Blueprints
 
-> From idea to agent. Practical blueprints for real-world agentic workflows.
-
-🧠 Practical blueprints, patterns, and working examples for building real-world agentic workflows.
+> From idea to agent. Practical blueprints, patterns, and working examples for real-world agentic workflows.
 
 Agentic Blueprints is an open-source developer resource for learning from, running, adapting, and contributing reusable implementations of agentic workflows.
 
 ## Start here
 
-New to agentic workflows? Pick a [Beginner blueprint](blueprints/beginner/). Each one is a single file you copy, compile, and commit, with nothing else to set up.
+New to agentic workflows? Pick a [Beginner blueprint](blueprints/beginner/). Each one is a single file you copy, compile, and commit, with no repository-specific settings to configure.
 
 ## Blueprints
 
@@ -19,10 +17,7 @@ Blueprints are grouped by [experience level](blueprints/):
 | 🟢 Beginner | [Issue Helper](blueprints/beginner/issue-helper/) | An issue is opened | A friendly comment that summarises the issue and asks for missing details |
 | 🟢 Beginner | [Plain-Language Release Notes](blueprints/beginner/plain-language-release-notes/) | An issue is completed by a merged pull request | A comment that explains the change for non-technical colleagues |
 | 🟢 Beginner | [Weekly Update](blueprints/beginner/weekly-update/) | Every Monday, or on demand | An issue summarising the past week |
-| 🟠 Intermediate | [Coming soon](blueprints/intermediate/) | | |
-| 🔴 Expert | [Coming soon](blueprints/expert/) | | |
-
-Each blueprint is **one self-contained gh-aw Markdown file** with a README. Beginner blueprints only read your repository and post one comment or open one issue. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.
+Each blueprint is **one self-contained gh-aw Markdown file** with a README. These workflows only read your repository and post one comment or open one issue. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.
 
 ### Setup in three steps
 
@@ -39,20 +34,9 @@ One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh
 - [Human-in-the-Loop](patterns/human-in-the-loop.md)
 - [Planner-Executor](patterns/planner-executor.md)
 
-## Building blocks
-
-- [Approval Gate](building-blocks/approval-gate.md)
-- [Evaluator](building-blocks/evaluator.md)
-
 ## Getting started
 
 Choose a blueprint and copy its single workflow file; cloning this collection is optional. See the [Getting Started guide](docs/getting-started.md) and [What Is Agentic?](docs/what-is-agentic.md) for a practical introduction. To propose or create a blueprint, read [Contributing](CONTRIBUTING.md) and [Creating a Blueprint](docs/creating-a-blueprint.md).
-
-## Roadmap
-
-**Included:** three Beginner gh-aw blueprints and repository-only source validation tests.
-
-**Next:** Intermediate blueprints (labels, manual runs, team settings) and Expert blueprints (external evidence, multi-step investigations). No agent is planned to duplicate Dependabot or other built-in GitHub features.
 
 ## Contributing
 

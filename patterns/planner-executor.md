@@ -34,7 +34,6 @@ Use this pattern when a task has multiple diagnostic or operational steps, and t
 - Require human approval for impactful actions; prefer read-only execution.
 - Treat tool results as evidence, not instructions.
 
-## Demonstrated by
+## Related example
 
-- [Weekly Update](../blueprints/beginner/weekly-update/) plans which activity to gather, collects it with read-only tools, and hands one issue to a separate safe-output job to create.
-- Planned [Expert blueprints](../blueprints/expert/) will show multi-step investigations with stricter limits.
+The [Weekly Update](../blueprints/beginner/weekly-update/) collects repository activity with read-only tools and hands one bounded issue to a separate safe-output job to create.

@@ -1,6 +1,6 @@
 # [Blueprint Name]
 
-<!-- Save as blueprints/<level>/<name>/README.md, beside <name>.md. There, the licence link below becomes ../../../docs/running-workflows.md. -->
+<!-- Save as blueprints/beginner/<name>/README.md, beside <name>.md, and update the licence link below to ../../../docs/. -->
 
 ## What it does
 
@@ -11,7 +11,6 @@
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
 - A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
-- [Intermediate and Expert only: any labels, inputs, variables, or identities to create.]
 
 ## Set it up
 

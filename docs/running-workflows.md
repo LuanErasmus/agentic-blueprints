@@ -27,7 +27,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 
 ## Install one blueprint
 
-1. **Copy one file.** Copy `blueprints/<level>/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
+1. **Copy one file.** Copy `blueprints/beginner/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
 2. **Compile.** Run `gh aw compile <name>`. This creates `.github/workflows/<name>.lock.yml`, the GitHub Actions file that actually runs.
 3. **Commit.** Commit and push both files to your default branch. This collection distributes no lock files.
 4. **Try it.** Follow the **Try it** section in the blueprint's README.

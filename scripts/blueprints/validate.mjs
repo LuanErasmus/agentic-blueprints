@@ -3,7 +3,7 @@ import { join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { pathToFileURL } from 'node:url';
 
-export const tiers = ['beginner', 'intermediate', 'expert'];
+export const tiers = ['beginner'];
 
 export async function workflowSources() {
   const sources = [];

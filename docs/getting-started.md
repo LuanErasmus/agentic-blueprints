@@ -10,7 +10,7 @@ Browse the [Beginner blueprints](../blueprints/):
 - [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) explains completed work for non-technical colleagues.
 - [Weekly Update](../blueprints/beginner/weekly-update/) opens a weekly summary issue.
 
-Beginner blueprints need no labels, secrets, or settings. Copy them as they are.
+Beginner blueprints need no custom labels or secrets. Automatic triggers are included. Most work as copied; CI Failure Explainer needs the name of the CI workflow it monitors and a branch-name edit if your default branch is not `main`. Dependabot Readiness needs Actions PR creation to be allowed and separate Dependabot security settings for security updates; read its prerequisites. Weekly schedules can optionally be changed in the Markdown file before compiling.
 
 ## One-time prerequisites
 

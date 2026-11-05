@@ -42,7 +42,8 @@ Use about 1,000 tokens total for reading, reasoning, and writing. This is a soft
    - pull requests merged;
    - issues opened;
    - issues closed.
-   Use available titles and summaries only. Report only how many items were reviewed in each category, not repository-wide totals. If a category cannot be checked, say so or omit it; do not guess or fabricate counts.
+   Exclude issues created by these reporting blueprints using their title prefixes: `[weekly update]`, `[Actions health]`, `[CI diagnosis]`, `[documentation check]`, `[workflow permissions]`, and the older `[dependabot readiness]` recommendation issues. Where search supports it, exclude these issue titles before applying the three-item limit; otherwise filter the returned sample without fetching replacements. Do not exclude substantive dependency PRs or all bot-authored work.
+   Use available titles and summaries only. Report only how many eligible items were reviewed in each category after filtering, not repository-wide totals. If a category cannot be checked, say so or omit it; do not guess or fabricate counts.
 2. Create at most one issue. Use a title like `Week of <date of Monday>`, and this layout for the body:
 
    ```markdown
@@ -69,5 +70,5 @@ Use about 1,000 tokens total for reading, reasoning, and writing. This is a soft
 ## Writing rules
 
 - Use short sentences and everyday words. Explain the benefit, not the code.
-- If the checked activity confirms nothing happened, create one issue and say it was a quiet week.
+- If all three queries are complete and empty after excluding report issues, create one issue and say no non-report activity was found in the checked window. If only a filtered or incomplete sample is available, say "No non-report activity was found in this sample"; never claim nothing happened across the repository.
 - Do not guess about work that is not shown in the repository.

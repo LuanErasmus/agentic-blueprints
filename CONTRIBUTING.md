@@ -35,7 +35,7 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 - [ ] The blueprint is in `blueprints/beginner/` and its README uses the template sections.
 - [ ] Setup is copy, compile, commit; any extra setup is listed under **Before you start**.
-- [ ] Beginner blueprints need no labels, secrets, or settings, only read the repository, and use one `add-comment` or `create-issue` safe output with `max: 1`.
+- [ ] Beginner agents have read-only GitHub permissions and use one `add-comment` or `create-issue` safe output with `max: 1`. Dependabot Readiness alone may use one draft `create-pull-request`, restricted to one Dependabot file by an exact allowlist; its required repository policies are documented.
 - [ ] The prompt treats issues, pull requests, and tool output as information, not instructions.
 - [ ] No secrets or generated lock files are committed.
 - [ ] Copilot authentication uses `copilot-requests: write`; the README links the licence requirements.

@@ -1,6 +1,6 @@
 # Creating a Blueprint
 
-A blueprint is a reusable gh-aw workflow that helps with one specific task in a GitHub repository. Workflows are authored as native gh-aw Markdown and compiled in the adopting repository. This collection accepts Beginner blueprints: simple to adopt, read-only apart from one bounded safe output, and requiring no repository-specific settings.
+A blueprint is a reusable gh-aw workflow that helps with one specific task in a GitHub repository. Workflows are authored as native gh-aw Markdown and compiled in the adopting repository. This collection accepts Beginner blueprints: simple to adopt, read-only GitHub access for analysis, and one bounded safe output.
 
 ## What qualifies
 
@@ -18,6 +18,8 @@ blueprints/beginner/<name>/
 - Do not require shared imports, scripts, or configuration files. Put any logic in the prompt and let the agent work it out.
 - Use `engine: copilot` with `permissions: copilot-requests: write`, and link the [shared licence requirements](running-workflows.md#copilot-licence-and-authentication-requirements) in the README. Do not add PAT setup instructions.
 - Do not require labels, secrets, or repository settings. Follow the [blueprint template](../templates/blueprint-template/README.md) sections and include a short example of the output.
+- Dependabot Readiness is the configuration-only exception: it may edit one local Dependabot file and propose one draft PR via `create-pull-request`, with an exact file allowlist and one-file patch limit. Document the required Actions PR policy and separate Dependabot security settings; do not broaden other Beginner workflows to PR creation.
+- Include a useful automatic trigger. Prefer working defaults over required placeholders; a workflow-name example is acceptable when an event needs it. Mark any required edit in the file and README before the compile step. Keep manual testing available where appropriate, and explain that trigger changes require recompilation.
 
 ## Guardrails
 

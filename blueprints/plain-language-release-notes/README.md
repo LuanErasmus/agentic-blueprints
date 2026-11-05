@@ -6,6 +6,8 @@ When an issue is closed as **completed** and one merged pull request is linked t
 
 The pull request is still the technical record. This comment explains it in everyday words. If no merged pull request is linked, the agent does nothing.
 
+Reopening and closing an issue does not produce another note for the same merged PR and merge commit when an existing note can be verified. A previous "waiting for merge" comment does not prevent the completed note.
+
 ## Before you start
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
@@ -63,7 +65,8 @@ All changes are optional. Edit the Markdown below the `---` lines (no recompile 
 - Can post at most one comment, on the closed issue.
 - Skips issues closed as "not planned." If no pull request is linked, it does not comment; if multiple pull requests make the change unclear, it stops without guessing.
 - Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
-- Checks only the directly linked merged pull request and bases its summary on focused diffs from up to three relevant, non-generated files. It stops rather than guessing or retrying failed lookups.
+- Checks the issue, up to twenty recent comments, and the directly linked PR. Previous notes are used only for duplicate detection; the summary is based on focused diffs from up to three relevant, non-generated files.
+- Uses hidden source markers to distinguish waiting messages from completed notes. It skips posting if the comment check fails or is incomplete; technical source IDs stay out of the visible note.
 - If one clearly linked pull request is still open, explains that notes are pending; after merge, reopen and close the issue as completed to trigger the workflow again.
 - Describes concrete changes shown in the diff; it does not substitute a generic description of the workflow for release details.
 - Omits unsupported audience-impact claims and never promises that no action is needed unless the PR diff confirms it.

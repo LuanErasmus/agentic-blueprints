@@ -28,6 +28,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 ## Install one blueprint
 
 1. **Copy one file.** Copy `blueprints/beginner/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
+   For CI Failure Explainer, replace the example `CI` with your CI workflow's top-level `name:` and change `branches: [main]` if your default branch is named differently.
 2. **Compile.** Run `gh aw compile <name>`. This creates `.github/workflows/<name>.lock.yml`, the GitHub Actions file that actually runs.
 3. **Commit.** Commit and push both files to your default branch. This collection distributes no lock files.
 4. **Try it.** Follow the **Try it** section in the blueprint's README.
@@ -44,6 +45,14 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 | Issue Helper | Issue opened (not by a bot) | One comment on that issue |
 | Plain-Language Release Notes | Issue closed as completed; does nothing without a linked merged pull request | One comment on that issue |
 | Weekly Update | Every Monday, or **Actions → Run workflow** | One new issue; closes the previous update issue |
+| Dependabot Readiness | Every Monday, or **Actions → Run workflow** | One draft PR for grouped Dependabot configuration |
+| CI Failure Explainer | Named CI workflow fails on the default branch, or **Actions → Run workflow** | One diagnosis issue |
+| Documentation Drift Report | Every Monday, or **Actions → Run workflow** | One documentation-gap issue |
+| Pull Request Simplification Review | Non-draft PR opened, updated, or marked ready for review | One optional comment |
+| Workflow Permission Check | Every Monday, or **Actions → Run workflow** | One permission-review issue |
+| Actions Health Report | Every Monday, or **Actions → Run workflow** | One sampled-health issue |
+
+Weekly schedules work as copied. To choose another day, change `schedule: weekly on monday` to `schedule: weekly on friday`, then recompile and commit both files. Keep `workflow_dispatch:` for manual testing. If you change the frequency, also review the prompt's lookback window and inference costs.
 
 The gh-aw role gate only runs event-triggered workflows for people with `admin`, `maintainer`, or `write` access by default. Add `roles: all` under `on:` and recompile if you want events from anyone to trigger a workflow.
 
@@ -60,10 +69,12 @@ The agent is warned as it approaches the limit and is stopped when it reaches it
 ## How the safety model works
 
 - The agent runs in a sandbox with **read-only** access to your repository.
-- It cannot write to GitHub directly. It proposes **one** comment or issue, and a separate gh-aw job checks and posts it.
+- It cannot write to GitHub directly. It proposes **one** comment, issue, or the configuration-only draft PR described below, and a separate gh-aw job checks and posts it.
 - Issues, pull requests, and comments are treated as information, never as instructions.
 - Selected repository content is sent to the Copilot service; follow your company's data policy.
 - Outputs can be wrong or incomplete. People keep every decision.
+
+Dependabot Readiness may edit a local configuration file, with an enforced PR allowlist restricted to `.github/dependabot.yml` and `.github/dependabot.yaml` and a one-file patch limit. It never upgrades packages or merges its proposal. The repository or organisation must allow Actions to create PRs; Dependabot security features must be enabled separately. Review its prerequisites and the generated configuration before merging. Built-in-token PRs may not trigger CI automatically.
 
 ## Collection maintenance only
 

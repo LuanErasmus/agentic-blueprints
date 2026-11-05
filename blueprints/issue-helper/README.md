@@ -11,6 +11,8 @@ When someone opens an issue, the agent reads it and posts **one** friendly comme
 
 It does not change the issue. A person still decides on labels, assignees, and next steps.
 
+It checks answers already provided in issue-template fields, checked options, logs, and reproduction steps before asking questions. Empty headings and "No response" placeholders do not count as answers.
+
 ## Before you start
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
@@ -49,7 +51,6 @@ Within a few minutes, the **Issue Helper** run appears on the **Actions** tab an
 > **Questions**
 > 1. Which browser and version are you using?
 > 2. Does this happen for every report, or only some?
-> 3. Do you see any error message?
 >
 > **Suggested labels:** `bug`
 

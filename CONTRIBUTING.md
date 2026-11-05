@@ -17,8 +17,8 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 ## Create a blueprint
 
 1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md).
-2. Create `blueprints/beginner/<name>/` and copy `templates/blueprint-template/README.md` into it.
-3. Author one self-contained gh-aw Markdown file, `blueprints/beginner/<name>/<name>.md`, not in this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, scripts, or configuration files. Use `copilot-requests: write` and link the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+2. Create `blueprints/<name>/` and copy `templates/blueprint-template/README.md` into it.
+3. Author one self-contained gh-aw Markdown file, `blueprints/<name>/<name>.md`, not in this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, scripts, or configuration files. Use `copilot-requests: write` and link the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 4. Fill in every README section and keep it consistent with the workflow, including a short example of the output.
 5. With Node.js 24 and gh-aw installed, run `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files; explain what you could not verify, such as live runs.
 6. Open a pull request. For a substantial new blueprint, start with the **Blueprint Proposal** issue form.
@@ -33,9 +33,9 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 ## Blueprint checklist
 
-- [ ] The blueprint is in `blueprints/beginner/` and its README uses the template sections.
+- [ ] The blueprint is in `blueprints/` and its README uses the template sections.
 - [ ] Setup is copy, compile, commit; any extra setup is listed under **Before you start**.
-- [ ] Beginner agents have read-only GitHub permissions and use one `add-comment` or `create-issue` safe output with `max: 1`. Dependabot Readiness alone may use one draft `create-pull-request`, restricted to one Dependabot file by an exact allowlist; its required repository policies are documented.
+- [ ] Blueprint agents have read-only GitHub permissions and use one `add-comment` or `create-issue` safe output with `max: 1`. Dependabot Readiness alone may use one draft `create-pull-request`, restricted to one Dependabot file by an exact allowlist; its required repository policies are documented.
 - [ ] The prompt treats issues, pull requests, and tool output as information, not instructions.
 - [ ] No secrets or generated lock files are committed.
 - [ ] Copilot authentication uses `copilot-requests: write`; the README links the licence requirements.

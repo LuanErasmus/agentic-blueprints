@@ -6,23 +6,23 @@ Agentic Blueprints is an open-source developer resource for learning from, runni
 
 ## Start here
 
-New to agentic workflows? Pick a [Beginner blueprint](blueprints/beginner/). Each one is a single file you copy, compile, and commit. Automatic triggers are included; only CI Failure Explainer needs your CI workflow's name and, if different from `main`, your default branch's name.
+New to agentic workflows? Pick a [blueprint](blueprints/). Each one is a single file you copy, compile, and commit. Automatic triggers are included; only CI Failure Explainer needs your CI workflow's name and, if different from `main`, your default branch's name.
 
 ## Blueprints
 
-Blueprints are grouped by [experience level](blueprints/):
+Browse the [blueprint collection](blueprints/):
 
-| Level | Blueprint | Runs when | Result |
-|---|---|---|---|
-| 🟢 Beginner | [Issue Helper](blueprints/beginner/issue-helper/) | An issue is opened | A friendly comment that summarises the issue and asks for missing details |
-| 🟢 Beginner | [Plain-Language Release Notes](blueprints/beginner/plain-language-release-notes/) | An issue is completed by a merged pull request | A comment that explains the change for non-technical colleagues |
-| 🟢 Beginner | [Weekly Update](blueprints/beginner/weekly-update/) | Every Monday, or on demand | An issue summarising the past week |
-| 🟢 Beginner | [Dependabot Readiness](blueprints/beginner/dependabot-readiness/) | Every Monday, or on demand | A draft PR adding or updating grouped Dependabot configuration |
-| 🟢 Beginner | [CI Failure Explainer](blueprints/beginner/ci-failure-explainer/) | Your named CI workflow fails on the default branch, or on demand | An evidence-based diagnosis of a failed Actions run |
-| 🟢 Beginner | [Documentation Drift Report](blueprints/beginner/docs-drift-report/) | Every Monday, or on demand | A report of a verified mismatch between recent code and documentation |
-| 🟢 Beginner | [Pull Request Simplification Review](blueprints/beginner/pr-simplification-review/) | A non-draft PR is opened, updated, or marked ready for review | One optional suggestion to simplify changed code without changing behavior |
-| 🟢 Beginner | [Workflow Permission Check](blueprints/beginner/workflow-permission-check/) | Every Monday, or on demand | A review of clearly unused permissions in a bounded sample of workflows |
-| 🟢 Beginner | [Actions Health Report](blueprints/beginner/actions-health-report/) | Every Monday, or on demand | A snapshot of sampled Actions runs and repeated failures |
+| Blueprint | Runs when | Result |
+|---|---|---|
+| [Issue Helper](blueprints/issue-helper/) | An issue is opened | A friendly comment that summarises the issue and asks for missing details |
+| [Plain-Language Release Notes](blueprints/plain-language-release-notes/) | An issue is completed by a merged pull request | A comment that explains the change for non-technical colleagues |
+| [Weekly Update](blueprints/weekly-update/) | Every Monday, or on demand | An issue summarising the past week |
+| [Dependabot Readiness](blueprints/dependabot-readiness/) | Every Monday, or on demand | A draft PR adding or updating grouped Dependabot configuration |
+| [CI Failure Explainer](blueprints/ci-failure-explainer/) | Your named CI workflow fails on the default branch, or on demand | An evidence-based diagnosis of a failed Actions run |
+| [Documentation Drift Report](blueprints/docs-drift-report/) | Every Monday, or on demand | A report of a verified mismatch between recent code and documentation |
+| [Pull Request Simplification Review](blueprints/pr-simplification-review/) | A non-draft PR is opened, updated, or marked ready for review | One optional suggestion to simplify changed code without changing behavior |
+| [Workflow Permission Check](blueprints/workflow-permission-check/) | Every Monday, or on demand | A review of clearly unused permissions in a bounded sample of workflows |
+| [Actions Health Report](blueprints/actions-health-report/) | Every Monday, or on demand | A snapshot of sampled Actions runs and repeated failures |
 
 These six new blueprints take ideas from the GitHub Agentic Workflows Gallery and reshape them for this collection: no cross-repository credentials and one bounded, reviewable output.
 Each blueprint is **one self-contained gh-aw Markdown file** with a README. Most read your repository and post one comment or open one issue. Dependabot Readiness instead proposes one draft PR restricted to Dependabot configuration; it never upgrades packages or merges changes. It requires Actions PR creation to be allowed, and security updates must be enabled separately. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.

@@ -1,4 +1,4 @@
-# Beginner blueprints
+# Blueprints
 
 Start here if this is your first agentic workflow. These gallery-inspired blueprints are adapted for this collection's simple, minimal-setup style rather than copied as full gallery implementations. Each blueprint:
 
@@ -18,13 +18,13 @@ Start here if this is your first agentic workflow. These gallery-inspired bluepr
 | [Workflow Permission Check](workflow-permission-check/) | Every Monday, or on demand | A review of clearly unused permissions in a bounded sample of workflows. |
 | [Actions Health Report](actions-health-report/) | Every Monday, or on demand | A snapshot of sampled Actions runs and repeated failures. |
 
-## Set up any Beginner blueprint
+## Set up any blueprint
 
 1. Copy the blueprint's `.md` file into `.github/workflows/` in your repository. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
 2. Run `gh aw compile <name>` to create the matching `.lock.yml` file.
 3. Commit and push both files to your default branch.
 
-Before your first run, check the [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+Before your first run, check the [Copilot licence requirements](../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 
 Most blueprints only post a comment or issue. Dependabot Readiness can propose one draft PR changing only Dependabot configuration. Actions PR creation must be allowed, and security updates must be enabled separately; see its **Before you start** section. It never upgrades dependencies or merges its proposal.
 

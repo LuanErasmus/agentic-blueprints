@@ -10,7 +10,7 @@ Existing configuration is updated in place, not replaced wholesale. If it alread
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
-- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 - Your repository or organisation must allow GitHub Actions to create pull requests. If blocked, an administrator must enable **Allow GitHub Actions to create and approve pull requests** in **Settings > Actions > General > Workflow permissions**. This blueprint never approves PRs and needs no PAT.
 - To receive security update PRs, enable the dependency graph, Dependabot alerts, and Dependabot security updates in repository settings where supported. Grouping configuration does not enable them.
 

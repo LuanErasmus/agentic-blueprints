@@ -1,6 +1,6 @@
 # [Blueprint Name]
 
-<!-- Save as blueprints/beginner/<name>/README.md, beside <name>.md, and update the licence link below to ../../../docs/. -->
+<!-- Save as blueprints/<name>/README.md, beside <name>.md, and update the licence link below to ../../docs/. -->
 
 ## What it does
 

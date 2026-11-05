@@ -36,4 +36,4 @@ Use this pattern when a task has multiple diagnostic or operational steps, and t
 
 ## Related example
 
-The [Weekly Update](../blueprints/beginner/weekly-update/) collects repository activity with read-only tools and hands one bounded issue to a separate safe-output job to create.
+The [Weekly Update](../blueprints/weekly-update/) collects repository activity with read-only tools and hands one bounded issue to a separate safe-output job to create.

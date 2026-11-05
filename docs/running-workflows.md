@@ -27,7 +27,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 
 ## Install one blueprint
 
-1. **Copy one file.** Copy `blueprints/beginner/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
+1. **Copy one file.** Copy `blueprints/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
    For CI Failure Explainer, replace the example `CI` with your CI workflow's top-level `name:` and change `branches: [main]` if your default branch is named differently.
 2. **Compile.** Run `gh aw compile <name>`. This creates `.github/workflows/<name>.lock.yml`, the GitHub Actions file that actually runs.
 3. **Commit.** Commit and push both files to your default branch. This collection distributes no lock files.
@@ -38,7 +38,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 - **Instructions** (the Markdown below the second `---`) are read at run time. Edit and commit; no recompile needed.
 - **Settings** (the frontmatter between the `---` lines, such as triggers, schedule, or permissions) require `gh aw compile <name>` again.
 
-## Beginner triggers
+## Blueprint triggers
 
 | Blueprint | Trigger | Output |
 |---|---|---|
@@ -64,7 +64,7 @@ Every run uses Copilot inference. gh-aw caps spending by default: **1,000 AI cre
 max-ai-credits: 200
 ```
 
-The agent is warned as it approaches the limit and is stopped when it reaches it. `timeout-minutes` also limits each run. The Beginner blueprints use a 10-credit per-run cap and a five-minute timeout. Their approximately 1,000-token prompt budget is guidance, not a hard token-meter limit; the enforceable limit is AI-credit spending. Each prompt also bounds the evidence it reads, output size, and when to stop. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
+The agent is warned as it approaches the limit and is stopped when it reaches it. `timeout-minutes` also limits each run. The blueprints use a 10-credit per-run cap and a five-minute timeout. Their approximately 1,000-token prompt budget is guidance, not a hard token-meter limit; the enforceable limit is AI-credit spending. Each prompt also bounds the evidence it reads, output size, and when to stop. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
 
 ## How the safety model works
 

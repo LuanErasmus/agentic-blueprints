@@ -10,7 +10,7 @@ Draft PRs are skipped. Before commenting, it checks existing conversation commen
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
-- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 
 ## Set it up
 

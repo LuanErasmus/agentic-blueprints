@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { access, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
-import { stageWorkflowSources, tiers, workflowSources } from './validate.mjs';
+import { stageWorkflowSources, workflowSources } from './validate.mjs';
 
 const sources = await workflowSources();
 
@@ -11,21 +11,21 @@ function frontmatterOf(source) {
   return source.split(/^---\r?$/m)[1];
 }
 
-test('blueprints are limited to the beginner tier', async () => {
+test('each blueprint lives directly under the blueprints directory', async () => {
   assert.ok((await readFile(join('blueprints', 'README.md'), 'utf8')).length > 100);
-  for (const tier of tiers) {
-    assert.ok((await readFile(join('blueprints', tier, 'README.md'), 'utf8')).length > 100, `${tier}: missing README`);
+  const directories = (await readdir('blueprints', { withFileTypes: true }))
+    .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
+  assert.deepEqual(sources.map(source => source.slug).sort(), directories);
+  for (const { slug, path } of sources) {
+    assert.equal(path, join('blueprints', slug, `${slug}.md`));
   }
-  const unexpected = (await readdir('blueprints', { withFileTypes: true }))
-    .filter(entry => entry.isDirectory() && !tiers.includes(entry.name));
-  assert.deepEqual(unexpected, []);
   assert.ok(sources.length > 0);
 });
 
 test('each blueprint README explains setup, use, and safety in plain sections', async () => {
   const sections = ['What it does', 'Before you start', 'Set it up', 'Try it', "What you'll see", 'Change it', 'Safety'];
-  for (const { tier, slug, id } of sources) {
-    const readme = await readFile(join('blueprints', tier, slug, 'README.md'), 'utf8');
+  for (const { slug, id } of sources) {
+    const readme = await readFile(join('blueprints', slug, 'README.md'), 'utf8');
     for (const section of sections) assert.ok(readme.includes(`## ${section}`), `${slug}: missing ${section}`);
     assert.ok(readme.includes(`gh aw compile ${id}`), `${slug}: missing compile command`);
     assert.ok(readme.includes('running-workflows.md#copilot-licence-and-authentication-requirements'));
@@ -45,8 +45,8 @@ test('each workflow is a single file with no custom scripts or setup steps', asy
   }
 });
 
-test('beginner agents have read-only GitHub permissions and one bounded safe output', async () => {
-  for (const { path, slug, tier } of sources.filter(source => source.tier === 'beginner')) {
+test('blueprint agents have read-only GitHub permissions and one bounded safe output', async () => {
+  for (const { path, slug } of sources) {
     const source = await readFile(path, 'utf8');
     const frontmatter = frontmatterOf(source);
     const writePermissions = [...frontmatter.matchAll(/^  ([\w-]+): write$/gm)].map(match => match[1]);
@@ -58,7 +58,7 @@ test('beginner agents have read-only GitHub permissions and one bounded safe out
     const safeOutputs = frontmatter.split(/^safe-outputs:\r?$/m)[1];
     assert.ok(safeOutputs, `${slug}: missing safe-outputs`);
     const outputs = [...safeOutputs.matchAll(/^  ([\w-]+):/gm)].map(match => match[1]);
-    assert.equal(outputs.length, 1, `${slug}: ${tier} workflows use exactly one safe output`);
+    assert.equal(outputs.length, 1, `${slug}: workflows use exactly one safe output`);
     const allowedOutputs = slug === 'dependabot-readiness'
       ? ['create-pull-request']
       : ['add-comment', 'create-issue'];
@@ -69,7 +69,7 @@ test('beginner agents have read-only GitHub permissions and one bounded safe out
 
 test('Dependabot PRs are restricted to one configuration file and preserve review boundaries', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'dependabot-readiness', 'dependabot-readiness.md'), 'utf8',
+    join('blueprints', 'dependabot-readiness', 'dependabot-readiness.md'), 'utf8',
   );
   const frontmatter = frontmatterOf(source);
   assert.match(frontmatter, /^  edit:$/m);
@@ -104,11 +104,11 @@ test('Dependabot PRs are restricted to one configuration file and preserve revie
 
 test('repository checks run weekly with manual testing available', async () => {
   for (const slug of ['dependabot-readiness', 'docs-drift-report', 'workflow-permission-check', 'actions-health-report']) {
-    const source = await readFile(join('blueprints', 'beginner', slug, `${slug}.md`), 'utf8');
+    const source = await readFile(join('blueprints', slug, `${slug}.md`), 'utf8');
     const frontmatter = frontmatterOf(source);
     assert.match(frontmatter, /^  schedule: weekly on monday(?: #.*)?$/m, `${slug}: missing automatic schedule`);
     assert.match(frontmatter, /^  workflow_dispatch:$/m, `${slug}: missing manual trigger`);
-    const readme = await readFile(join('blueprints', 'beginner', slug, 'README.md'), 'utf8');
+    const readme = await readFile(join('blueprints', slug, 'README.md'), 'utf8');
     assert.match(readme, /Every Monday/);
     assert.match(readme, /weekly on friday/);
   }
@@ -116,7 +116,7 @@ test('repository checks run weekly with manual testing available', async () => {
 
 test('CI diagnosis monitors failed default-branch runs and targets the triggering run', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'ci-failure-explainer', 'ci-failure-explainer.md'), 'utf8',
+    join('blueprints', 'ci-failure-explainer', 'ci-failure-explainer.md'), 'utf8',
   );
   const frontmatter = frontmatterOf(source);
   assert.match(frontmatter, /^  workflow_run:$/m);
@@ -132,7 +132,7 @@ test('CI diagnosis monitors failed default-branch runs and targets the triggerin
   assert.match(source, /Do not substitute a newer failure/);
   assert.match(source, /download artifacts, check out the failed run's code, or execute repository code/);
   const readme = await readFile(
-    join('blueprints', 'beginner', 'ci-failure-explainer', 'README.md'), 'utf8',
+    join('blueprints', 'ci-failure-explainer', 'README.md'), 'utf8',
   );
   assert.match(readme, /exact top-level `name:`/);
   assert.match(readme, /workflows: \["Build and Test"\]/);
@@ -140,7 +140,7 @@ test('CI diagnosis monitors failed default-branch runs and targets the triggerin
 
 test('release notes require changed-file evidence and prohibit generic claims', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'plain-language-release-notes', 'plain-language-release-notes.md'),
+    join('blueprints', 'plain-language-release-notes', 'plain-language-release-notes.md'),
     'utf8',
   );
   assert.match(source, /inspect its changed-file list and focused diff evidence/);
@@ -154,7 +154,7 @@ test('release notes require changed-file evidence and prohibit generic claims', 
 
 test('PR suggestions skip drafts, superseded runs, and repeated comments', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'pr-simplification-review', 'pr-simplification-review.md'), 'utf8',
+    join('blueprints', 'pr-simplification-review', 'pr-simplification-review.md'), 'utf8',
   );
   const frontmatter = frontmatterOf(source);
   assert.match(frontmatter, /types: \[opened, synchronize, ready_for_review\]/);
@@ -170,7 +170,7 @@ test('PR suggestions skip drafts, superseded runs, and repeated comments', async
 
 test('CI diagnoses search for existing failures and provide confirmation criteria', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'ci-failure-explainer', 'ci-failure-explainer.md'), 'utf8',
+    join('blueprints', 'ci-failure-explainer', 'ci-failure-explainer.md'), 'utf8',
   );
   assert.match(frontmatterOf(source), /toolsets: \[actions, repos, issues\]/);
   assert.match(source, /one concrete confirmation step/);
@@ -183,7 +183,7 @@ test('CI diagnoses search for existing failures and provide confirmation criteri
 
 test('release notes distinguish repeated merged notes from waiting messages', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'plain-language-release-notes', 'plain-language-release-notes.md'), 'utf8',
+    join('blueprints', 'plain-language-release-notes', 'plain-language-release-notes.md'), 'utf8',
   );
   assert.match(source, /up to twenty recent comments once/);
   assert.match(source, /comment check fails or is incomplete within the limit/);
@@ -196,7 +196,7 @@ test('release notes distinguish repeated merged notes from waiting messages', as
 
 test('Actions health counts unfinished runs separately and bounds timing claims', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'actions-health-report', 'actions-health-report.md'), 'utf8',
+    join('blueprints', 'actions-health-report', 'actions-health-report.md'), 'utf8',
   );
   assert.match(source, /Exclude runs of this reporting workflow by its workflow ID or path/);
   assert.match(source, /Do not fetch replacement runs or paginate/);
@@ -209,7 +209,7 @@ test('Actions health counts unfinished runs separately and bounds timing claims'
 
 test('weekly summaries exclude report issues without dropping useful automation', async () => {
   const source = await readFile(
-    join('blueprints', 'beginner', 'weekly-update', 'weekly-update.md'), 'utf8',
+    join('blueprints', 'weekly-update', 'weekly-update.md'), 'utf8',
   );
   for (const prefix of ['weekly update', 'Actions health', 'CI diagnosis', 'documentation check', 'workflow permissions']) {
     assert.ok(source.includes(`\`[${prefix}]\``), `missing report filter: ${prefix}`);
@@ -222,14 +222,14 @@ test('weekly summaries exclude report issues without dropping useful automation'
 
 test('documentation and permission findings require focused, complete evidence', async () => {
   const docs = await readFile(
-    join('blueprints', 'beginner', 'docs-drift-report', 'docs-drift-report.md'), 'utf8',
+    join('blueprints', 'docs-drift-report', 'docs-drift-report.md'), 'utf8',
   );
   assert.match(docs, /rather than automatically choosing the newest/);
   assert.match(docs, /up to two related documentation pages/);
   assert.match(docs, /suggested replacement sentence as a draft/);
   assert.match(docs, /If an exact replacement is not supported, omit it/);
   const permissions = await readFile(
-    join('blueprints', 'beginner', 'workflow-permission-check', 'workflow-permission-check.md'), 'utf8',
+    join('blueprints', 'workflow-permission-check', 'workflow-permission-check.md'), 'utf8',
   );
   assert.match(permissions, /job-level `permissions` overrides workflow-level permissions/);
   assert.match(permissions, /omitted scopes in an explicit mapping are `none`/);
@@ -239,14 +239,14 @@ test('documentation and permission findings require focused, complete evidence',
 });
 
 test('issue questions and Dependabot summaries are tailored to available evidence', async () => {
-  const issue = await readFile(join('blueprints', 'beginner', 'issue-helper', 'issue-helper.md'), 'utf8');
+  const issue = await readFile(join('blueprints', 'issue-helper', 'issue-helper.md'), 'utf8');
   assert.match(issue, /Do not ask for details already provided/);
   assert.match(issue, /placeholder text such as "No response" are not answers/);
   assert.match(issue, /at most two questions/);
-  const readme = await readFile(join('blueprints', 'beginner', 'issue-helper', 'README.md'), 'utf8');
+  const readme = await readFile(join('blueprints', 'issue-helper', 'README.md'), 'utf8');
   assert.equal([...readme.matchAll(/^> \d+\. /gm)].length, 2);
   const dependabot = await readFile(
-    join('blueprints', 'beginner', 'dependabot-readiness', 'dependabot-readiness.md'), 'utf8',
+    join('blueprints', 'dependabot-readiness', 'dependabot-readiness.md'), 'utf8',
   );
   assert.match(dependabot, /`Ecosystem`, `Directories`, `Grouping change`, and `Security limitations`/);
   assert.match(dependabot, /Distinguish added, updated, and unchanged coverage/);

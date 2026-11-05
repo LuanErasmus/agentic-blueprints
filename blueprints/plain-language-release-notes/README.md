@@ -12,7 +12,7 @@ Reopening and closing an issue does not produce another note for the same merged
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
-- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 - Pull requests that close issues, for example with `Fixes #123` in the pull request description, or linked through the issue's **Development** panel.
 
 ## Set it up

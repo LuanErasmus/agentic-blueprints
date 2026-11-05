@@ -38,6 +38,6 @@ An agent does not need broad autonomy to be useful. Define its goal, permitted t
 
 ## In these blueprints
 
-- [Issue Helper](../blueprints/beginner/issue-helper/) reads a new issue, decides what is missing, and asks for it in one comment.
-- [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) reads the merged pull requests behind a completed issue and explains them for non-technical colleagues.
-- [Weekly Update](../blueprints/beginner/weekly-update/) gathers a week of activity and chooses what is worth highlighting.
+- [Issue Helper](../blueprints/issue-helper/) reads a new issue, decides what is missing, and asks for it in one comment.
+- [Plain-Language Release Notes](../blueprints/plain-language-release-notes/) reads the merged pull requests behind a completed issue and explains them for non-technical colleagues.
+- [Weekly Update](../blueprints/weekly-update/) gathers a week of activity and chooses what is worth highlighting.

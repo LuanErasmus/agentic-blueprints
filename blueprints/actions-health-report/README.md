@@ -10,7 +10,7 @@ It excludes its own workflow, separates unfinished runs from completed outcomes,
 
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
-- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
+- A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 
 ## Set it up
 

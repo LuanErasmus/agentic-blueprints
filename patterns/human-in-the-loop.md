@@ -39,5 +39,5 @@ Use this pattern when an action changes user-visible state, affects infrastructu
 
 ## Demonstrated by
 
-- [Issue Helper](../blueprints/beginner/issue-helper/) suggests labels in a comment but never applies them.
-- [Plain-Language Release Notes](../blueprints/beginner/plain-language-release-notes/) marks every note as a draft for a person to check before sharing.
+- [Issue Helper](../blueprints/issue-helper/) suggests labels in a comment but never applies them.
+- [Plain-Language Release Notes](../blueprints/plain-language-release-notes/) marks every note as a draft for a person to check before sharing.

@@ -4,13 +4,14 @@ Optional Copilot customizations to help users create and review their own GitHub
 
 ## What's included
 
-Choose by what you need: [baseline instructions](instructions/), [a builder agent](agents/), or [focused review skills](skills/). Start with the builder for a new workflow; use the skills when reviewing an existing one.
+Choose by what you need: [baseline instructions](instructions/), [a builder agent](agents/), or [focused review and troubleshooting skills](skills/). Start with the builder for a new workflow; use the skills when reviewing or diagnosing an existing one.
 
 | File | Purpose |
 | --- | --- |
 | [Path-specific instructions](instructions/agentic-workflows.instructions.md) | Baseline guidance when Copilot works on workflow sources |
 | [Review skill](skills/review-agentic-workflows/SKILL.md) | An evidence-based review checklist for workflow changes |
 | [Least-privilege skill](skills/agentic-workflow-least-privilege/SKILL.md) | Trace required access and recommend justified reductions without breaking the task |
+| [Troubleshooter skill](skills/agentic-workflow-troubleshooter/SKILL.md) | Diagnose compilation, authentication, trigger, execution, and publication problems from evidence |
 | [Builder agent](agents/agentic-workflow-builder.agent.md) | Help turn an idea into a focused workflow and README |
 
 Each file is self-contained. The toolkit is distributed here rather than installed into this collection's `.github/` automatically.
@@ -24,6 +25,7 @@ Copy the files into your own repository using these destinations. Create missing
 | `instructions/agentic-workflows.instructions.md` | `.github/instructions/agentic-workflows.instructions.md` |
 | `skills/review-agentic-workflows/SKILL.md` | `.github/skills/review-agentic-workflows/SKILL.md` |
 | `skills/agentic-workflow-least-privilege/SKILL.md` | `.github/skills/agentic-workflow-least-privilege/SKILL.md` |
+| `skills/agentic-workflow-troubleshooter/SKILL.md` | `.github/skills/agentic-workflow-troubleshooter/SKILL.md` |
 | `agents/agentic-workflow-builder.agent.md` | `.github/agents/agentic-workflow-builder.agent.md` |
 
 Commit the chosen files. The instructions' `applyTo` pattern covers `.github/workflows/*.md`; adjust it if your source lives elsewhere. Matching README files are documentation, not workflow sources.
@@ -43,6 +45,8 @@ your-repository/
       review-agentic-workflows/
         SKILL.md
       agentic-workflow-least-privilege/
+        SKILL.md
+      agentic-workflow-troubleshooter/
         SKILL.md
     agents/
       agentic-workflow-builder.agent.md
@@ -94,7 +98,15 @@ For a focused access assessment, ask:
 
 The least-privilege skill separates the analysis agent's capabilities from setup and safe-output jobs. Read-only GitHub permissions alone do not make the entire workflow read-only. The builder and review skill can use it when installed and available; it is not a required dependency.
 
-The builder should explain unresolved choices, produce scoped files, and report compilation results or limitations. The reviewer should report concrete defects, not rewrite the workflow. A clean review is not proof of runtime safety or output quality.
+### Use the troubleshooter skill
+
+Provide the workflow source and the exact run URL or redacted compiler error, then ask:
+
+> Use agentic-workflow-troubleshooter to diagnose this workflow's failure or missing output. Trace the failing phase, cite the evidence, and recommend the smallest correction and a confirmation check. Do not edit files, change settings, or rerun the workflow.
+
+The skill separates compilation, trigger eligibility, authentication, agent execution, intentional no-output decisions, and safe-output publication. It uses bounded read-only evidence and does not request token values or automatically run live workflows. A missing secret or unavailable log may require an owner to verify metadata; never share credentials to complete the diagnosis.
+
+The builder should explain unresolved choices, produce scoped files, and report compilation results or limitations. The reviewer should report concrete defects, not rewrite the workflow. The troubleshooter should distinguish confirmed causes from hypotheses and report unresolved evidence gaps. A clean review or local compilation is not proof of runtime safety or output quality.
 
 ## Boundaries and customization
 

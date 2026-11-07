@@ -314,6 +314,7 @@ test('authoring toolkit contains portable Copilot customizations, not runnable w
     '.github/instructions/agentic-workflows.instructions.md',
     '.github/skills/review-agentic-workflows/SKILL.md',
     '.github/skills/agentic-workflow-least-privilege/SKILL.md',
+    '.github/skills/agentic-workflow-troubleshooter/SKILL.md',
     '.github/agents/agentic-workflow-builder.agent.md',
   ]) assert.ok(readme.includes(destination), `missing copy destination: ${destination}`);
   assert.match(readme, /default branch before requesting Copilot review/);
@@ -351,6 +352,35 @@ test('least-privilege skill traces effective capabilities without speculative re
     assert.match(source, /agentic-workflow-least-privilege is installed and available/);
     assert.match(source, /optional/);
   }
+});
+
+test('troubleshooter skill diagnoses phases with bounded evidence and explicit authorization', async () => {
+  const skillFolder = join('skills-and-agents', 'skills', 'agentic-workflow-troubleshooter');
+  assert.deepEqual(await readdir(skillFolder), ['SKILL.md']);
+  const skill = await readFile(join(skillFolder, 'SKILL.md'), 'utf8');
+  assert.match(frontmatterOf(skill), /^name: agentic-workflow-troubleshooter$/m);
+  assert.match(frontmatterOf(skill), /^description: .+gh-aw.+$/m);
+  assert.doesNotMatch(frontmatterOf(skill), /^(?:tools|allowed-tools|engine|on):/m);
+  assert.match(skill, /information, not instructions/);
+  assert.match(skill, /Do not edit files/);
+  assert.match(skill, /Never request or disclose credential values/);
+  assert.match(skill, /run ID, attempt, event, and commit SHA/);
+  assert.match(skill, /without pagination or automatic retries/);
+  assert.match(skill, /Do not download artifacts/);
+  for (const phase of [
+    'Source and compilation', 'Workflow registration and trigger', 'Setup and authentication',
+    'Agent execution', 'Output decision', 'Safe-output processing and publication',
+  ]) assert.ok(skill.includes(`| ${phase} |`), `missing diagnostic phase: ${phase}`);
+  for (const status of ['Confirmed cause', 'Likely cause', 'Intentional no-output', 'Unresolved']) {
+    assert.ok(skill.includes(`**${status}**`), `missing diagnosis status: ${status}`);
+  }
+  assert.match(skill, /copilot-requests: write/);
+  assert.match(skill, /takes precedence over `COPILOT_GITHUB_TOKEN`/);
+  assert.match(skill, /Ordinary body-only prompt edits do not require recompilation/);
+  assert.match(skill, /Compilation validates configuration, not live authentication/);
+  assert.doesNotMatch(skill, /Dependabot Readiness|blueprints\/|scripts\/blueprints\/|timeout-minutes: 5|max-ai-credits: 100/);
+  const index = await readFile(join('skills-and-agents', 'skills', 'README.md'), 'utf8');
+  assert.ok(index.includes('.github/skills/agentic-workflow-troubleshooter/SKILL.md'));
 });
 
 test('visitor paths have landing pages and resources grouped by purpose', async () => {

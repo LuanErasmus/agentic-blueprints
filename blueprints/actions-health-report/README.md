@@ -14,6 +14,8 @@ It excludes its own workflow, separates unfinished runs from completed outcomes,
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`actions-health-report.md`](actions-health-report.md) to `.github/workflows/actions-health-report.md` in your repository.
 2. Compile it:
 

@@ -42,6 +42,6 @@ The optional [Copilot helpers](skills-and-agents/) help users create and review 
 - [ ] Blueprint agents have read-only GitHub permissions and use one `add-comment` or `create-issue` safe output with `max: 1`. Dependabot Readiness alone may use one draft `create-pull-request`, restricted to one Dependabot file by an exact allowlist; its required repository policies are documented.
 - [ ] The prompt treats issues, pull requests, and tool output as information, not instructions.
 - [ ] No secrets or generated lock files are committed.
-- [ ] Copilot authentication uses `copilot-requests: write`; the README links the licence requirements.
+- [ ] Distributed sources default to `copilot-requests: write`; the README links licence requirements and the optional personal-plan setup before compilation.
 - [ ] `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs` pass.
 - [ ] The workflow complements built-in GitHub features rather than replacing them, and people keep every decision.

@@ -21,6 +21,8 @@ It checks answers already provided in issue-template fields, checked options, lo
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`issue-helper.md`](issue-helper.md) to `.github/workflows/issue-helper.md` in your repository.
 2. Compile it:
 

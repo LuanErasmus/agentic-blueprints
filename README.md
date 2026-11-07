@@ -16,6 +16,15 @@ Agentic Blueprints is an open-source developer resource for learning from, runni
 
 You do not need the whole repository. Copy one workflow or install only the Copilot helpers you want.
 
+> [!IMPORTANT]
+> **Can I run these workflows?**
+>
+> To run the blueprints unchanged, you need an **organisation-owned repository**, **Copilot Business or Enterprise**, GitHub Actions enabled, and the required Copilot CLI organisation-billing policies enabled by an administrator.
+>
+> **Using a personal Copilot plan?** All nine blueprints have an optional [personal-plan setup](docs/running-workflows.md#personal-plan-setup): remove the organisation inference permission from your copied source, add a narrowly scoped `COPILOT_GITHUB_TOKEN` Actions secret, and recompile. The token owner needs eligible Copilot CLI access. This path follows upstream documentation; personal-token live execution has not been verified here.
+>
+> Check the [full prerequisites](docs/running-workflows.md#copilot-licence-and-authentication-requirements) before your first run.
+
 ## Blueprints
 
 Browse the [blueprint collection](blueprints/):
@@ -37,13 +46,13 @@ Each blueprint is **one self-contained gh-aw Markdown file** with a README. Most
 
 ### Setup in three steps
 
-One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh-aw (`gh extension install github/gh-aw`), and confirm the Copilot licence below.
+One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh-aw (`gh extension install github/gh-aw`), and check the eligibility callout above.
 
 1. Copy the blueprint's `.md` file to `.github/workflows/` in your repository. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
-2. Run `gh aw compile <name>`.
+2. Choose [organisation or personal authentication](docs/running-workflows.md#copilot-licence-and-authentication-requirements), then run `gh aw compile <name>`.
 3. Commit and push the `.md` and generated `.lock.yml` to your default branch.
 
-**Copilot licence required to run:** these blueprints use `permissions: copilot-requests: write` and the built-in Actions token for organisation billing. Use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and have an administrator enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Personal Copilot plans alone do not enable this method in a personal repository. See [full eligibility, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Offline tests and source compilation do not require a Copilot licence.
+See [authentication, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Offline tests and source compilation do not require a Copilot licence.
 
 ## Build your own
 

@@ -14,6 +14,8 @@ Before creating an issue, it checks up to five matching open diagnosis issues. A
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`ci-failure-explainer.md`](ci-failure-explainer.md) to `.github/workflows/ci-failure-explainer.md` in your repository.
 2. In the copied file, replace the example `CI` with the exact top-level `name:` of the workflow to monitor, not its filename or a job name. For example, if your build workflow starts with `name: Build and Test`, use:
 

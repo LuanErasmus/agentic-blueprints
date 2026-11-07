@@ -14,14 +14,42 @@ Make sure GitHub Actions is enabled in your repository and check the Copilot req
 
 ## Copilot licence and authentication requirements
 
-These blueprints use **only `permissions: copilot-requests: write`** for Copilot inference, with GitHub Actions' built-in `GITHUB_TOKEN`. No personal access token or model API key is required. This is the **organisation-billed** authentication method, not personal-seat authentication.
+All nine blueprints support two explicit authentication setups. The distributed sources default to **organisation billing** using `permissions: copilot-requests: write` with GitHub Actions' built-in `GITHUB_TOKEN`. This default needs no personal access token or model API key. For personal repositories, follow the optional [personal-plan setup](#personal-plan-setup) before compiling.
+
+### Organisation setup (default)
 
 - Use an **organisation-owned repository** whose organisation has an active **GitHub Copilot Business or GitHub Copilot Enterprise** subscription. **Copilot Business is the minimum standard organisation plan; Copilot Enterprise is not required.** Eligible enterprises using GitHub's separate **Copilot access** offering should confirm their organisation's inference entitlement and billing with their administrator.
 - A personal Copilot Free, Student, Pro, Pro+, or Max plan alone does **not** enable this organisation-billed method in a personal repository. A personal fork of this collection therefore cannot run these blueprints unchanged. Copy a workflow into an eligible organisation repository.
 - An administrator must enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** under **Organisation settings → Copilot → Policies**. Enterprise policies, permitted models, available AI credits, and spending limits must also allow the run. A licence alone is not sufficient if these controls block inference.
 - Keep `copilot-requests: write` in each installed workflow's main frontmatter. It permits inference requests, not repository writes. Inference is billed to the organisation's Copilot tenant; GitHub Actions compute is billed separately. Do not assume a subscription means unlimited or free workflow runs.
 
-Reading the examples, compiling sources, and running collection maintenance tests do not invoke Copilot or require a Copilot licence. Executing a workflow does. There is no PAT fallback.
+Reading the examples, compiling sources, and running collection maintenance tests do not invoke Copilot or require a Copilot licence. Executing a workflow does. Authentication does not automatically fall back between these methods.
+
+### Personal-plan setup
+
+Use this option for any of the nine blueprints when the token owner has active Copilot CLI inference access under their personal subscription. Check current plan eligibility, available models, allowance, and spending policies; this guide does not guarantee every personal plan can run every model.
+
+1. Copy the chosen workflow into your repository as described below.
+2. Remove **only** `copilot-requests: write` from its frontmatter `permissions` block. Preserve all other permissions, tools, limits, and safe outputs. If this permission remains, gh-aw ignores the personal token for inference.
+3. In **GitHub Settings → Developer settings → Personal access tokens → Fine-grained tokens**, create a token with your **user account** as resource owner and **Account permissions → Copilot Requests: Read**. Choose a finite expiry. Do not add repository write permissions for inference.
+4. In the destination repository, open **Settings → Secrets and variables → Actions → New repository secret**. Name it **`COPILOT_GITHUB_TOKEN`** and paste the token as its value. Never put it in workflow Markdown, shell command arguments, commits, issues, or logs.
+5. Run `gh aw compile <name>` and commit the source and regenerated `.lock.yml`. No explicit secret binding or engine change is needed; gh-aw handles this named secret.
+6. Follow the blueprint's **Try it** steps. If inference fails, check the token's expiry, account permission, owner's Copilot access, model availability, and usage allowance. Rotate the secret when the token expires or is revoked.
+
+For example, Weekly Update's personal-mode permissions become:
+
+```yaml
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+```
+
+Other blueprints have different read scopes: retain their own scopes rather than copying this block wholesale. This changes **inference authentication only**. Repository reads and safe-output writes still use the built-in Actions token; do not set `GH_AW_GITHUB_TOKEN` or broaden repository permissions just to enable personal inference. Dependabot's PR policy and all other blueprint-specific prerequisites still apply.
+
+Inference consumes the token owner's Copilot entitlement and allowance; Actions compute is separate. The organisation 100-credit cap must not be assumed to enforce a personal subscription allowance identically: verify current [billing and cap behavior](https://github.github.com/gh-aw/reference/billing/) for PAT inference and monitor usage.
+
+This setup follows [gh-aw's documented personal-token authentication](https://github.github.com/gh-aw/reference/auth/#copilot_github_token). Source compilation can verify configuration, but not token validity, plan eligibility, or a successful live run. No personal-token live run has been verified for this collection.
 
 Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/how-tos/github-agentic-workflows/creating-github-agentic-workflows#using-the-built-in-github_token), [gh-aw authentication](https://github.github.com/gh-aw/reference/auth/#copilot-requests-write-permission), [gh-aw billing](https://github.github.com/gh-aw/reference/billing/), and [Copilot plans](https://docs.github.com/en/copilot/get-started/plans). Check current eligibility and policies before enabling runs.
 
@@ -77,7 +105,7 @@ max-ai-credits: 100
 timeout-minutes: 5
 ```
 
-The approximately 1,000-token prompt budget is guidance, not a hard token-meter limit; `max-ai-credits` is the enforced inference spending cap. It is a ceiling, not an estimate of what every run costs. Each prompt also bounds evidence reads, output size, and stop conditions.
+The approximately 1,000-token prompt budget is guidance, not a hard token-meter limit. `max-ai-credits` configures an inference spending ceiling, not an estimate of what every run costs; its accounting and enforcement depend on the authentication/provider path. For personal-token inference, verify upstream billing behavior rather than treating it as a guaranteed cap on your personal allowance. Each prompt also bounds evidence reads, output size, and stop conditions.
 
 To change a cap, edit the frontmatter, recompile, and commit both files. More frequent triggers mean more potential paid runs, even with the same per-run limit. Actions compute is billed separately. Check current billing and organisation spending policies instead of treating a subscription as unlimited usage. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
 

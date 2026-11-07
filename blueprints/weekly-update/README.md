@@ -19,6 +19,8 @@ When the new update is opened, last week's update issue is closed automatically,
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`weekly-update.md`](weekly-update.md) to `.github/workflows/weekly-update.md` in your repository.
 2. Compile it:
 

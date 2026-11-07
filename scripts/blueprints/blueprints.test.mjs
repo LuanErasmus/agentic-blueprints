@@ -29,6 +29,7 @@ test('each blueprint README explains setup, use, and safety in plain sections', 
     for (const section of sections) assert.ok(readme.includes(`## ${section}`), `${slug}: missing ${section}`);
     assert.ok(readme.includes(`gh aw compile ${id}`), `${slug}: missing compile command`);
     assert.ok(readme.includes('running-workflows.md#copilot-licence-and-authentication-requirements'));
+    assert.ok(readme.includes('running-workflows.md#personal-plan-setup'), `${slug}: missing personal setup`);
   }
 });
 

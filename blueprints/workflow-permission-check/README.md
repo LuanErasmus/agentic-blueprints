@@ -14,6 +14,8 @@ It considers job-level overrides and reusable workflows before recommending a re
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`workflow-permission-check.md`](workflow-permission-check.md) to `.github/workflows/workflow-permission-check.md` in your repository.
 2. Compile it:
 

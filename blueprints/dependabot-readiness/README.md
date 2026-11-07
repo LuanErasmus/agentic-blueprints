@@ -11,10 +11,12 @@ Existing configuration is updated in place, not replaced wholesale. If it alread
 - [GitHub CLI](https://cli.github.com/) with the gh-aw extension: `gh extension install github/gh-aw`.
 - GitHub Actions enabled in your repository.
 - A Copilot licence that covers the workflow. See [Copilot licence requirements](../../docs/running-workflows.md#copilot-licence-and-authentication-requirements).
-- Your repository or organisation must allow GitHub Actions to create pull requests. If blocked, an administrator must enable **Allow GitHub Actions to create and approve pull requests** in **Settings > Actions > General > Workflow permissions**. This blueprint never approves PRs and needs no PAT.
+- Your repository or organisation must allow GitHub Actions to create pull requests. If blocked, an administrator must enable **Allow GitHub Actions to create and approve pull requests** in **Settings > Actions > General > Workflow permissions**. This blueprint never approves PRs; PR creation uses the built-in token, separately from inference authentication.
 - To receive security update PRs, enable the dependency graph, Dependabot alerts, and Dependabot security updates in repository settings where supported. Grouping configuration does not enable them.
 
 ## Set it up
+
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and PR restrictions.
 
 1. Copy [`dependabot-readiness.md`](dependabot-readiness.md) to `.github/workflows/dependabot-readiness.md` in your repository.
 2. Compile it:

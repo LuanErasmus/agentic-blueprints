@@ -14,6 +14,8 @@ It selects the most relevant user-facing change from up to three recent PRs, rat
 
 ## Set it up
 
+Use the default organisation authentication, or follow the optional [personal-plan setup](../../docs/running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Keep this blueprint's existing read permissions and output limits.
+
 1. Copy [`docs-drift-report.md`](docs-drift-report.md) to `.github/workflows/docs-drift-report.md` in your repository.
 2. Compile it:
 

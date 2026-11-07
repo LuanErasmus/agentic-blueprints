@@ -30,14 +30,14 @@ gh extension install github/gh-aw
 
 GitHub Actions must be enabled in the repository where you install the workflow. Cloning this collection is optional; you only need the chosen blueprint's workflow file.
 
-**Copilot licence required to run:** use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, with **Copilot CLI** and **Allow use of Copilot CLI billed to the organization** enabled by an administrator. A personal Copilot plan alone does not enable this method in a personal repository. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements).
+**Choose authentication before compiling:** the default requires an organisation-owned repository with Copilot Business or Enterprise and administrator-enabled Copilot CLI organisation billing. Alternatively, all nine blueprints support the optional [personal-plan setup](running-workflows.md#personal-plan-setup), using a fine-grained inference token for an eligible personal Copilot account. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements). Personal-token live runs have not been verified here.
 
 ## Install your first blueprint
 
 For example, to install **Weekly Update**:
 
 1. Copy `blueprints/weekly-update/weekly-update.md` from this collection to `.github/workflows/weekly-update.md` in your repository. Create `.github/workflows/` if it does not exist.
-2. From your repository's root, compile it:
+2. Apply your chosen authentication setup to the copied file, then from your repository's root compile it:
 
    ```shell
    gh aw compile weekly-update
@@ -49,7 +49,7 @@ GitHub Actions runs the generated lock file. This collection deliberately does n
 
 ### Check blueprint-specific setup
 
-No custom labels, PATs, or model API keys are required. Read the chosen README's **Before you start** and **Set it up** sections before compiling:
+No custom labels or model API keys are required. Organisation authentication needs no PAT; personal authentication needs the narrowly scoped inference PAT described in the shared setup. Read the chosen README's **Before you start** and **Set it up** sections before compiling:
 
 - **CI Failure Explainer:** replace `CI` in `workflows: ["CI"]` with your CI workflow's exact top-level `name:`, not its filename or a job name. Change `branches: [main]` if your default branch has another name.
 - **Dependabot Readiness:** Actions must be allowed to create PRs. For security update PRs, enable the dependency graph, Dependabot alerts, and Dependabot security updates where supported. The generated grouping configuration does not enable these settings.

@@ -2,7 +2,7 @@
 
 Start here if this is your first agentic workflow. These gallery-inspired blueprints are adapted for this collection's simple, minimal-setup style rather than copied as full gallery implementations. Each blueprint:
 
-- is **one Markdown file**, with no custom labels or secrets to create;
+- is **one Markdown file**, with no custom labels and no inference secret for the default organisation setup;
 - uses read-only GitHub access for analysis, then produces **one** bounded safe output;
 - runs automatically on a normal GitHub event or schedule.
 
@@ -21,7 +21,7 @@ Start here if this is your first agentic workflow. These gallery-inspired bluepr
 ## Set up any blueprint
 
 1. Copy the blueprint's `.md` file into `.github/workflows/` in your repository. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
-2. Run `gh aw compile <name>` to create the matching `.lock.yml` file.
+2. Choose organisation authentication or apply the optional [personal-plan setup](../docs/running-workflows.md#personal-plan-setup), then run `gh aw compile <name>` to create the matching `.lock.yml` file.
 3. Commit and push both files to your default branch.
 
 Before your first run, check the [Copilot licence requirements](../docs/running-workflows.md#copilot-licence-and-authentication-requirements).

@@ -14,6 +14,8 @@
 
 ## Set it up
 
+Choose the default organisation authentication or follow the optional [personal-plan setup](../../running-workflows.md#personal-plan-setup) on your copied workflow before compiling. Update this link to `../../docs/running-workflows.md#personal-plan-setup` when saving the README beside a contributed blueprint.
+
 1. Copy `<name>.md` from this folder to `.github/workflows/<name>.md` in your repository.
 2. Compile it:
 

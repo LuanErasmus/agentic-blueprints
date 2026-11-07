@@ -69,6 +69,8 @@ All changes are optional:
 
 ## Safety
 
+It includes the reporting window's dates and checks up to five open weekly reports before creating another for that window. A failed or incomplete duplicate check stops publication; this is best-effort prompt guidance.
+
 - Read-only access to your repository.
 - Can open at most one issue per run, and closes only its own older update issues.
 - Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.

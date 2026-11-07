@@ -83,6 +83,8 @@ This example assumes both an npm manifest and Actions workflows were detected; t
 
 ## Safety
 
+Discovery is capped at 500 tracked paths and twenty relevant file reads. Duplicate checks inspect at most twenty open PRs and 100 changed paths per PR; incomplete coverage stops the proposal. It rechecks the default-branch SHA before requesting a PR and limits its authored description to 300 words, excluding unchanged template text. These are prompt rules, not an atomic guarantee against concurrent changes.
+
 - The agent can edit its local workspace but has read-only GitHub access. A separate safe-output job can open at most one draft PR.
 - The enforced file allowlist and one-file patch limit permit only `.github/dependabot.yml` or `.github/dependabot.yaml`. Other protected files remain blocked.
 - Preserves existing settings and dependency scopes; stops on ambiguous grouping conflicts, competing updater configurations, failed discovery, or an already-open configuration PR.

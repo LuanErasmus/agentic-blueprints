@@ -66,6 +66,8 @@ An issue such as:
 
 ## Safety
 
+Diagnosis reads at most twenty job summaries and 100 relevant log lines from one failed job. Manual selection excludes this reporter and uses default-branch failures. A final run check skips superseded attempts or failures that are no longer current; these are best-effort prompt rules.
+
 - Read-only access to Actions and repository content; opens at most one issue.
 - Automatic diagnosis is limited to the exact failed run on this repository's default branch. Manual runs consider up to three recent failures.
 - Makes one bounded search of up to five matching open diagnoses; skips duplicates and stops if that check fails or is incomplete. It does not update or comment on existing issues.

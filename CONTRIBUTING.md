@@ -23,6 +23,10 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 5. With Node.js 24 and gh-aw installed, run `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files; explain what you could not verify, such as live runs.
 6. Open a pull request. For a substantial new blueprint, start with the **Blueprint Proposal** issue form.
 
+## Contribute skills, agents, or instructions
+
+The optional [Copilot authoring toolkit](skills-and-agents/agentic-workflow-authoring/) helps users create and review their own Agentic Workflows; it is not a blueprint generator. Keep these customizations independent of this collection's folder layout, fixed budgets, and output exceptions. Document copy destinations and supported surfaces, keep each file self-contained, and run the existing tests when changing it. Do not install the distributed customizations into this collection automatically.
+
 ## Pull requests
 
 - Keep changes focused and discuss substantial new blueprints in a **Blueprint Proposal** issue first.

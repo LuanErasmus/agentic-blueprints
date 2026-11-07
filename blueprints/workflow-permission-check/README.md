@@ -49,6 +49,8 @@ An issue such as:
 
 ## Safety
 
+It lists at most 100 workflow paths, checks up to five matching open reports, and rechecks the default-branch SHA before publishing an issue under 150 words. Failed duplicate checks or a changed/unverifiable SHA stop publication. These are best-effort prompt rules.
+
 - Read-only access; opens at most one issue and does not edit workflows.
 - Reviews at most five files total, including any inspected reusable workflows and local composite actions, and does not inspect generated lock files.
 - Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.

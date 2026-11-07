@@ -51,6 +51,8 @@ An issue such as:
 
 ## Safety
 
+Changed-path listings are capped at 100 per sampled PR. Before publishing an issue under 150 words, it checks up to five matching open reports and rechecks the cited documentation for changes. Incomplete required evidence or changed documentation stops publication; these are best-effort prompt rules.
+
 - Read-only access; opens at most one issue and never edits documentation.
 - Samples up to three recent PRs, then reads at most three focused, non-generated changed files from one selected PR and up to two related documentation pages.
 - Suggested wording is a draft, not an applied edit; unsupported commands, defaults, and availability claims are omitted.

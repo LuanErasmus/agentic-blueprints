@@ -37,6 +37,12 @@ One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh
 
 **Copilot licence required to run:** these blueprints use `permissions: copilot-requests: write` and the built-in Actions token for organisation billing. Use an organisation-owned repository with **Copilot Business (minimum standard organisation plan) or Copilot Enterprise**, and have an administrator enable **Copilot CLI** and **Allow use of Copilot CLI billed to the organization**. Personal Copilot plans alone do not enable this method in a personal repository. See [full eligibility, policy, and billing requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements). Offline tests and source compilation do not require a Copilot licence.
 
+## Skills, agents, and instructions
+
+Want help creating or reviewing your own Agentic Workflows? The optional [Agentic Workflow Authoring Toolkit](skills-and-agents/agentic-workflow-authoring/) includes path-specific Copilot instructions, review and least-privilege skills, and a builder agent. Copy the pieces you want into your repository; they follow your workflow requirements, not this collection's blueprint restrictions, and need no compilation.
+
+These customizations support your own workflows, not blueprint generation for this collection. Blueprint contributors use the separate contribution guide and README template.
+
 ## Patterns
 
 - [Human-in-the-Loop](patterns/human-in-the-loop.md)

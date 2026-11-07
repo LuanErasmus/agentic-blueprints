@@ -61,6 +61,8 @@ All changes are optional. Edit the Markdown below the `---` lines (no recompile 
 
 ## Safety
 
+It checks at most ten linked PR identities and 100 changed paths, stopping on incomplete required listings. Before either a waiting message or notes, it verifies that the issue remains completed and the linked PR state and merge identity have not changed. These are best-effort prompt rules.
+
 - Read-only access to your repository.
 - Can post at most one comment, on the closed issue.
 - Skips issues closed as "not planned." If no pull request is linked, it does not comment; if multiple pull requests make the change unclear, it stops without guessing.

@@ -40,6 +40,8 @@ An optional comment such as:
 
 ## Safety
 
+Changed-path discovery is capped at 100 paths and stops on incomplete required evidence. The visible suggestion is under 100 words. The soft token budget and duplicate/live-state checks are prompt guidance, not enforced quotas or atomic posting guarantees.
+
 - Read-only access to pull requests and repository content; can add at most one comment to the pull request that triggered it.
 - Reviews only up to three focused, non-generated changed files and does not run code.
 - Reads up to twenty conversation comments to check for repeated suggestions. If that check fails or cannot be completed within the limit, it stops without commenting.

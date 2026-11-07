@@ -2,6 +2,8 @@
 
 A blueprint is a reusable gh-aw workflow that helps with one specific task in a GitHub repository. Workflows are authored as native gh-aw Markdown and compiled in the adopting repository. Keep them simple to adopt, with read-only GitHub access for analysis and one bounded safe output.
 
+This is the manual contribution guide for adding reusable blueprints to this collection. The [Copilot authoring toolkit](../skills-and-agents/agentic-workflow-authoring/) is for users' own Agentic Workflows, not for generating collection blueprints.
+
 ## What qualifies
 
 A blueprint uses an agent to read context, reason about it, and produce a useful, bounded result for a person, such as a comment, summary, or recommendation. A fixed script with no reasoning is not an agentic workflow. Blueprints complement built-in GitHub features (code review, Dependabot, releases); they do not replace them.
@@ -30,6 +32,7 @@ blueprints/<name>/
 - Never commit tokens, passwords, connection strings, private keys, or other credentials.
 - People keep every decision; mark AI-written output as a draft where it may be shared.
 - Define when to produce no output, including missing evidence, unchanged configuration, and repeated findings. Duplicate checks must stay bounded, and unavailable checks must not be treated as proof that no duplicate exists.
+- Give evidence queries explicit item/file limits, stop on incomplete checks that are required for a finding, and verify relevant live state before publication. These prompt rules are best-effort, not atomic guarantees or permission enforcement.
 
 ## Document and register the blueprint
 

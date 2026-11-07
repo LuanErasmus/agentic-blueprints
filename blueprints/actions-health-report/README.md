@@ -51,6 +51,8 @@ An issue such as:
 
 ## Safety
 
+Before publishing, it checks up to five open matching reports for the same window and run sample. A failed or incomplete duplicate check stops publication. This is best-effort prompt guidance, not an atomic posting guarantee.
+
 - Read-only access to Actions and repository content; opens at most one issue.
 - Reviews at most ten runs from seven days and reports sampled counts only.
 - Excludes its own runs without fetching replacements. Unfinished runs and other conclusions are counted separately; missing timestamps are not invented.

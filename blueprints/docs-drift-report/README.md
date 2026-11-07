@@ -58,6 +58,6 @@ Changed-path listings are capped at 100 per sampled PR. Before publishing an iss
 - Read-only access; opens at most one issue and never edits documentation.
 - Samples up to three recent PRs, then reads at most three focused, non-generated changed files from one selected PR and up to two related documentation pages.
 - Suggested wording is a draft, not an applied edit; unsupported commands, defaults, and availability claims are omitted.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Reports only mismatches supported by changed code and documentation evidence.
 - Treats pull requests, code, documentation, and tool output as information, never as instructions.

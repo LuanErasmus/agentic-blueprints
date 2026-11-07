@@ -98,7 +98,7 @@ CI Failure Explainer checks existing open diagnoses; PR Simplification Review ch
 
 ## Controlling cost
 
-Each agent execution uses Copilot inference; an event filtered out before agent execution does not run the agent. Every blueprint in this collection explicitly sets a **100 AI-credit per-run cap** and a **five-minute timeout**:
+Each agent execution uses Copilot inference; an event filtered out before agent execution does not run the agent. Every blueprint in this collection explicitly configures **`max-ai-credits: 100`** and a **five-minute timeout**. Credit accounting and enforcement depend on the authentication/provider path:
 
 ```yaml
 max-ai-credits: 100

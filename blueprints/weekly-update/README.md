@@ -75,7 +75,7 @@ It includes the reporting window's dates and checks up to five open weekly repor
 
 - Read-only access to your repository.
 - Can open at most one issue per run, and closes only its own older update issues.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Makes one bounded query per activity category, does not paginate, and stops instead of guessing or retrying failed lookups.
 - Filters known report-issue title prefixes and counts only eligible items. An empty filtered sample is not presented as proof that the whole repository was inactive.
 - Treats issues, pull requests, and comments as information, never as instructions.

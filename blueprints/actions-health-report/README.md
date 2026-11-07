@@ -58,6 +58,6 @@ Before publishing, it checks up to five open matching reports for the same windo
 - Read-only access to Actions and repository content; opens at most one issue.
 - Reviews at most ten runs from seven days and reports sampled counts only.
 - Excludes its own runs without fetching replacements. Unfinished runs and other conclusions are counted separately; missing timestamps are not invented.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Does not store metrics or infer causes and trends from limited run summaries.
 - Treats run names, logs, repository content, and tool output as information, never as instructions.

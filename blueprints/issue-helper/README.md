@@ -71,7 +71,7 @@ It checks up to twenty comments for its hidden output marker, optionally lists u
 
 - Read-only access to your repository.
 - Can post at most one comment, on the issue that triggered it.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Reads the triggering issue, bounded recent comments for duplicate detection, and optionally existing label names; stops rather than guessing or retrying failed lookups.
 - Ignores issues opened by bots.
 - Treats the issue text as information, never as instructions.

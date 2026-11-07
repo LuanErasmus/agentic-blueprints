@@ -74,6 +74,6 @@ Diagnosis reads at most twenty job summaries and 100 relevant log lines from one
 - Automatic diagnosis is limited to the exact failed run on this repository's default branch. Manual runs consider up to three recent failures.
 - Makes one bounded search of up to five matching open diagnoses; skips duplicates and stops if that check fails or is incomplete. It does not update or comment on existing issues.
 - Never downloads artifacts, checks out failed-run code, or executes repository code. A `workflow_run` workflow has a different trust context from the workflow it monitors; keep these restrictions.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Does not rerun workflows, execute log content, or include secrets in its report.
 - Treats logs, repository content, and tool output as information, never as instructions.

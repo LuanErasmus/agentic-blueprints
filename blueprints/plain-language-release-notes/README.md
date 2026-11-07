@@ -68,7 +68,7 @@ It checks at most ten linked PR identities and 100 changed paths, stopping on in
 - Read-only access to your repository.
 - Can post at most one comment, on the closed issue.
 - Skips issues closed as "not planned." If no pull request is linked, it does not comment; if multiple pull requests make the change unclear, it stops without guessing.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout. The token budget is guidance; AI credits are the enforceable spending limit.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Checks the issue, up to twenty recent comments, and the directly linked PR. Previous notes are used only for duplicate detection; the summary is based on focused diffs from up to three relevant, non-generated files.
 - Uses hidden source markers to distinguish waiting messages from completed notes. It skips posting if the comment check fails or is incomplete; technical source IDs stay out of the visible note.
 - If one clearly linked pull request is still open, explains that notes are pending; after merge, reopen and close the issue as completed to trigger the workflow again.

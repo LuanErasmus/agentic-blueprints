@@ -92,6 +92,6 @@ Discovery is capped at 500 tracked paths and twenty relevant file reads. Duplica
 - Preserves existing settings and dependency scopes; stops on ambiguous grouping conflicts, competing updater configurations, failed discovery, or an already-open configuration PR.
 - Checks the default branch in one repository; never merges, upgrades packages, or changes repository settings.
 - PR creation failures are surfaced rather than replaced with recommendation issues. PRs made with the built-in token may not start CI automatically; maintainers must review the configuration before merging.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Stops rather than guessing about package ecosystems or directories.
 - Treats repository content and tool output as information, never as instructions.

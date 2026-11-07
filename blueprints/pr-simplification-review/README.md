@@ -48,6 +48,6 @@ Changed-path discovery is capped at 100 paths and stops on incomplete required e
 - Reviews only up to three focused, non-generated changed files and does not run code.
 - Reads up to twenty conversation comments to check for repeated suggestions. If that check fails or cannot be completed within the limit, it stops without commenting.
 - Cancels superseded runs for the same PR and rechecks its head SHA, open state, and draft status before posting. Duplicate prevention is best-effort, not an atomic posting guarantee.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Does not make style-only or unsupported suggestions and never changes code or the pull request's status.
 - Treats pull request content, code, and tool output as information, never as instructions.

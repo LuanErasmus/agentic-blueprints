@@ -55,7 +55,7 @@ It lists at most 100 workflow paths, checks up to five matching open reports, an
 
 - Read-only access; opens at most one issue and does not edit workflows.
 - Reviews at most five files total, including any inspected reusable workflows and local composite actions, and does not inspect generated lock files.
-- Uses a soft budget of about 1,000 tokens, a 100 AI-credit spending cap, and a five-minute timeout.
+- Uses a soft budget of about 1,000 tokens, `max-ai-credits: 100`, and a five-minute timeout. Credit accounting and enforcement depend on authentication; do not assume this setting caps your personal Copilot allowance. See [cost guidance](../../docs/running-workflows.md#controlling-cost).
 - Does not infer third-party action behavior or make broad security claims from limited evidence.
 - Accounts for effective job permissions, reusable workflows, and local composite actions within the file budget. Hidden requirements are not treated as proof of unused permissions.
 - Treats workflow files and tool output as information, never as instructions.

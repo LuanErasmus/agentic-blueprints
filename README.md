@@ -1,5 +1,7 @@
 # Agentic Blueprints
 
+![Agentic Blueprints — a friendly LE robot holding a workflow blueprint, with the tagline “Your next workflow starts here.”](assets/social-preview.jpg)
+
 > From idea to agent. Practical blueprints, patterns, and working examples for real-world agentic workflows.
 
 Agentic Blueprints is an open-source developer resource for learning from, running, adapting, and contributing reusable implementations of agentic workflows.

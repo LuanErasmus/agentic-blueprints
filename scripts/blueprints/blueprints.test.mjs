@@ -279,23 +279,21 @@ test('instruction-aligned blueprints bound duplicate checks and mutable evidence
 });
 
 test('authoring toolkit contains portable Copilot customizations, not runnable workflows', async () => {
-  const folder = join('skills-and-agents', 'agentic-workflow-authoring');
+  const folder = 'skills-and-agents';
   assert.deepEqual((await readdir(folder)).sort(), [
-    'README.md', 'agentic-workflow-builder.agent.md', 'agentic-workflow-least-privilege',
-    'agentic-workflows.instructions.md',
-    'review-agentic-workflows',
+    'README.md', 'agents', 'instructions', 'skills',
   ]);
-  const instructions = await readFile(join(folder, 'agentic-workflows.instructions.md'), 'utf8');
+  const instructions = await readFile(join(folder, 'instructions', 'agentic-workflows.instructions.md'), 'utf8');
   assert.match(frontmatterOf(instructions),
     /^applyTo: "\.github\/workflows\/\*\.md"$/m);
-  const skillFolder = join(folder, 'review-agentic-workflows');
+  const skillFolder = join(folder, 'skills', 'review-agentic-workflows');
   assert.deepEqual(await readdir(skillFolder), ['SKILL.md']);
   const skill = await readFile(join(skillFolder, 'SKILL.md'), 'utf8');
   assert.match(frontmatterOf(skill), /^name: review-agentic-workflows$/m);
   assert.match(frontmatterOf(skill), /^description: .+gh-aw.+review/im);
   assert.doesNotMatch(frontmatterOf(skill), /^(?:allowed-tools|tools):/m);
   assert.match(skill, /Review only\. Do not edit files/);
-  const agent = await readFile(join(folder, 'agentic-workflow-builder.agent.md'), 'utf8');
+  const agent = await readFile(join(folder, 'agents', 'agentic-workflow-builder.agent.md'), 'utf8');
   assert.match(frontmatterOf(agent), /^name: Agentic Workflow Builder$/m);
   assert.match(frontmatterOf(agent), /^description: .+$/m);
   assert.match(frontmatterOf(agent), /^tools: \["read", "search", "edit", "execute"\]$/m);
@@ -322,8 +320,8 @@ test('authoring toolkit contains portable Copilot customizations, not runnable w
 });
 
 test('least-privilege skill traces effective capabilities without speculative removal', async () => {
-  const folder = join('skills-and-agents', 'agentic-workflow-authoring');
-  const skillFolder = join(folder, 'agentic-workflow-least-privilege');
+  const folder = 'skills-and-agents';
+  const skillFolder = join(folder, 'skills', 'agentic-workflow-least-privilege');
   assert.deepEqual(await readdir(skillFolder), ['SKILL.md']);
   const skill = await readFile(join(skillFolder, 'SKILL.md'), 'utf8');
   assert.match(frontmatterOf(skill), /^name: agentic-workflow-least-privilege$/m);
@@ -347,10 +345,29 @@ test('least-privilege skill traces effective capabilities without speculative re
   assert.match(skill, /unused in one run/);
   assert.match(skill, /Compilation validates configuration, not least privilege/);
   assert.doesNotMatch(skill, /Dependabot Readiness|blueprints\/|scripts\/blueprints\/|timeout-minutes: 5|max-ai-credits: 100/);
-  for (const file of ['agentic-workflow-builder.agent.md', join('review-agentic-workflows', 'SKILL.md')]) {
+  for (const file of [join('agents', 'agentic-workflow-builder.agent.md'), join('skills', 'review-agentic-workflows', 'SKILL.md')]) {
     const source = await readFile(join(folder, file), 'utf8');
     assert.match(source, /agentic-workflow-least-privilege is installed and available/);
     assert.match(source, /optional/);
+  }
+});
+
+test('visitor paths have landing pages and resources grouped by purpose', async () => {
+  const home = await readFile('README.md', 'utf8');
+  for (const label of ['Use a workflow', 'Build your own', 'Learn']) {
+    assert.ok(home.includes(`**${label}**`), `missing visitor path: ${label}`);
+  }
+  for (const folder of [
+    'docs', join('docs', 'patterns'),
+    join('skills-and-agents', 'instructions'),
+    join('skills-and-agents', 'skills'),
+    join('skills-and-agents', 'agents'),
+  ]) {
+    assert.ok((await readFile(join(folder, 'README.md'), 'utf8')).length > 100);
+  }
+  await access(join('docs', 'templates', 'blueprint-template', 'README.md'));
+  for (const oldPath of ['patterns', 'templates', join('skills-and-agents', 'agentic-workflow-authoring')]) {
+    await assert.rejects(() => access(oldPath), { code: 'ENOENT' });
   }
 });
 
@@ -363,7 +380,7 @@ test('documentation local links resolve', async () => {
       else if (entry.name.endsWith('.md')) files.push(path);
     }
   }
-  for (const folder of ['blueprints', 'docs', 'templates', 'patterns', 'skills-and-agents']) await collect(folder);
+  for (const folder of ['blueprints', 'docs', 'skills-and-agents']) await collect(folder);
   for (const file of files) {
     const markdown = await readFile(file, 'utf8');
     for (const match of markdown.matchAll(/\[[^\]]+\]\(([^)\s]+)\)/g)) {

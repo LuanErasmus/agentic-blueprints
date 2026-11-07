@@ -78,12 +78,13 @@ Keep evidence limits, read-only GitHub permissions, and bounded outputs in place
 
 ## Create your own Agentic Workflow
 
-The optional [Copilot authoring toolkit](../skills-and-agents/agentic-workflow-authoring/) provides instructions, review and least-privilege skills, and a builder agent for workflows in your own repository. Install only the pieces you want. They follow your requirements rather than this collection's blueprint restrictions, and are not required to run an existing blueprint.
+The optional [Copilot helpers](../skills-and-agents/) provide [instructions](../skills-and-agents/instructions/), [review and least-privilege skills](../skills-and-agents/skills/), and a [builder agent](../skills-and-agents/agents/) for workflows in your own repository. Choose by task and follow the shared copy/install guide. They follow your requirements rather than this collection's blueprint restrictions, and are not required to run an existing blueprint.
 
-Writing a reusable blueprint to contribute here is a separate task: follow the [blueprint contribution guide](creating-a-blueprint.md) and [README template](../templates/blueprint-template/).
+Writing a reusable blueprint to contribute here is a separate task: follow the [blueprint contribution guide](creating-a-blueprint.md) and [README template](templates/blueprint-template/).
 
 ## Where to go next
 
 - Read [Running workflows](running-workflows.md) for triggers, cost limits, and the safety model.
 - Learn the difference between [automation, AI-assisted workflows, and agentic workflows](what-is-agentic.md).
-- Explore reusable [patterns](../patterns/).
+- Explore reusable [patterns](patterns/).
+- Return to the [documentation hub](README.md) to choose another guide.

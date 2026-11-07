@@ -17,7 +17,7 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 ## Create a blueprint
 
 1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md).
-2. Create `blueprints/<name>/` and copy `templates/blueprint-template/README.md` into it.
+2. Create `blueprints/<name>/` and copy `docs/templates/blueprint-template/README.md` into it.
 3. Author one self-contained gh-aw Markdown file, `blueprints/<name>/<name>.md`, not in this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, scripts, or configuration files. Use `copilot-requests: write` and link the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements).
 4. Fill in every README section and keep it consistent with the workflow, including a short example of the output.
 5. With Node.js 24 and gh-aw installed, run `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs`. Do not add compiled lock files; explain what you could not verify, such as live runs.
@@ -25,7 +25,7 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 ## Contribute skills, agents, or instructions
 
-The optional [Copilot authoring toolkit](skills-and-agents/agentic-workflow-authoring/) helps users create and review their own Agentic Workflows; it is not a blueprint generator. Keep these customizations independent of this collection's folder layout, fixed budgets, and output exceptions. Document copy destinations and supported surfaces, keep each file self-contained, and run the existing tests when changing it. Do not install the distributed customizations into this collection automatically.
+The optional [Copilot helpers](skills-and-agents/) help users create and review their own Agentic Workflows; they are not a blueprint generator. Place instructions in `skills-and-agents/instructions/`, skills in `skills-and-agents/skills/<name>/`, and agents in `skills-and-agents/agents/`. Keep these customizations independent of this collection's folder layout, fixed budgets, and output exceptions. Update the appropriate section's landing page and the shared installation guide, document copy destinations and supported surfaces, and run the existing tests. Do not install the distributed customizations into this collection automatically.
 
 ## Pull requests
 

@@ -2,7 +2,7 @@
 
 A blueprint is a reusable gh-aw workflow that helps with one specific task in a GitHub repository. Workflows are authored as native gh-aw Markdown and compiled in the adopting repository. Keep them simple to adopt, with read-only GitHub access for analysis and one bounded safe output.
 
-This is the manual contribution guide for adding reusable blueprints to this collection. The [Copilot authoring toolkit](../skills-and-agents/agentic-workflow-authoring/) is for users' own Agentic Workflows, not for generating collection blueprints.
+This is the manual contribution guide for adding reusable blueprints to this collection. The [Copilot helpers](../skills-and-agents/) are for users' own Agentic Workflows, not for generating collection blueprints.
 
 ## What qualifies
 
@@ -19,7 +19,7 @@ blueprints/<name>/
 - Adopters copy only `<name>.md` to `.github/workflows/<name>.md`, run `gh aw compile <name>`, and commit both files. This collection distributes no lock files.
 - Do not require shared imports, scripts, or configuration files. Put any logic in the prompt and let the agent work it out.
 - Use `engine: copilot` with `permissions: copilot-requests: write`, and link the [shared licence requirements](running-workflows.md#copilot-licence-and-authentication-requirements) in the README. Do not add PAT setup instructions.
-- Avoid custom labels, secrets, and additional repository settings. List any necessary platform policies or blueprint-specific prerequisites explicitly. Follow the [blueprint template](../templates/blueprint-template/README.md) sections and include a short example consistent with the workflow's limits.
+- Avoid custom labels, secrets, and additional repository settings. List any necessary platform policies or blueprint-specific prerequisites explicitly. Follow the [blueprint template](templates/blueprint-template/README.md) sections and include a short example consistent with the workflow's limits.
 - Dependabot Readiness is the configuration-only exception: it may edit one local Dependabot file and propose one draft PR via `create-pull-request`, with an exact file allowlist and one-file patch limit. Document the required Actions PR policy and separate Dependabot security settings; do not broaden other blueprint workflows to PR creation.
 - Include a useful automatic trigger. Prefer working defaults over required placeholders; a workflow-name example is acceptable when an event needs it. Mark any required edit in the file and README before the compile step. Keep manual testing available where appropriate, and explain that trigger changes require recompilation.
 

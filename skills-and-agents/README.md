@@ -1,15 +1,17 @@
-# Agentic Workflow Authoring Toolkit
+# Build your own Agentic Workflow
 
 Optional Copilot customizations to help users create and review their own GitHub Agentic Workflows (`gh-aw`) in their repositories. They are not tools for producing blueprints for this collection. These files are not runnable Actions workflows and do not need compilation. Install any combination.
 
 ## What's included
 
+Choose by what you need: [baseline instructions](instructions/), [a builder agent](agents/), or [focused review skills](skills/). Start with the builder for a new workflow; use the skills when reviewing an existing one.
+
 | File | Purpose |
 | --- | --- |
-| [Path-specific instructions](agentic-workflows.instructions.md) | Baseline guidance when Copilot works on workflow sources |
-| [Review skill](review-agentic-workflows/SKILL.md) | An evidence-based review checklist for workflow changes |
-| [Least-privilege skill](agentic-workflow-least-privilege/SKILL.md) | Trace required access and recommend justified reductions without breaking the task |
-| [Builder agent](agentic-workflow-builder.agent.md) | Help turn an idea into a focused workflow and README |
+| [Path-specific instructions](instructions/agentic-workflows.instructions.md) | Baseline guidance when Copilot works on workflow sources |
+| [Review skill](skills/review-agentic-workflows/SKILL.md) | An evidence-based review checklist for workflow changes |
+| [Least-privilege skill](skills/agentic-workflow-least-privilege/SKILL.md) | Trace required access and recommend justified reductions without breaking the task |
+| [Builder agent](agents/agentic-workflow-builder.agent.md) | Help turn an idea into a focused workflow and README |
 
 Each file is self-contained. The toolkit is distributed here rather than installed into this collection's `.github/` automatically.
 
@@ -19,10 +21,10 @@ Copy the files into your own repository using these destinations. Create missing
 
 | Source in this folder | Destination in your repository |
 | --- | --- |
-| `agentic-workflows.instructions.md` | `.github/instructions/agentic-workflows.instructions.md` |
-| `review-agentic-workflows/SKILL.md` | `.github/skills/review-agentic-workflows/SKILL.md` |
-| `agentic-workflow-least-privilege/SKILL.md` | `.github/skills/agentic-workflow-least-privilege/SKILL.md` |
-| `agentic-workflow-builder.agent.md` | `.github/agents/agentic-workflow-builder.agent.md` |
+| `instructions/agentic-workflows.instructions.md` | `.github/instructions/agentic-workflows.instructions.md` |
+| `skills/review-agentic-workflows/SKILL.md` | `.github/skills/review-agentic-workflows/SKILL.md` |
+| `skills/agentic-workflow-least-privilege/SKILL.md` | `.github/skills/agentic-workflow-least-privilege/SKILL.md` |
+| `agents/agentic-workflow-builder.agent.md` | `.github/agents/agentic-workflow-builder.agent.md` |
 
 Commit the chosen files. The instructions' `applyTo` pattern covers `.github/workflows/*.md`; adjust it if your source lives elsewhere. Matching README files are documentation, not workflow sources.
 
@@ -115,6 +117,8 @@ node --test scripts/blueprints/blueprints.test.mjs
 These tests check packaging, selected frontmatter and guardrails, and local links. They do not prove Copilot loaded the toolkit or performed a successful review. Test discovery and behavior on your intended Copilot surface separately.
 
 ## References
+
+[Repository home](../README.md) · [Use an existing workflow](../blueprints/) · [Learning guides](../docs/)
 
 - [GitHub repository custom instructions](https://docs.github.com/en/copilot/how-tos/configure-custom-instructions/add-repository-instructions)
 - [GitHub agent skills](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills)

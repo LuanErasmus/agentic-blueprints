@@ -5,7 +5,8 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { stageWorkflowSources, workflowSources } from './validate.mjs';
 
-const sources = await workflowSources();
+const allSources = await workflowSources();
+const sources = allSources.filter(source => source.compile);
 
 function frontmatterOf(source) {
   return source.split(/^---\r?$/m)[1];
@@ -15,8 +16,8 @@ test('each blueprint lives directly under the blueprints directory', async () =>
   assert.ok((await readFile(join('blueprints', 'README.md'), 'utf8')).length > 100);
   const directories = (await readdir('blueprints', { withFileTypes: true }))
     .filter(entry => entry.isDirectory()).map(entry => entry.name).sort();
-  assert.deepEqual(sources.map(source => source.slug).sort(), directories);
-  for (const { slug, path } of sources) {
+  assert.deepEqual(allSources.map(source => source.slug).sort(), directories);
+  for (const { slug, path } of allSources) {
     assert.equal(path, join('blueprints', slug, `${slug}.md`));
   }
   assert.ok(sources.length > 0);
@@ -422,7 +423,74 @@ test('documentation local links resolve', async () => {
   }
 });
 
-test('a single copied Markdown file per blueprint is all the compiler staging needs', async () => {
+test('Into Azure demo distributes all trusted contracts without compilation or locks', async () => {
+  const slug = 'into-azure-cost-reviewer';
+  const folder = join('blueprints', slug);
+  const demo = allSources.find(source => source.slug === slug);
+  assert.ok(demo);
+  assert.equal(demo.compile, false);
+  const workflow = await readFile(demo.path, 'utf8');
+  const frontmatter = frontmatterOf(workflow);
+  assert.match(frontmatter, /^name: Into Azure Cost Reviewer$/m);
+  assert.match(frontmatter, /^timeout-minutes: 30$/m);
+  assert.match(frontmatter, /^  copilot-sdk: true$/m);
+  assert.match(frontmatter, /^  bare: true$/m);
+  assert.match(frontmatter, /^  copilot-requests: write$/m);
+  assert.match(frontmatter, /^    max: 1$/m);
+  assert.match(frontmatter, /^    replace-older-comments: true$/m);
+  assert.match(frontmatter, /ref: "\$\{\{ github\.event\.pull_request\.base\.sha \}\}"/);
+  assert.doesNotMatch(frontmatter, /pull_request_target|workflow_dispatch/);
+  const contracts = [
+    join('agents', '01-investigator.agent.md'),
+    join('agents', '02-finops.agent.md'),
+    join('agents', '03-architect.agent.md'),
+    join('cost-review', 'review-process.md'),
+    join('cost-review', 'output-format.md'),
+    join('cost-review', 'cost-policy.md'),
+    join('cost-review', 'cost-policy.yml'),
+  ];
+  const readme = await readFile(join(folder, 'README.md'), 'utf8');
+  for (const section of ['What it does', 'Before you start', 'Set it up', 'Try it', "What you'll see", 'Change it', 'Safety']) {
+    assert.ok(readme.includes(`## ${section}`), `demo: missing ${section}`);
+  }
+  for (const contract of contracts) {
+    assert.ok((await readFile(join(folder, contract), 'utf8')).length > 50);
+    const portablePath = contract.split('\\').join('/');
+    const destination = portablePath.startsWith('agents/')
+      ? portablePath.replace('agents/', '.github/workflows/')
+      : `.github/${portablePath}`;
+    assert.ok(workflow.includes(destination), `missing workflow contract: ${contract}`);
+    assert.ok(readme.includes(portablePath), `missing copy instructions: ${contract}`);
+    assert.ok(readme.includes(destination), `missing copy destination: ${contract}`);
+  }
+  const process = await readFile(join(folder, 'cost-review', 'review-process.md'), 'utf8');
+  assert.match(process, /Tool contract revision: `azure-cost-review-tools-v2`/);
+  assert.match(workflow, /`azure-cost-review-tools-v2`/);
+  assert.match(process, /investigator[\s\S]*finops[\s\S]*architect/);
+  assert.match(process, /Cost assessment only; no GitHub PR approval was submitted/);
+  assert.match(readme, /gh aw compile into-azure-cost-reviewer --validate --strict/);
+  assert.match(readme, /personal-plan-setup/);
+  assert.match(readme, /No compilation or lock file is supplied/);
+  const policy = await readFile(join(folder, 'cost-review', 'cost-policy.yml'), 'utf8');
+  assert.match(policy, /^currency: USD$/m);
+  assert.match(policy, /^max_monthly_increase: 50$/m);
+  assert.match(policy, /^max_yearly_increase: 1000$/m);
+  const files = [];
+  async function collect(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) await collect(path);
+      else files.push(path);
+    }
+  }
+  await collect(folder);
+  assert.deepEqual(files.sort(), [
+    join(folder, 'README.md'), demo.path,
+    ...contracts.map(path => join(folder, path)),
+  ].sort());
+});
+
+test('compiler staging includes standard single-file sources and excludes the Into Azure demo', async () => {
   const folder = await mkdtemp(join(tmpdir(), 'blueprint-stage-test-'));
   try {
     await stageWorkflowSources(folder);

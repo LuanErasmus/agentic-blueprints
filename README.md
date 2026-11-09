@@ -21,7 +21,7 @@ You do not need the whole repository. Copy one workflow or install only the Copi
 >
 > To run the blueprints unchanged, you need an **organisation-owned repository**, **Copilot Business or Enterprise**, GitHub Actions enabled, and the required Copilot CLI organisation-billing policies enabled by an administrator.
 >
-> **Using a personal Copilot plan?** All nine blueprints have an optional [personal-plan setup](docs/running-workflows.md#personal-plan-setup): remove the organisation inference permission from your copied source, add a narrowly scoped `COPILOT_GITHUB_TOKEN` Actions secret, and recompile. The token owner needs eligible Copilot CLI access. This path follows upstream documentation; personal-token live execution has not been verified here.
+> **Using a personal Copilot plan?** Follow the optional [personal-plan setup](docs/running-workflows.md#personal-plan-setup): remove the organisation inference permission from your copied source, add a narrowly scoped `COPILOT_GITHUB_TOKEN` Actions secret, and recompile. The token owner needs eligible Copilot CLI access. Check each blueprint's runtime prerequisites, especially Into Azure Cost Reviewer's SDK mode. This path follows upstream documentation; personal-token live execution has not been verified here.
 >
 > Check the [full prerequisites](docs/running-workflows.md#copilot-licence-and-authentication-requirements) before your first run.
 
@@ -40,15 +40,16 @@ Browse the [blueprint collection](blueprints/):
 | [Pull Request Simplification Review](blueprints/pr-simplification-review/) | A non-draft PR is opened, updated, or marked ready for review | One optional suggestion to simplify changed code without changing behavior |
 | [Workflow Permission Check](blueprints/workflow-permission-check/) | Every Monday, or on demand | A review of clearly unused permissions in a bounded sample of workflows |
 | [Actions Health Report](blueprints/actions-health-report/) | Every Monday, or on demand | A snapshot of sampled Actions runs and repeated failures |
+| [Into Azure Cost Reviewer](blueprints/into-azure-cost-reviewer/) | A PR opens, updates, or reopens with Bicep changes | Three sequential agents produce one evidence-led Azure cost review comment |
 
 The collection adapts ideas from the GitHub Agentic Workflows Gallery into single-repository workflows with bounded, reviewable outputs.
-Each blueprint is **one self-contained gh-aw Markdown file** with a README. Most read your repository and post one comment or open one issue. Dependabot Readiness instead proposes one draft PR restricted to Dependabot configuration; it never upgrades packages or merges changes. It requires Actions PR creation to be allowed, and security updates must be enabled separately. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.
+The nine standard blueprints are **one self-contained gh-aw Markdown file** with a README. [Into Azure Cost Reviewer](blueprints/into-azure-cost-reviewer/) is a multi-file blueprint with three role contracts and four policy/process files; follow its copy map and longer-runtime guidance. Most read your repository and post one comment or open one issue. Dependabot Readiness instead proposes one draft PR restricted to Dependabot configuration; it never upgrades packages or merges changes. It requires Actions PR creation to be allowed, and security updates must be enabled separately. They complement GitHub features such as code review, Dependabot, and releases rather than replace them. Generated `.lock.yml` files are intentionally not included; you compile in your own repository.
 
 ### Setup in three steps
 
 One-time prerequisites: install the [GitHub CLI](https://cli.github.com/) and gh-aw (`gh extension install github/gh-aw`), and check the eligibility callout above.
 
-1. Copy the blueprint's `.md` file to `.github/workflows/` in your repository. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
+1. Copy the blueprint's `.md` file to `.github/workflows/` in your repository. Into Azure Cost Reviewer also requires the seven supporting files listed in its README. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
 2. Choose [organisation or personal authentication](docs/running-workflows.md#copilot-licence-and-authentication-requirements), then run `gh aw compile <name>`.
 3. Commit and push the `.md` and generated `.lock.yml` to your default branch.
 

@@ -1,6 +1,6 @@
 # Blueprints
 
-Start here if this is your first agentic workflow. These gallery-inspired blueprints are adapted for this collection's simple, minimal-setup style rather than copied as full gallery implementations. Each blueprint:
+Start here if this is your first agentic workflow. The nine standard gallery-inspired blueprints are adapted for this collection's simple, minimal-setup style rather than copied as full gallery implementations. Each standard blueprint:
 
 - is **one Markdown file**, with no custom labels and no inference secret for the default organisation setup;
 - uses read-only GitHub access for analysis, then produces **one** bounded safe output;
@@ -17,10 +17,16 @@ Start here if this is your first agentic workflow. These gallery-inspired bluepr
 | [Pull Request Simplification Review](pr-simplification-review/) | A non-draft PR is opened, updated, or marked ready for review | One optional suggestion to simplify changed code without changing behavior. |
 | [Workflow Permission Check](workflow-permission-check/) | Every Monday, or on demand | A review of clearly unused permissions in a bounded sample of workflows. |
 | [Actions Health Report](actions-health-report/) | Every Monday, or on demand | A snapshot of sampled Actions runs and repeated failures. |
+| [Into Azure Cost Reviewer](into-azure-cost-reviewer/) | A PR opens, updates, or reopens with Bicep changes | One Azure cost review comment from three sequential agents. |
+
+**Into Azure Cost Reviewer is a multi-file blueprint.** It includes trusted
+agent and policy/process contracts, public pricing research, and a 30-minute
+timeout. Use its [copy map and compile instructions](into-azure-cost-reviewer/README.md#set-it-up),
+not the standard single-file setup alone. It never deploys or submits PR approval.
 
 ## Set up any blueprint
 
-1. Copy the blueprint's `.md` file into `.github/workflows/` in your repository. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
+1. Copy the blueprint's `.md` file into `.github/workflows/` in your repository, plus any supporting files specified in its README. For CI Failure Explainer, replace the example `CI` with your workflow's exact `name:` and change `main` if your default branch is named differently.
 2. Choose organisation authentication or apply the optional [personal-plan setup](../docs/running-workflows.md#personal-plan-setup), then run `gh aw compile <name>` to create the matching `.lock.yml` file.
 3. Commit and push both files to your default branch.
 

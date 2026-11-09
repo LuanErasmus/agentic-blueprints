@@ -1,6 +1,6 @@
 # Running and adapting the workflows
 
-Each blueprint distributes **one self-contained [gh-aw](https://github.github.com/gh-aw/) Markdown file**, beside its README. Copy only that workflow into your repository. No shared imports, scripts, or configuration files are needed.
+The nine standard blueprints distribute **one self-contained [gh-aw](https://github.github.com/gh-aw/) Markdown file**, beside their README. Copy only that workflow into your repository; they require no shared imports, scripts, or configuration files. [Into Azure Cost Reviewer](../blueprints/into-azure-cost-reviewer/) is a multi-file blueprint: copy its entry workflow, three agent contracts, and four policy/process files using its README.
 
 ## One-time prerequisites
 
@@ -14,7 +14,7 @@ Make sure GitHub Actions is enabled in your repository and check the Copilot req
 
 ## Copilot licence and authentication requirements
 
-All nine blueprints support two explicit authentication setups. The distributed sources default to **organisation billing** using `permissions: copilot-requests: write` with GitHub Actions' built-in `GITHUB_TOKEN`. This default needs no personal access token or model API key. For personal repositories, follow the optional [personal-plan setup](#personal-plan-setup) before compiling.
+The distributed sources default to **organisation billing** using `permissions: copilot-requests: write` with GitHub Actions' built-in `GITHUB_TOKEN`. This default needs no personal access token or model API key. For personal repositories, follow the optional [personal-plan setup](#personal-plan-setup) before compiling. Verify each blueprint's engine/runtime requirements; Into Azure Cost Reviewer uses Copilot SDK mode and has not been compiled or live-validated in this collection.
 
 ### Organisation setup (default)
 
@@ -27,7 +27,7 @@ Reading the examples, compiling sources, and running collection maintenance test
 
 ### Personal-plan setup
 
-Use this option for any of the nine blueprints when the token owner has active Copilot CLI inference access under their personal subscription. Check current plan eligibility, available models, allowance, and spending policies; this guide does not guarantee every personal plan can run every model.
+Use this option when the token owner has active Copilot inference access under their personal subscription and the selected blueprint's runtime is supported. Check current plan eligibility, available models, allowance, and spending policies; this guide does not guarantee every personal plan can run every model.
 
 1. Copy the chosen workflow into your repository as described below.
 2. Remove **only** `copilot-requests: write` from its frontmatter `permissions` block. Preserve all other permissions, tools, limits, and safe outputs. If this permission remains, gh-aw ignores the personal token for inference.
@@ -55,7 +55,7 @@ Sources: [GitHub's organisation-token setup](https://docs.github.com/en/copilot/
 
 ## Install one blueprint
 
-For a concrete first installation and help choosing from all nine blueprints, start with [Getting Started](getting-started.md).
+For a concrete first installation and help choosing a blueprint, start with [Getting Started](getting-started.md). The steps below cover the standard single-file workflows; use the [Into Azure copy map](../blueprints/into-azure-cost-reviewer/README.md#set-it-up) for the multi-file blueprint.
 
 1. **Copy one file.** Copy `blueprints/<name>/<name>.md` to `.github/workflows/<name>.md` in your repository.
    For CI Failure Explainer, replace the example `CI` with your CI workflow's top-level `name:` and change `branches: [main]` if your default branch is named differently.
@@ -81,6 +81,7 @@ For a concrete first installation and help choosing from all nine blueprints, st
 | Pull Request Simplification Review | Non-draft PR opened, updated, or marked ready for review | One optional comment |
 | Workflow Permission Check | Every Monday, or **Actions → Run workflow** | One permission-review issue |
 | Actions Health Report | Every Monday, or **Actions → Run workflow** | One sampled-health issue |
+| Into Azure Cost Reviewer | PR opened, synchronized, or reopened with `.bicep`/`.bicepparam` changes | One consolidated Azure cost review comment; replaces its older report |
 
 Weekly schedules work as copied. To choose another day, change `schedule: weekly on monday` to `schedule: weekly on friday`, then recompile and commit both files. Keep `workflow_dispatch:` for manual testing. If you change the frequency, also review the prompt's lookback window and inference costs.
 
@@ -98,7 +99,7 @@ CI Failure Explainer checks existing open diagnoses; PR Simplification Review ch
 
 ## Controlling cost
 
-Each agent execution uses Copilot inference; an event filtered out before agent execution does not run the agent. Every blueprint in this collection explicitly configures **`max-ai-credits: 100`** and a **five-minute timeout**. Credit accounting and enforcement depend on the authentication/provider path:
+Each agent execution uses Copilot inference; an event filtered out before agent execution does not run the agent. The nine standard blueprints explicitly configure **`max-ai-credits: 100`** and a **five-minute timeout**. Credit accounting and enforcement depend on the authentication/provider path:
 
 ```yaml
 max-ai-credits: 100
@@ -108,6 +109,12 @@ timeout-minutes: 5
 The approximately 1,000-token prompt budget is guidance, not a hard token-meter limit. `max-ai-credits` configures an inference spending ceiling, not an estimate of what every run costs; its accounting and enforcement depend on the authentication/provider path. For personal-token inference, verify upstream billing behavior rather than treating it as a guaranteed cap on your personal allowance. Each prompt also bounds evidence reads, output size, and stop conditions.
 
 To change a cap, edit the frontmatter, recompile, and commit both files. More frequent triggers mean more potential paid runs, even with the same per-run limit. Actions compute is billed separately. Check current billing and organisation spending policies instead of treating a subscription as unlimited usage. See [gh-aw cost management](https://github.github.com/gh-aw/reference/cost-management/#cap-ai-credits-per-run).
+
+**Into Azure Cost Reviewer differs:** its source configures a
+30-minute timeout and sequential agents, with no explicit `max-ai-credits`.
+Its stage/research budgets are prompt guidance. The YAML cost policy controls
+the comment's modeled Azure cost verdict, **not inference spending**. Review
+engine support and inference policies before running it repeatedly.
 
 ## How the safety model works
 
@@ -121,6 +128,12 @@ Dependabot Readiness may edit a local configuration file, with an enforced PR al
 
 CI Failure Explainer reads the selected run and bounded failure logs but never downloads artifacts, checks out failed-run code, or executes repository code. Its automatic trigger is restricted to failures on this repository's default branch. Preserve these boundaries when adapting it.
 
+Into Azure Cost Reviewer reads trusted contracts from the triggering base SHA,
+investigates Bicep evidence at exact base/head revisions, and queries public
+pricing/documentation domains. It never deploys or grants GitHub approval.
+Its comment-only cost verdict and multi-agent arithmetic require human review;
+see its README for assumptions, data boundaries, and setup order.
+
 ## Collection maintenance only
 
 Contributors and this collection's CI use **Node.js 24**, gh-aw, and these commands:
@@ -130,4 +143,4 @@ node scripts/blueprints/validate.mjs
 node --test scripts/blueprints/blueprints.test.mjs
 ```
 
-Validation stages the Markdown sources under `.blueprint-output/` and runs the compiler in strict mode without emitting locks. The offline tests make no inference calls. Adopters do **not** copy these scripts.
+Validation stages the nine standard Markdown sources under `.blueprint-output/` and runs the compiler in strict mode without emitting locks. Into Azure Cost Reviewer is explicitly excluded from compiler staging; offline tests check its source packaging and contract references without compiling it. The offline tests make no inference calls. Adopters do **not** copy these scripts.

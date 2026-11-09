@@ -10,6 +10,14 @@ A blueprint uses an agent to read context, reason about it, and produce a useful
 
 ## Required structure
 
+These rules describe standard single-file blueprints.
+[Into Azure Cost Reviewer](../blueprints/into-azure-cost-reviewer/) is an explicit
+multi-file exception, using three role contracts, four policy/process
+files, SDK mode, and a 30-minute timeout with no explicit inference credit cap.
+Its README documents every copy destination and setup order. It is excluded
+from automatic compiler staging; its packaging is checked offline. Do not apply
+this exception to other blueprints without an explicit design decision.
+
 ```text
 blueprints/<name>/
 ├── <name>.md    # the gh-aw workflow

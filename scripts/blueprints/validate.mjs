@@ -10,7 +10,7 @@ export async function workflowSources() {
     const slug = entry.name;
     const path = join('blueprints', slug, `${slug}.md`);
     await access(path);
-    sources.push({ slug, id: slug, path });
+    sources.push({ slug, id: slug, path, compile: slug !== 'into-azure-cost-reviewer' });
   }
   if (!sources.length) throw new Error('No blueprint workflow sources found.');
   return sources;
@@ -18,12 +18,14 @@ export async function workflowSources() {
 
 export async function stageWorkflowSources(directory) {
   await mkdir(directory, { recursive: true });
-  for (const { id, path } of await workflowSources()) {
+  for (const { id, path, compile } of await workflowSources()) {
+    if (!compile) continue;
     await cp(path, join(directory, `${id}.md`));
   }
 }
 
 export async function validateSources() {
+  console.log('Into Azure Cost Reviewer is source-only and excluded from compiler staging; compile it in the adopting repository.');
   await mkdir('.blueprint-output', { recursive: true });
   const directory = await mkdtemp(join('.blueprint-output', 'source-validation-'));
   try {

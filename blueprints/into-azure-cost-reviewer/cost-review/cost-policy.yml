@@ -1,0 +1,4 @@
+# Trusted cost-only comment decision. These are allowed increases, not total bills.
+currency: USD
+max_monthly_increase: 50
+max_yearly_increase: 1000

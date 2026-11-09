@@ -1,6 +1,6 @@
 # Getting Started
 
-Agentic Blueprints are reusable GitHub Agentic Workflows (`gh-aw`). Each blueprint is one Markdown workflow and a README under `blueprints/<name>/`. Copy the workflow into your own repository, compile it, and let it help with one everyday task.
+Agentic Blueprints are reusable GitHub Agentic Workflows (`gh-aw`). The nine standard blueprints each have one Markdown workflow and a README under `blueprints/<name>/`. Into Azure Cost Reviewer additionally includes trusted agent and policy/process contracts. Copy the files listed in the chosen README into your repository, compile the entry workflow, and let it help with one everyday task.
 
 ## Choose a blueprint
 
@@ -17,6 +17,7 @@ Start with **Issue Helper** for issue-based help or **Weekly Update** for a repo
 | Get one optional suggestion for simpler code | [Pull Request Simplification Review](../blueprints/pr-simplification-review/) | A non-draft PR is opened, updated, or marked ready for review |
 | Review clearly unused workflow permissions | [Workflow Permission Check](../blueprints/workflow-permission-check/) | Every Monday, or manually |
 | See a small snapshot of recent workflow outcomes | [Actions Health Report](../blueprints/actions-health-report/) | Every Monday, or manually |
+| Review modeled Azure cost changes with three agents | [Into Azure Cost Reviewer](../blueprints/into-azure-cost-reviewer/) | A PR opens, updates, or reopens with Bicep changes |
 
 Most blueprints only post one comment or issue per run. **Dependabot Readiness** instead proposes one draft PR restricted to a Dependabot configuration file. It never upgrades packages or merges its proposal. People review the results and decide what happens next.
 
@@ -30,7 +31,7 @@ gh extension install github/gh-aw
 
 GitHub Actions must be enabled in the repository where you install the workflow. Cloning this collection is optional; you only need the chosen blueprint's workflow file.
 
-**Choose authentication before compiling:** the default requires an organisation-owned repository with Copilot Business or Enterprise and administrator-enabled Copilot CLI organisation billing. Alternatively, all nine blueprints support the optional [personal-plan setup](running-workflows.md#personal-plan-setup), using a fine-grained inference token for an eligible personal Copilot account. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements). Personal-token live runs have not been verified here.
+**Choose authentication before compiling:** the default requires an organisation-owned repository with Copilot Business or Enterprise and administrator-enabled Copilot CLI organisation billing. Alternatively, follow the optional [personal-plan setup](running-workflows.md#personal-plan-setup), using a fine-grained inference token for an eligible personal Copilot account. Check the selected blueprint's engine/runtime requirements, including SDK mode for Into Azure Cost Reviewer. See [eligibility, policies, and billing](running-workflows.md#copilot-licence-and-authentication-requirements). Personal-token live runs have not been verified here.
 
 ## Install your first blueprint
 
@@ -54,6 +55,7 @@ No custom labels or model API keys are required. Organisation authentication nee
 - **CI Failure Explainer:** replace `CI` in `workflows: ["CI"]` with your CI workflow's exact top-level `name:`, not its filename or a job name. Change `branches: [main]` if your default branch has another name.
 - **Dependabot Readiness:** Actions must be allowed to create PRs. For security update PRs, enable the dependency graph, Dependabot alerts, and Dependabot security updates where supported. The generated grouping configuration does not enable these settings.
 - **Plain-Language Release Notes:** the completed issue needs one clearly linked merged PR, for example through `Fixes #123` or the issue's **Development** panel.
+- **Into Azure Cost Reviewer:** copy all eight files, choose the cost-policy thresholds, compile only its entry workflow, and merge the trusted setup before opening a Bicep PR. Follow its [dedicated setup guide](../blueprints/into-azure-cost-reviewer/README.md#set-it-up); it has no manual trigger, a longer runtime, and no explicit inference credit cap in its source.
 
 ## Try the workflow
 

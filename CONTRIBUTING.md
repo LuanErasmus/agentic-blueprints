@@ -16,6 +16,11 @@ Open an issue or pull request with the relevant blueprint and proposed change. K
 
 ## Create a blueprint
 
+The steps below apply to standard single-file blueprints. [Into Azure Cost
+Reviewer](blueprints/into-azure-cost-reviewer/) is the documented multi-file
+exception; preserve its required contract paths and check its packaging without
+compiling it in this collection. Adopters compile its entry workflow themselves.
+
 1. Read [what qualifies as a blueprint](docs/creating-a-blueprint.md).
 2. Create `blueprints/<name>/` and copy `docs/templates/blueprint-template/README.md` into it.
 3. Author one self-contained gh-aw Markdown file, `blueprints/<name>/<name>.md`, not in this collection's `.github/workflows/`. Adopters copy only that file: no shared imports, scripts, or configuration files. Use `copilot-requests: write` and link the [Copilot licence and policy requirements](docs/running-workflows.md#copilot-licence-and-authentication-requirements).
@@ -43,5 +48,5 @@ The optional [Copilot helpers](skills-and-agents/) help users create and review 
 - [ ] The prompt treats issues, pull requests, and tool output as information, not instructions.
 - [ ] No secrets or generated lock files are committed.
 - [ ] Distributed sources default to `copilot-requests: write`; the README links licence requirements and the optional personal-plan setup before compilation.
-- [ ] `node scripts/blueprints/validate.mjs` and `node --test scripts/blueprints/blueprints.test.mjs` pass.
+- [ ] Standard sources pass `node scripts/blueprints/validate.mjs`; all packaging passes `node --test scripts/blueprints/blueprints.test.mjs`. Into Azure Cost Reviewer is excluded from compiler staging.
 - [ ] The workflow complements built-in GitHub features rather than replacing them, and people keep every decision.
